@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FirstFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.example.fyp.menucreator.fragments.FirstFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_first">
+
+        <action
+            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_addEditFoodFragment"
+            app:destination="@id/addEditFoodFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_addEditModifierFragment"
+            app:destination="@id/addEditModifierFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/SecondFragment"
+        android:name="com.example.fyp.menucreator.fragments.SecondFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_second">
+
+        <action
+            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+        <argument
+            android:name="productId"
+            app:argType="string" />
+        <argument android:name="type" />
+        <action
+            android:id="@+id/action_SecondFragment_to_addEditFoodFragment"
+            app:destination="@id/addEditFoodFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_addEditModifierFragment"
+            app:destination="@id/addEditModifierFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addEditFoodFragment"
+        android:name="com.example.fyp.menucreator.fragments.AddEditFoodFragment"
+        android:label="fragment_add_edit_food"
+        tools:layout="@layout/fragment_add_edit_food" >
+        <argument
+            android:name="command"
+            app:argType="string" />
+        <argument
+            android:name="foodId"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_addEditFoodFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment"
+            app:popUpTo="@id/FirstFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/addEditModifierFragment"
+        android:name="com.example.fyp.menucreator.fragments.AddEditModifierFragment"
+        android:label="fragment_add_edit_modifier"
+        tools:layout="@layout/fragment_add_edit_modifier" >
+        <argument
+            android:name="command"
+            app:argType="string" />
+        <argument
+            android:name="modifierId"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_addEditModifierFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment"
+            app:popUpTo="@id/FirstFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+</navigation>
