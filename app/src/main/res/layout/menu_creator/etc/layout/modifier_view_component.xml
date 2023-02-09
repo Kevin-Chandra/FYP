@@ -1,28 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/base_layout"
-    android:padding="16dp">
+    android:padding="0dp">
 
     <TextView
         android:id="@+id/modifier_name_textview"
+        style="@style/TextAppearance.MaterialComponents.Headline4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/TextAppearance.MaterialComponents.Headline4"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Modifier Name" />
+
+    <LinearLayout
+        android:id="@+id/modifier_detailed_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/modifier_name_textview" />
+
 
     <LinearLayout
         android:id="@+id/modifier_item_container_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/modifier_name_textview" />
+        app:layout_constraintTop_toBottomOf="@id/modifier_detailed_view_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

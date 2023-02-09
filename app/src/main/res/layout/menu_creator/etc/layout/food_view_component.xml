@@ -4,21 +4,27 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="16dp">
+    android:padding="0dp">
+
     <TextView
         android:id="@+id/product_name_text_view"
         style="@style/TextAppearance.Material3.HeadlineLarge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        tools:text="Product Name"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Product Name" />
 
     <TextView
         android:id="@+id/description_textview2"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:soundEffectsEnabled="false"
@@ -32,6 +38,7 @@
         android:id="@+id/description_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/description_textview2"
@@ -42,6 +49,7 @@
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Price"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,18 +60,20 @@
         android:id="@+id/price_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="TextView"
+        android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/price_title_textview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/price_title_textview"
-        app:layout_constraintTop_toTopOf="@+id/price_title_textview" />
+        app:layout_constraintTop_toTopOf="@+id/price_title_textview"
+        tools:text="TextView" />
 
     <TextView
         android:id="@+id/modifiers_title_textview"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Modifiers"
         app:layout_constraintStart_toStartOf="parent"

@@ -12,6 +12,7 @@ import com.example.fyp.R
 import com.example.fyp.database.ProductDatabase
 import com.example.fyp.databinding.FoodViewComponentBinding
 import com.example.fyp.databinding.FragmentSecondBinding
+import com.example.fyp.databinding.ModifierDetailedRowComponentBinding
 import com.example.fyp.databinding.ModifierViewComponentBinding
 import com.example.fyp.databinding.RowModifierItemBinding
 import com.example.fyp.menucreator.Food
@@ -39,6 +40,9 @@ class SecondFragment : Fragment() {
     private var _modifierBinding: ModifierViewComponentBinding? = null
     private val modifierBinding get() = _modifierBinding!!
 
+    private var _detailedModifierBinding: ModifierDetailedRowComponentBinding? = null
+    private val detailedModifierBinding get() = _detailedModifierBinding!!
+
     private lateinit var action : NavDirections
 
     override fun onCreateView(
@@ -58,6 +62,9 @@ class SecondFragment : Fragment() {
             } else {
                 _modifier = menu.getModifier(productId)
                 action = SecondFragmentDirections.actionSecondFragmentToAddEditModifierFragment("edit",productId)
+
+                //inflate detailed view container
+                _detailedModifierBinding = ModifierDetailedRowComponentBinding.inflate(inflater,container,false)
             }
 
             _modifierBinding = ModifierViewComponentBinding.inflate(inflater,container,false)
@@ -84,6 +91,13 @@ class SecondFragment : Fragment() {
     private fun loadModifierData() {
         //add modifier_view_component to the base layout
         binding.baseLayout.addView(modifierBinding.root)
+
+        modifierBinding.modifierDetailedViewContainer.addView(_detailedModifierBinding?.root)
+
+        detailedModifierBinding.apply {
+            multipleChoiceValueTv.text = if (modifier.isMultipleChoice) "Yes" else "No"
+            requiredValueTv.text = if (modifier.isRequired) "Yes" else "No"
+        }
         loadModifierItem(modifier)
     }
 
@@ -96,22 +110,28 @@ class SecondFragment : Fragment() {
         foodBinding.priceTextview.text = food.price.toString()
 
         if (food.isModifiable && !food.modifierList.isNullOrEmpty()) {
-            foodBinding.modifiersContainerLayout.addView(modifierBinding.root)
-            for( modifierCode in food.modifierList!!)
-                menu.getModifier(modifierCode)?.let { loadModifierItem(it) }
+            for( modifierCode in food.modifierList!!) {
+                // inflate modifier view
+                val eachModifierBinding = ModifierViewComponentBinding.inflate(layoutInflater,foodBinding.root,false)
+
+                //add each modifier view to modifier container layout
+                foodBinding.modifiersContainerLayout.addView(eachModifierBinding.root)
+
+                menu.getModifier(modifierCode)?.let { loadModifierItem(it,eachModifierBinding) }
+            }
         }
         Log.d(TAG,_food?.modifierList.toString())
     }
 
     //Only call this function after initializing modifier binding
-    private fun loadModifierItem(modifier: Modifier){
-        modifierBinding.modifierNameTextview.text = modifier.name
+    private fun loadModifierItem(modifier: Modifier, containerBinding: ModifierViewComponentBinding = modifierBinding){
+        containerBinding.modifierNameTextview.text = modifier.name
         for (itemCode in modifier.modifierList) {
             val itemBinding = RowModifierItemBinding.inflate(layoutInflater,modifierBinding.root,false)
             val item = menu.getModifierItem(itemCode)
             itemBinding.modifierItemNameTextview.text = item?.name
             itemBinding.modifierItemPriceTextview.text = item?.price.toString()
-            modifierBinding.modifierItemContainerLayout.addView(itemBinding.root)
+            containerBinding.modifierItemContainerLayout.addView(itemBinding.root)
         }
     }
 
