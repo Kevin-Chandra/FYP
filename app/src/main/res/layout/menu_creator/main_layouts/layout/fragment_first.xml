@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".menucreator.fragments.FirstFragment">
+    tools:context=".menucreator.ui.fragments.FirstFragment">
 
     <com.google.android.material.tabs.TabLayout
         android:layout_width="match_parent"

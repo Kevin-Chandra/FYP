@@ -5,6 +5,7 @@
         android:name="android.permission.INTERNET">
     </uses-permission>
     <application
+        android:name=".FypApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".menucreator.activity.MenuCreatorActivity"
+            android:name=".menucreator.ui.activity.MenuCreatorActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.FYP.NoActionBar" >

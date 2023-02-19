@@ -2,8 +2,8 @@ package com.example.fyp.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.fyp.menucreator.fragments.ModifierListFragment
-import com.example.fyp.menucreator.fragments.ProductListFragment
+import com.example.fyp.menucreator.ui.fragments.ModifierListFragment
+import com.example.fyp.menucreator.ui.fragments.ProductListFragment
 
 class MenuCreatorViewPagerAdapter(activity: Fragment) : FragmentStateAdapter(activity) {
     override fun getItemCount() = 2

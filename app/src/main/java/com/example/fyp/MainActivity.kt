@@ -4,10 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fyp.databinding.ActivityMainBinding
-import com.example.fyp.menucreator.activity.MenuCreatorActivity
+import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -22,8 +24,6 @@ class MainActivity : AppCompatActivity() {
             val i = Intent(applicationContext, MenuCreatorActivity::class.java)
             startActivity(i)
         }
-
-        val db = Firebase.firestore.collection("Products")
 
     }
 

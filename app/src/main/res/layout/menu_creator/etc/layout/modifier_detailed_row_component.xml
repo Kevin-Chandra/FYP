@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <View
@@ -18,7 +19,7 @@
     <TextView
         android:id="@+id/required_name_tv"
         android:text="Required"
-        style="@style/TextAppearance.MaterialComponents.Headline5"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,7 +28,7 @@
 
     <TextView
         android:id="@+id/required_value_tv"
-        android:text="Yes"
+        tools:text="Yes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,6 +39,8 @@
         android:id="@+id/divider6"
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,7 +49,7 @@
     <TextView
         android:id="@+id/multiple_choice_name_tv"
         android:text="Multiple Choice"
-        style="@style/TextAppearance.MaterialComponents.Headline5"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +58,7 @@
 
     <TextView
         android:id="@+id/multiple_choice_value_tv"
-        android:text="Yes"
+        tools:text="Yes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,6 +69,8 @@
         android:id="@+id/divider7"
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

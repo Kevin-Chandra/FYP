@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="com.example.fyp.menucreator.fragments.FirstFragment"
+        android:name="com.example.fyp.menucreator.ui.fragments.FirstFragment"
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_first">
 
@@ -23,7 +23,7 @@
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
-        android:name="com.example.fyp.menucreator.fragments.SecondFragment"
+        android:name="com.example.fyp.menucreator.ui.fragments.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second">
 
@@ -33,7 +33,8 @@
         <argument
             android:name="productId"
             app:argType="string" />
-        <argument android:name="type" />
+        <argument android:name="type"
+            app:argType="com.example.fyp.menucreator.data.model.ProductType" />
         <action
             android:id="@+id/action_SecondFragment_to_addEditFoodFragment"
             app:destination="@id/addEditFoodFragment" />
@@ -43,7 +44,7 @@
     </fragment>
     <fragment
         android:id="@+id/addEditFoodFragment"
-        android:name="com.example.fyp.menucreator.fragments.AddEditFoodFragment"
+        android:name="com.example.fyp.menucreator.ui.fragments.AddEditFoodFragment"
         android:label="fragment_add_edit_food"
         tools:layout="@layout/fragment_add_edit_food" >
         <argument
@@ -57,11 +58,11 @@
             android:id="@+id/action_addEditFoodFragment_to_FirstFragment"
             app:destination="@id/FirstFragment"
             app:popUpTo="@id/FirstFragment"
-            app:popUpToInclusive="false" />
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/addEditModifierFragment"
-        android:name="com.example.fyp.menucreator.fragments.AddEditModifierFragment"
+        android:name="com.example.fyp.menucreator.ui.fragments.AddEditModifierFragment"
         android:label="fragment_add_edit_modifier"
         tools:layout="@layout/fragment_add_edit_modifier" >
         <argument
@@ -75,6 +76,6 @@
             android:id="@+id/action_addEditModifierFragment_to_FirstFragment"
             app:destination="@id/FirstFragment"
             app:popUpTo="@id/FirstFragment"
-            app:popUpToInclusive="false" />
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

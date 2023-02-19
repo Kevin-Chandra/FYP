@@ -49,13 +49,19 @@
 
         <TextView
             android:id="@+id/product_description_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            tools:text="Description"
+            android:layout_marginEnd="16dp"
+            android:maxLines="3"
+            app:flow_wrapMode="chain"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/product_name_text_view" />
+            app:layout_constraintTop_toBottomOf="@+id/product_name_text_view"
+            tools:text="Description jbsd usvfus hs fuhsu hh usb us ubdu ud au " />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

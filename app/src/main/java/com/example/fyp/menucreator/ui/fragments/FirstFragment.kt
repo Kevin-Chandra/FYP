@@ -1,4 +1,4 @@
-package com.example.fyp.menucreator.fragments
+package com.example.fyp.menucreator.ui.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -26,6 +26,8 @@ class FirstFragment : Fragment() {
     private lateinit var tabLayout : TabLayout
     private lateinit var viewPager : ViewPager2
     private lateinit var pagerAdapter : MenuCreatorViewPagerAdapter
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

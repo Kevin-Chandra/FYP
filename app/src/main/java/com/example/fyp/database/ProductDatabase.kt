@@ -1,12 +1,9 @@
 package com.example.fyp.database
 
 import android.util.Log
-import android.widget.Toast
-import com.example.fyp.menucreator.Food
-import com.example.fyp.menucreator.Modifier
-import com.example.fyp.menucreator.ModifierItem
-import com.example.fyp.menucreator.activity.MenuCreatorActivity
-import com.example.fyp.menucreator.fragments.ModifierListFragment
+import com.example.fyp.menucreator.data.model.Food
+import com.example.fyp.menucreator.data.model.Modifier
+import com.example.fyp.menucreator.data.model.ModifierItem
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +16,7 @@ object ProductDatabase {
     private val productCollectionRef = Firebase.firestore.collection("products")
     private val productDatabaseRef = Firebase.firestore.collection("data")
 
-    private val foodDatabase = hashMapOf<String,Food>()
+    private val foodDatabase = hashMapOf<String, Food>()
     private val modifierDatabase = hashMapOf<String, Modifier>()
     private val modifierItemDatabase = hashMapOf<String, ModifierItem>()
 

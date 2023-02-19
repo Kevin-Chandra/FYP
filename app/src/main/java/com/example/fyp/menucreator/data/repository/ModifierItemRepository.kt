@@ -1,0 +1,82 @@
+package com.example.fyp.menucreator.data.repository
+
+import com.example.fyp.menucreator.data.model.Modifier
+import com.example.fyp.menucreator.data.model.ModifierItem
+import com.example.fyp.menucreator.util.FireStoreCollection
+import com.example.fyp.menucreator.util.FireStoreDocumentField
+import com.example.fyp.menucreator.util.UiState
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+
+class ModifierItemRepository {
+
+    private val modifierItemCollectionRef = Firebase.firestore.collection(FireStoreCollection.MODIFIERITEM)
+
+    fun addModifierItem(item: ModifierItem) : UiState<Boolean> {
+        return try {
+            modifierItemCollectionRef.add(item)
+            UiState.Success(false)
+        } catch (e: Exception){
+            UiState.Failure(e)
+        }
+    }
+
+//    //Return true if id already exist
+//    suspend fun checkFoodId(id: String) : Deferred<Boolean> = coroutineScope{
+//        async{
+//            return@async true
+//        }
+//    }
+
+    fun subscribeModifierItemUpdates() = callbackFlow<UiState<Map<String,ModifierItem>>> {
+        val snapshotListener = modifierItemCollectionRef.addSnapshotListener{ querySnapshot, e ->
+            if (e != null ){
+                UiState.Failure(e)
+                return@addSnapshotListener
+            }
+            querySnapshot?.let{
+                val modifierItemsResponse = run {
+                    val map = mutableMapOf<String,ModifierItem>()
+                    for (document in querySnapshot.documents){
+                        val mi = document.toObject<ModifierItem>()
+                        if (mi != null){
+                            map[mi.productId] = mi
+                        }
+                    }
+//                    val modifierItems = querySnapshot.toObjects(ModifierItem::class.java)
+                    UiState.Success(map)
+                }
+                trySend(modifierItemsResponse)
+            }
+        }
+        awaitClose {
+            snapshotListener.remove()
+        }
+    }
+
+    suspend fun deleteModifierItem(id: String): UiState<Boolean> {
+        val query = modifierItemCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
+            .get()
+            .await()
+        return try {
+            for (doc in query.documents)
+                modifierItemCollectionRef.document(doc.id).delete().await()
+            UiState.Success(true)
+        } catch (e : Exception){
+            UiState.Failure(e)
+        }
+    }
+
+    suspend fun checkModifierId(id: String) : Boolean {
+        val query = modifierItemCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id).get().await()
+        if (query.documents.isNotEmpty()){
+            return true
+        }
+        return false
+    }
+
+}
