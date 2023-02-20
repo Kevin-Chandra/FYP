@@ -30,7 +30,8 @@ class AddEditModifierViewModel @Inject constructor(
 
     val menu = ProductDatabase
 
-
+    var count = 0
+    private set
 
     private val _addResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
     val addResponse = _addResponse.asStateFlow()
@@ -38,7 +39,7 @@ class AddEditModifierViewModel @Inject constructor(
     private val _addItemResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
     val addItemResponse = _addItemResponse.asStateFlow()
 
-    private val _addItemFinishResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
+    private val _addItemFinishResponse = MutableStateFlow<UiState<Int>>(UiState.Success(count))
     val addItemFinishResponse = _addItemFinishResponse.asStateFlow()
 
     private val deleteCache = arrayListOf<String>()
@@ -90,7 +91,7 @@ class AddEditModifierViewModel @Inject constructor(
     fun addNewModifier(id: String,name: String,isMultipleChoice: Boolean,isRequired: Boolean) = viewModelScope.launch{
         _addResponse.value = UiState.Loading
         _addResponse.value = isModifierEntryValid(id,name,isMultipleChoice,false)
-
+        println("everything success waiting to upload")
         if (addResponse.value is UiState.Success){
             for (i in itemMap){
                 insertModifierItem(i.value)
@@ -100,10 +101,12 @@ class AddEditModifierViewModel @Inject constructor(
     }
 
     fun addItems(id:String, name: String,price: String) = viewModelScope.launch{
+        _addItemFinishResponse.value = UiState.Loading
         _addItemResponse.value = UiState.Loading
         _addItemResponse.value = isModifierItemEntryValid(id,name,price,false)
         if (addItemResponse.value is UiState.Success){
             itemMap[id] = getModifierItem(id,name,price)
+            _addItemFinishResponse.value = UiState.Success(count)
         }
     }
 
@@ -122,14 +125,16 @@ class AddEditModifierViewModel @Inject constructor(
             if (multipleChoice && itemMap.size < 2)
                 throw Exception("Modifier Item must be minimum of 2 for multiple choice")
             UiState.Success(true)
+        } catch (e: CancellationException){
+            throw e
         } catch (e: Exception) {
-            if (e is CancellationException)
-                throw e
-            else {
-                UiState.Failure(e)
-            }
-
+            UiState.Failure(e)
         }
+    }
+
+    private fun incrementCount(){
+        count++
+        println("count = $count")
     }
 
     private suspend fun isModifierItemEntryValid(productId: String, name: String, price: String, isEdit: Boolean): UiState<Boolean> {
@@ -148,6 +153,7 @@ class AddEditModifierViewModel @Inject constructor(
                 throw Exception("[$productId] Price is blank!")
             if (price.toDouble() < 0.0)
                 throw Exception("[$productId] Price cannot be negative!")
+            incrementCount()
             UiState.Success(false)
         } catch (e: Exception) {
             if (e is CancellationException)
@@ -171,6 +177,8 @@ class AddEditModifierViewModel @Inject constructor(
 
 
     fun createNewItemList(){
+        count = 0
+//        _addItemFinishResponse.value = UiState.Success(count)
         itemMap.clear()
     }
 

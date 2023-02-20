@@ -125,11 +125,9 @@ class AddEditModifierFragment : Fragment() {
         try {
             viewModel.createNewItemList()
             if (binding.modifierItemLayout.childCount == 1) {
-                println("Here?")
                 viewModel.error(Exception("No Modifier Item found"))
             }
             for (index in 0 until binding.modifierItemLayout.childCount - 1) {
-                println("somehow here?")
                 val view = binding.modifierItemLayout[index]
                 val id = view.findViewById<EditText>(R.id.modifier_item_id).text.toString()
                 val name = view.findViewById<EditText>(R.id.modifier_item_name).text.toString()
@@ -137,11 +135,11 @@ class AddEditModifierFragment : Fragment() {
                 viewModel.addItems(id, name, price)
             }
             if (command.contentEquals(NavigationCommand.ADD)) {
-                println("add modifier block")
                 if (!isAddObserved) {
                     isAddObserved = !isAddObserved
                     observeAddModifier()
                     observeAddItemModifier()
+                    observeAddItemFinishModifier()
                 }
 
             } else {
@@ -261,8 +259,8 @@ class AddEditModifierFragment : Fragment() {
                         successToast("Modifier Added successfully")
                         navigateBack()
                     }
-
                 }
+
             }
         }
     }
@@ -282,14 +280,40 @@ class AddEditModifierFragment : Fragment() {
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-//                        if (!it.data) count++
-//                        println(count)
-//                        if (count == binding.modifierItemLayout.childCount - 1) {
+                        binding.progressBar.visibility = View.GONE
+                        successToast("Modifier Item Added successfully")
+//                        addModifierToVm()
+//                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun observeAddItemFinishModifier() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.addItemFinishResponse.collect() { it ->
+                when (it) {
+                    is UiState.Loading -> {
+                        println("Add item finish response loading")
+//                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is UiState.Failure -> {
+                        println("Add item finish response error")
+//                        binding.progressBar.visibility = View.GONE
+//                        viewModel.deleteCache()
+                        it.e?.message?.let { it1 -> errorDialog(it1) }
+                    }
+                    is UiState.Success -> {
+                        println("my data : ${it.data}")
+                        if (it.data == binding.modifierItemLayout.childCount-1) {
                             println("im inside")
-                            binding.progressBar.visibility = View.GONE
-                            successToast("Modifier Item Added successfully")
+//                            binding.progressBar.visibility = View.GONE
+                            successToast("Modifier Item Finish")
                             addModifierToVm()
 //                        }
+                        }
                     }
                 }
             }
