@@ -6,6 +6,7 @@ import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.menucreator.util.UiState
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -21,6 +22,24 @@ class ModifierRepository(
     fun addModifier(modifier: Modifier) : UiState<Boolean>{
         return try {
             modifierCollectionRef.add(modifier)
+            UiState.Success(true)
+        } catch (e: Exception){
+            UiState.Failure(e)
+        }
+    }
+
+    suspend fun updateModifier(id: String,modifier: Modifier) : UiState<Boolean>{
+        val query = modifierCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
+            .get()
+            .await()
+        return try {
+            if (query.documents.isEmpty())
+                throw Exception("Product Id not found!")
+            for (doc in query.documents)
+                modifierCollectionRef.document(doc.id).set(
+                    modifier,
+                    SetOptions.merge()
+                )
             UiState.Success(true)
         } catch (e: Exception){
             UiState.Failure(e)

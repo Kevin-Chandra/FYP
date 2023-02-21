@@ -94,7 +94,7 @@ class AddEditFoodFragment : Fragment() {
         }
     }
 
-    fun loadModifier() = lifecycleScope.launch{
+    private fun loadModifier() = lifecycleScope.launch{
         viewModel.modifiers.collect() {
             when (it) {
                 is UiState.Success -> {
@@ -149,17 +149,21 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun loadData() {
-        binding.apply {
-            productIdEditText.setText(viewModel.food.productId)
-            productNameEditText.setText(viewModel.food.name)
-            productPriceEditText.setText(viewModel.food.price.toString())
-            productDescriptionEditText.setText(viewModel.food.description)
-            modifierSwitch.isChecked = viewModel.food.modifiable
+        try {
+            binding.apply {
+                productIdEditText.setText(viewModel.food.productId)
+                productNameEditText.setText(viewModel.food.name)
+                productPriceEditText.setText(viewModel.food.price.toString())
+                productDescriptionEditText.setText(viewModel.food.description)
+                modifierSwitch.isChecked = viewModel.food.modifiable
+            }
+            modifierLayoutEnabler(viewModel.food.modifiable)
+            if (viewModel.food.modifierList.isNotEmpty() && viewModel.food.modifiable)
+                for (i in viewModel.food.modifierList)
+                    addModifierRow(i)
+        } catch (e: Exception){
+            e.message?.let { errorDialog(it) }
         }
-        modifierLayoutEnabler(viewModel.food.modifiable)
-        if (viewModel.food.modifierList.isNotEmpty() && viewModel.food.modifiable)
-            for (i in viewModel.food.modifierList)
-                addModifierRow(i)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

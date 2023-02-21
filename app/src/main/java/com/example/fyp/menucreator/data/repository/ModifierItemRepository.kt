@@ -5,6 +5,7 @@ import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.menucreator.util.UiState
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -24,13 +25,6 @@ class ModifierItemRepository {
             UiState.Failure(e)
         }
     }
-
-//    //Return true if id already exist
-//    suspend fun checkFoodId(id: String) : Deferred<Boolean> = coroutineScope{
-//        async{
-//            return@async true
-//        }
-//    }
 
     fun subscribeModifierItemUpdates() = callbackFlow<UiState<Map<String,ModifierItem>>> {
         val snapshotListener = modifierItemCollectionRef.addSnapshotListener{ querySnapshot, e ->
@@ -66,6 +60,26 @@ class ModifierItemRepository {
             for (doc in query.documents)
                 modifierItemCollectionRef.document(doc.id).delete().await()
             UiState.Success(true)
+        } catch (e : Exception){
+            UiState.Failure(e)
+        }
+    }
+
+    suspend fun updateModifierItem(id: String, item: ModifierItem): UiState<Boolean> {
+        val query = modifierItemCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
+            .get()
+            .await()
+        return try {
+            if (query.documents.isEmpty()){
+                addModifierItem(item)
+            } else {
+                for (doc in query.documents)
+                    modifierItemCollectionRef.document(doc.id).set(
+                        item,
+                        SetOptions.merge()
+                    )
+            }
+            UiState.Success(false)
         } catch (e : Exception){
             UiState.Failure(e)
         }

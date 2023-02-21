@@ -8,7 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.databinding.FoodViewComponentBinding
@@ -178,19 +180,20 @@ class SecondFragment : Fragment() {
         }
     }
 
-    private fun foodObserver() = viewLifecycleOwner.lifecycleScope.launch() {
-        viewModel.foodLoaded.collect() {
-            when (it) {
-                is UiState.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                }
-                is UiState.Failure -> {
+    private fun foodObserver() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.foodLoaded.collect() {
+                when (it) {
+                    is UiState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is UiState.Failure -> {
 //                    binding.progressBar.hide()
 //                    it.e?.message?.let { it1 -> errorDialog(it1) }
-                }
-                is UiState.Success -> {
-                    binding.progressBar.visibility = View.GONE
-                    loadData()
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        loadData()
 //                    it.data.first?.let { it1 -> successToast(it1.name + it.data.second) }
 //                    binding.progressBar.hide()
 //                    objNote = state.data.first
@@ -198,24 +201,26 @@ class SecondFragment : Fragment() {
 //                    binding.done.hide()
 //                    binding.delete.show()
 //                    binding.edit.show()
+                    }
                 }
             }
         }
     }
 
-    private fun modifierObserver() = viewLifecycleOwner.lifecycleScope.launch() {
-        viewModel.modifierLoaded.collect() {
-            when (it) {
-                is UiState.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                }
-                is UiState.Failure -> {
+    private fun modifierObserver() = viewLifecycleOwner.lifecycleScope.launchWhenStarted{
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.modifierLoaded.collect() {
+                when (it) {
+                    is UiState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is UiState.Failure -> {
 //                    binding.progressBar.hide()
 //                    it.e?.message?.let { it1 -> errorDialog(it1) }
-                }
-                is UiState.Success -> {
-                    binding.progressBar.visibility = View.GONE
-                    loadData()
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        loadData()
 //                    it.data.first?.let { it1 -> successToast(it1.name + it.data.second) }
 //                    binding.progressBar.hide()
 //                    objNote = state.data.first
@@ -223,24 +228,26 @@ class SecondFragment : Fragment() {
 //                    binding.done.hide()
 //                    binding.delete.show()
 //                    binding.edit.show()
+                    }
                 }
             }
         }
     }
 
-    private fun observeFoodDeletion() = viewLifecycleOwner.lifecycleScope.launch() {
-        viewModel.deleteResponse.collect() {
-            when (it) {
-                is UiState.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                }
-                is UiState.Failure -> {
+    private fun observeFoodDeletion() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.deleteResponse.collect() {
+                when (it) {
+                    is UiState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is UiState.Failure -> {
 //                    binding.progressBar.hide()
 //                    it.e?.message?.let { it1 -> errorDialog(it1) }
-                }
-                is UiState.Success -> {
-                    binding.progressBar.visibility = View.GONE
-                    println("Food deleted successfully")
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        println("Food deleted successfully")
 //                    it.data.first?.let { it1 -> successToast(it1.name + it.data.second) }
 //                    binding.progressBar.hide()
 //                    objNote = state.data.first
@@ -248,6 +255,7 @@ class SecondFragment : Fragment() {
 //                    binding.done.hide()
 //                    binding.delete.show()
 //                    binding.edit.show()
+                    }
                 }
             }
         }
