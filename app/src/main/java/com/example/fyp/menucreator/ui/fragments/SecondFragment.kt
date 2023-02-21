@@ -131,8 +131,12 @@ class SecondFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun loadModifierData() {
         //add modifier_view_component to the base layout
+        if (modifierBinding.root.parent != null)
+            (modifierBinding.root.parent as ViewGroup).removeView(modifierBinding.root)
         binding.baseLayout.addView(modifierBinding.root)
 
+        if (detailedModifierBinding.root.parent != null)
+            (detailedModifierBinding.root.parent as ViewGroup).removeView(detailedModifierBinding.root)
         modifierBinding.modifierDetailedViewContainer.addView(_detailedModifierBinding?.root)
 
         detailedModifierBinding.apply {
@@ -147,13 +151,18 @@ class SecondFragment : Fragment() {
 
     private fun loadFoodData(){
         //add food_view_component layout to the base layout
+        if (foodBinding.root.parent != null)
+            (foodBinding.root.parent as ViewGroup).removeView(foodBinding.root)
         binding.baseLayout.addView(foodBinding.root)
         foodBinding.productNameTextView.text = viewModel.food.name
         foodBinding.descriptionTextview.text = viewModel.food.description
         foodBinding.priceTextview.text = viewModel.food.price.toString()
 
-        if (viewModel.food.modifiable && !viewModel.food.modifierList.isNullOrEmpty()) {
-            for( modifierCode in viewModel.food.modifierList!!) {
+        if (viewModel.food.modifiable &&
+            !viewModel.food.modifierList.isNullOrEmpty() &&
+            foodBinding.modifiersContainerLayout.childCount < viewModel.food.modifierList.size) {
+
+            for( modifierCode in viewModel.food.modifierList) {
                 // inflate modifier view
                 val eachModifierBinding = ModifierViewComponentBinding.inflate(layoutInflater,foodBinding.root,false)
 
@@ -172,11 +181,14 @@ class SecondFragment : Fragment() {
     private fun loadModifierItem(modifier: Modifier, containerBinding: ModifierViewComponentBinding = modifierBinding){
         containerBinding.modifierNameTextview.text = modifier.name
         for (itemCode in modifier.modifierItemList) {
-            val itemBinding = RowModifierItemBinding.inflate(layoutInflater,modifierBinding.root,false)
-            val item = viewModel.getModifierItem(itemCode)
-            itemBinding.modifierItemNameTextview.text = item?.name
-            itemBinding.modifierItemPriceTextview.text = item?.price.toString()
-            containerBinding.modifierItemContainerLayout.addView(itemBinding.root)
+            if (containerBinding.modifierItemContainerLayout.childCount < modifier.modifierItemList.size) {
+                val itemBinding =
+                    RowModifierItemBinding.inflate(layoutInflater, modifierBinding.root, false)
+                val item = viewModel.getModifierItem(itemCode)
+                itemBinding.modifierItemNameTextview.text = item?.name
+                itemBinding.modifierItemPriceTextview.text = item?.price.toString()
+                containerBinding.modifierItemContainerLayout.addView(itemBinding.root)
+            }
         }
     }
 

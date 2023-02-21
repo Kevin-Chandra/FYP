@@ -4,26 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="false"
     tools:context=".menucreator.ui.fragments.AddEditModifierFragment">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:id="@+id/scroll_view">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp">
+
             <TextView
                 android:id="@+id/modifier_title_textView"
                 style="@style/TextAppearance.MaterialComponents.Headline5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="TextView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="TextView" />
 
             <View
                 android:id="@+id/divider"
@@ -61,6 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
+                    android:maxLength="10"
                     android:textColorHint="#546E7A" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -79,6 +83,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
+                    android:maxLength="30"
                     android:textColorHint="#546E7A" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -135,13 +140,13 @@
                 app:layout_constraintTop_toBottomOf="@+id/divider3">
 
                 <Button
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:textColor="@color/white"
                     android:id="@+id/add_modifier_item_button"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableLeft="@android:drawable/ic_menu_add"
-                    android:text="Add more" />
+                    android:text="Add more"
+                    android:textColor="@color/white" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -174,7 +179,7 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_centerInParent="true"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 
 </RelativeLayout>

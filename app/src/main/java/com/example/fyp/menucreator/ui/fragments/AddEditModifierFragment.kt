@@ -3,7 +3,6 @@ package com.example.fyp.menucreator.ui.fragments
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +23,7 @@ import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AddEditModifierFragment : Fragment() {
@@ -53,6 +53,7 @@ class AddEditModifierFragment : Fragment() {
         arguments?.let {
             command = AddEditModifierFragmentArgs.fromBundle(it).command
             resetField()
+            viewModel.clearDeleteCache()
             if (command.contentEquals(NavigationCommand.ADD)) {
                 addNewModifier()
             } else if (command.contentEquals(NavigationCommand.EDIT)) {
@@ -88,8 +89,8 @@ class AddEditModifierFragment : Fragment() {
         binding.isRequiredSwitch.isChecked = viewModel.modifier.required
         binding.isMultipleChoiceSwitch.isChecked = viewModel.modifier.multipleChoice
         for (i in viewModel.modifier.modifierItemList) {
-            println("resumed")
-            addModifierItemRow(i,true)
+            if (viewModel.modifier.modifierItemList.size > binding.modifierItemLayout.childCount-1 )
+                addModifierItemRow(i,true)
         }
     }
 
@@ -122,26 +123,28 @@ class AddEditModifierFragment : Fragment() {
 
     private fun saveModifier() {
         viewModel.createNewItemList()
-        if (binding.modifierItemLayout.childCount == 1) {
-            viewModel.error(Exception("No Modifier Item found"))
-        }
-        if (command.contentEquals(NavigationCommand.EDIT)) {
-            if (!isEditObserved){
-                isEditObserved = !isEditObserved
-                observeEditModifier()
+        try{
+            if (binding.modifierItemLayout.childCount == 1) {
+                throw (Exception("No Modifier Item Found"))
             }
-            updateModifier()
-//            viewModel.updateModifier()
-        } else {
-            addModifier()
+            if (command.contentEquals(NavigationCommand.EDIT)) {
+                if (!isEditObserved){
+                    isEditObserved = !isEditObserved
+                    observeEditModifier()
+                }
+                updateModifier()
+            } else {
+                addModifier()
+            }
+        } catch (e:Exception){
+            e.message?.let { errorDialog(it) }
         }
-
     }
     private fun addModifier(){
         if (command == NavigationCommand.ADD){
             for (index in 0 until binding.modifierItemLayout.childCount - 1) {
                 val view = binding.modifierItemLayout[index]
-                val id = view.findViewById<EditText>(R.id.modifier_item_id).text.toString()
+                val id = view.findViewById<EditText>(R.id.row_modifier_item_id).text.toString()
                 val name = view.findViewById<EditText>(R.id.modifier_item_name).text.toString()
                 val price = view.findViewById<EditText>(R.id.modifier_item_price).text.toString()
                 viewModel.addItems(id, name, price)
@@ -165,12 +168,12 @@ class AddEditModifierFragment : Fragment() {
             }
             for (index in 0 until binding.modifierItemLayout.childCount - 1) {
                 val view = binding.modifierItemLayout[index]
-                val idView = view.findViewById<EditText>(R.id.modifier_item_id)
+                val idView = view.findViewById<EditText>(R.id.row_modifier_item_id)
                 val id = idView.text.toString()
                 val name = view.findViewById<EditText>(R.id.modifier_item_name).text.toString()
                 val price = view.findViewById<EditText>(R.id.modifier_item_price).text.toString()
                 val isEdit = !idView.isFocusable
-                viewModel.updateItem(id, name, price,isEdit)
+                viewModel.updateItem(id, name, price, isEdit)
             }
         }
 
@@ -195,30 +198,33 @@ class AddEditModifierFragment : Fragment() {
         val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier_item, null)
         if (modifierId != null) {
             val item = viewModel.getModifierItem(modifierId)!!
-            inflater.findViewById<EditText>(R.id.modifier_item_id)
+            inflater.findViewById<EditText>(R.id.row_modifier_item_id)
                 .setText(item.productId)
             inflater.findViewById<EditText>(R.id.modifier_item_name)
                 .setText(item.name)
             inflater.findViewById<EditText>(R.id.modifier_item_price)
                 .setText(item.price.toString())
             if(isEdit)
-                inflater.findViewById<EditText>(R.id.modifier_item_id).isFocusable = false
+                inflater.findViewById<EditText>(R.id.row_modifier_item_id).isFocusable = false
         }
         inflater.findViewById<ImageButton>(R.id.remove_button).setOnClickListener {
-            viewModel.deleteModifierItem(inflater.findViewById<EditText>(R.id.modifier_item_id).text.toString())
+            viewModel.deleteModifierItem(inflater.findViewById<EditText>(R.id.row_modifier_item_id).text.toString())
             binding.modifierItemLayout.removeView(inflater)
         }
         binding.modifierItemLayout.addView(inflater, binding.modifierItemLayout.childCount - 1)
     }
 
     private fun resetField() {
-        binding.modifierIdEditText.text = null
+        if (command == NavigationCommand.EDIT){
+            binding.modifierIdEditText.isFocusable = false
+        } else {
+            binding.modifierIdEditText.text = null
+        }
         binding.modifierNameEditText.text = null
         binding.isRequiredSwitch.isChecked = false
         binding.isMultipleChoiceSwitch.isChecked = false
         binding.modifierItemLayout.removeAllViews()
         binding.modifierItemLayout.addView(binding.addModifierItemButton)
-        binding.modifierIdEditText.isFocusable = command != NavigationCommand.EDIT
     }
 
     private fun successToast(msg: String) {
@@ -226,6 +232,7 @@ class AddEditModifierFragment : Fragment() {
     }
 
     private fun errorDialog(msg: String) {
+        binding.progressBar.visibility = View.GONE
         AlertDialog.Builder(context)
             .setTitle("Exception occurred!")
             .setMessage("Unable to save modifier\nReason: $msg")
@@ -289,7 +296,7 @@ class AddEditModifierFragment : Fragment() {
                 when (it) {
                     is UiState.Loading -> {
                         println("Add item response loading")
-//                        binding.progressBar.visibility = View.VISIBLE
+                        binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
                         println("Add item response error")
@@ -325,7 +332,7 @@ class AddEditModifierFragment : Fragment() {
                         if (it.data == binding.modifierItemLayout.childCount-1) {
                             println("im inside")
                             binding.progressBar.visibility = View.GONE
-                            successToast("Modifier Item Finish")
+//                            successToast("Modifier Item Finish")
                             addModifierToVm()
 //                        }
                         }
@@ -341,7 +348,7 @@ class AddEditModifierFragment : Fragment() {
                 when (it) {
                     is UiState.Loading -> {
                         println("Add item finish response loading")
-//                        binding.progressBar.visibility = View.VISIBLE
+                        binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
                         println("Add item finish response error")
@@ -349,14 +356,7 @@ class AddEditModifierFragment : Fragment() {
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-//                        binding.progressBar.visibility = View.GONE
                         addModifier()
-//                        if (it.data && viewModel.editItemResponse.value is UiState.Success) {
-//                            if ((viewModel.editItemResponse.value as UiState.Success<Int>).data == binding.modifierItemLayout.childCount) {
-//                                successToast("Modifier Successfully updated")
-//                                navigateBack()
-//                            }
-//                        }
                     }
                 }
             }
@@ -373,11 +373,12 @@ class AddEditModifierFragment : Fragment() {
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-//                        println("Add item finish response error")
+                        println("EDIT response error")
                         binding.progressBar.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
+                        println("Whats in me : ${it.data}")
                         if (it.data){
                             binding.progressBar.visibility = View.GONE
                             successToast("Modifier successfully updated")
@@ -395,7 +396,7 @@ class AddEditModifierFragment : Fragment() {
                 when (it) {
                     is UiState.Loading -> {
                         println("Add item finish response loading")
-//                        binding.progressBar.visibility = View.VISIBLE
+                        binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
                         println("Add item finish response error")
@@ -405,14 +406,8 @@ class AddEditModifierFragment : Fragment() {
                     is UiState.Success -> {
                         if (it.data == binding.modifierItemLayout.childCount-1) {
                             println("all item data is valid")
-//                            binding.progressBar.visibility = View.GONE
                             addModifierToVm()
-//                            navigateBack()
                         }
-//                        else if (it.data > binding.modifierItemLayout.childCount-1) {
-//
-////                            navigateBack()
-//                        }
                     }
                 }
             }

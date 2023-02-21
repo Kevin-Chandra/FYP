@@ -59,6 +59,7 @@ class ModifierItemRepository {
         return try {
             for (doc in query.documents)
                 modifierItemCollectionRef.document(doc.id).delete().await()
+            println("[$id] deleted in database")
             UiState.Success(true)
         } catch (e : Exception){
             UiState.Failure(e)

@@ -7,6 +7,7 @@ import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.data.repository.ModifierItemRepository
 import com.example.fyp.menucreator.data.repository.ModifierRepository
+import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -76,8 +77,8 @@ class AddEditModifierViewModel @Inject constructor(
     private val _addItemFinishResponse = MutableStateFlow<UiState<Int>>(UiState.Success(count))
     val addItemFinishResponse = _addItemFinishResponse.asStateFlow()
 
-    private val _editFinishResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
-    val editFinishResponse = _editFinishResponse.asStateFlow()
+    private val _editFinishResponse = MutableSharedFlow<UiState<Boolean>>()
+    val editFinishResponse = _editFinishResponse.asSharedFlow()
 
     private val deleteCache = arrayListOf<String>()
 
@@ -101,7 +102,6 @@ class AddEditModifierViewModel @Inject constructor(
 
     private fun populate() {
         _modifier = modifierMap[productId]
-        println("Modifier: ${modifier.productId}")
     }
 
     private fun getModifier(
@@ -135,12 +135,16 @@ class AddEditModifierViewModel @Inject constructor(
 
     private suspend fun updateModifier(modifier: Modifier) {
         println("item to upload : ${modifier.name}")
-        _editFinishResponse.value = modifierRepository.updateModifier(modifier.productId, modifier)
+        _editFinishResponse.emit(modifierRepository.updateModifier(modifier.productId, modifier))
     }
 
     private suspend fun updateModifierItem(item: ModifierItem) {
         println("item to upload : ${item.name}")
-        _editFinishResponse.value = modifierItemRepository.updateModifierItem(item.productId,item)
+        _editFinishResponse.emit(modifierItemRepository.updateModifierItem(item.productId,item))
+    }
+
+    private suspend fun deleteModifierItemInRepo(id: String){
+        modifierItemRepository.deleteModifierItem(id)
     }
 
     fun addNewModifier(
@@ -149,7 +153,7 @@ class AddEditModifierViewModel @Inject constructor(
         isMultipleChoice: Boolean,
         isRequired: Boolean,
         isEdit: Boolean
-    ) = viewModelScope.launch {
+    ) = viewModelScope.launch(Dispatchers.IO) {
         val response = if (isEdit) _editResponse else _addResponse
         response.value = UiState.Loading
         response.value = isModifierEntryValid(id, name, isMultipleChoice, isEdit)
@@ -157,14 +161,28 @@ class AddEditModifierViewModel @Inject constructor(
             println("everything success waiting to upload")
             val getModifier =
                 getModifier(id, name, isMultipleChoice, isRequired, ArrayList(itemMap.keys))
+            for (i in deleteCache){
+                println("$i to be deleted")
+                launch(Dispatchers.IO){
+                    deleteModifierItemInRepo(i)
+                }
+            }
             if (isEdit){
-                for (i in itemMap){
-                     updateModifierItem(i.value)
+                launch(Dispatchers.IO){
+                    for (i in itemMap){
+                        launch(Dispatchers.IO) {
+                            updateModifierItem(i.value)
+                        }
+                    }
                 }
                 updateModifier(getModifier)
             } else {
-                for (i in itemMap)
-                    insertModifierItem(i.value)
+                launch(Dispatchers.IO) {
+                    for (i in itemMap)
+                        launch(Dispatchers.IO) {
+                            insertModifierItem(i.value)
+                        }
+                }
                 insertModifier(getModifier)
             }
         }
@@ -176,8 +194,14 @@ class AddEditModifierViewModel @Inject constructor(
         _addItemResponse.value = UiState.Loading
         _addItemResponse.value = isModifierItemEntryValid(id, name, price)
         if (addItemResponse.value is UiState.Success) {
-            itemMap[id] = getModifierItem(id, name, price)
-            _addItemFinishResponse.update { UiState.Success(count) }
+            if (itemMap[id] == null) {
+                itemMap[id] = getModifierItem(id, name, price)
+                _addItemFinishResponse.update {
+                    UiState.Success(count)
+                }
+            } else {
+                _addItemResponse.value = UiState.Failure(Exception("Item ID [$id] already exist!"))
+            }
         }
     }
 
@@ -261,8 +285,8 @@ class AddEditModifierViewModel @Inject constructor(
         itemMap.clear()
     }
 
-    fun error(e: Exception) {
-        _addItemResponse.value = UiState.Failure(e)
+    fun clearDeleteCache(){
+        deleteCache.clear()
     }
 
     fun getModifierItem(id: String): ModifierItem? {
@@ -292,13 +316,9 @@ class AddEditModifierViewModel @Inject constructor(
     }
     private fun observeLoaded() =
         modifierLoaded.onEach {
-            if (it is UiState.Success) {
-                println("am I called? data : ${it.data}")
-                if (it.data >= 2) {
-                    println("populate called with data ${it.data}")
-                    populate()
-                    _loadResponse.value = UiState.Success(true)
-                }
+            if (it is UiState.Success && it.data >= 2) {
+                populate()
+                _loadResponse.value = UiState.Success(true)
             }
         }.launchIn(viewModelScope)
 
@@ -317,15 +337,23 @@ class AddEditModifierViewModel @Inject constructor(
 
     fun deleteModifierItem(id: String) {
         itemMap.remove(id)
+        deleteCache.add(id)
+        println("$id added to delete cache")
     }
 
     fun updateItem(id: String, name: String, price: String, isEdit: Boolean) = viewModelScope.launch{
         _editItemResponse.value = UiState.Loading
         _editResponse.value = isModifierItemEntryValid(id,name, price,isEdit)
         if (_editResponse.value is UiState.Success){
-            itemMap[id] = getModifierItem(id,name, price)
-            itemCount += 1
-            _editItemResponse.value = UiState.Success(itemCount)
+            if (itemMap[id] == null) {
+                itemMap[id] = getModifierItem(id, name, price)
+                itemCount += 1
+                _editItemResponse.update {
+                    UiState.Success(itemCount)
+                }
+            } else {
+                _editItemResponse.value = UiState.Failure(Exception("Item ID [$id] already exist!"))
+            }
         }
     }
 
