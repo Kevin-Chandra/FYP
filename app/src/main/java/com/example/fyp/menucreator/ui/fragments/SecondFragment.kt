@@ -1,31 +1,26 @@
 package com.example.fyp.menucreator.ui.fragments
 
+import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
-import com.example.fyp.databinding.FoodViewComponentBinding
-import com.example.fyp.databinding.FragmentSecondBinding
-import com.example.fyp.databinding.ModifierDetailedRowComponentBinding
-import com.example.fyp.databinding.ModifierViewComponentBinding
-import com.example.fyp.databinding.RowModifierItemBinding
+import com.example.fyp.databinding.*
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.ui.viewmodel.FoodModifierDetailViewModel
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
 
 private const val TAG = "Second Fragment"
 
@@ -105,10 +100,11 @@ class SecondFragment : Fragment() {
         }
     }
 
+    private fun navigateBack() = findNavController().navigate(SecondFragmentDirections.actionSecondFragmentToFirstFragment())
+
     private fun deleteProduct() {
         observeFoodDeletion()
         viewModel.deleteProduct(productId!!)
-        findNavController().navigate(SecondFragmentDirections.actionSecondFragmentToFirstFragment())
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -131,9 +127,8 @@ class SecondFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun loadModifierData() {
         //add modifier_view_component to the base layout
-        if (modifierBinding.root.parent != null)
-            (modifierBinding.root.parent as ViewGroup).removeView(modifierBinding.root)
-        binding.baseLayout.addView(modifierBinding.root)
+        if (modifierBinding.root.parent == null)
+            binding.baseLayout.addView(modifierBinding.root)
 
         if (detailedModifierBinding.root.parent != null)
             (detailedModifierBinding.root.parent as ViewGroup).removeView(detailedModifierBinding.root)
@@ -149,32 +144,76 @@ class SecondFragment : Fragment() {
         modifierBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.modifier.date.toString()}"
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun loadFoodData(){
         //add food_view_component layout to the base layout
-        if (foodBinding.root.parent != null)
-            (foodBinding.root.parent as ViewGroup).removeView(foodBinding.root)
-        binding.baseLayout.addView(foodBinding.root)
+        if (foodBinding.root.parent == null)
+            binding.baseLayout.addView(foodBinding.root)
         foodBinding.productNameTextView.text = viewModel.food.name
         foodBinding.descriptionTextview.text = viewModel.food.description
         foodBinding.priceTextview.text = viewModel.food.price.toString()
 
         if (viewModel.food.modifiable &&
-            !viewModel.food.modifierList.isNullOrEmpty() &&
+            viewModel.food.modifierList.isNotEmpty() &&
             foodBinding.modifiersContainerLayout.childCount < viewModel.food.modifierList.size) {
 
-            for( modifierCode in viewModel.food.modifierList) {
-                // inflate modifier view
-                val eachModifierBinding = ModifierViewComponentBinding.inflate(layoutInflater,foodBinding.root,false)
+//            .removeIf{ it == account.id }
 
-                //add each modifier view to modifier container layout
-                foodBinding.modifiersContainerLayout.addView(eachModifierBinding.root)
+//            for ( i in 0 until viewModel.food.modifierList.size) {
+//                val id = viewModel.food.modifierList[i]
+//
+//            }
+            val list = viewModel.food.modifierList
+            val iterator = list.iterator()
+            var toUpdate = false
+            while (iterator.hasNext()) {
+                val id = iterator.next()
+                val modifier = viewModel.getModifier(id)
+                if (modifier != null) {
+                    val eachModifierBinding = ModifierViewComponentBinding.inflate(
+                        layoutInflater,
+                        foodBinding.root,
+                        false
+                    )
 
-                viewModel.getModifier(modifierCode)?.let { loadModifierItem(it,eachModifierBinding) }
+                    //add each modifier view to modifier container layout
+                    foodBinding.modifiersContainerLayout.addView(eachModifierBinding.root)
+                    loadModifierItem(modifier, eachModifierBinding)
+                } else {
+                    errorDialog("[$id] is not available. Removing from food modifier list ")
+                    iterator.remove()
+                    toUpdate = true
+                }
             }
+            if (toUpdate){
+                updateFood(list)
+            }
+
+
+
+
+//            while(iterator.hasNext()){
+//                val id = iterator.next()
+//                val modifier = viewModel.getModifier(id)
+//                if (modifier != null){
+//                    val eachModifierBinding = ModifierViewComponentBinding.inflate(layoutInflater,foodBinding.root,false)
+//
+//                    //add each modifier view to modifier container layout
+//                    foodBinding.modifiersContainerLayout.addView(eachModifierBinding.root)
+//                    loadModifierItem(modifier,eachModifierBinding)
+//                } else {
+//                    errorDialog("[$id] is not available. Removing from food modifier list ")
+//                    iterator.remove(id)
+//                }
+//            }
         }
 
         foodBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.food.date.toString()}"
 //        Log.d(TAG,_food?.modifierList.toString())
+    }
+
+    private fun updateFood(list: ArrayList<String>) {
+        viewModel.removeModifierFromFoodAndUpdate(list)
     }
 
     //Only call this function after initializing modifier binding
@@ -190,6 +229,18 @@ class SecondFragment : Fragment() {
                 containerBinding.modifierItemContainerLayout.addView(itemBinding.root)
             }
         }
+    }
+
+    private fun errorDialog(msg: String){
+        AlertDialog.Builder(context)
+            .setTitle("Exception occured")
+            .setMessage("Modifier Unavailable\nReason: $msg")
+            .setCancelable(false)
+            .setPositiveButton("Ok") {
+                    dialog, _ -> dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     private fun foodObserver() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -258,8 +309,11 @@ class SecondFragment : Fragment() {
 //                    it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        println("Food deleted successfully")
+                        if (it.data){
+                            binding.progressBar.visibility = View.GONE
+                            println("Product deleted successfully")
+                            navigateBack()
+                        }
 //                    it.data.first?.let { it1 -> successToast(it1.name + it.data.second) }
 //                    binding.progressBar.hide()
 //                    objNote = state.data.first

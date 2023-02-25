@@ -8,11 +8,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.fyp.adapter.ProductListItemAdapter
-import com.example.fyp.database.ProductDatabase
+import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.databinding.FragmentProductListBinding
 import com.example.fyp.menucreator.data.model.ProductType
-import com.example.fyp.menucreator.data.repository.FoodRepository
 import com.example.fyp.menucreator.ui.viewmodel.FoodListingViewModel
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.AndroidEntryPoint

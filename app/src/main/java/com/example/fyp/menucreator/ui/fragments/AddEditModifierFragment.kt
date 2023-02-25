@@ -196,8 +196,8 @@ class AddEditModifierFragment : Fragment() {
 
     private fun addModifierItemRow(modifierId: String?, isEdit:Boolean = false) {
         val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier_item, null)
-        if (modifierId != null) {
-            val item = viewModel.getModifierItem(modifierId)!!
+        val item = modifierId?.let { viewModel.getModifierItem(it) }
+        if (modifierId != null && item != null) {
             inflater.findViewById<EditText>(R.id.row_modifier_item_id)
                 .setText(item.productId)
             inflater.findViewById<EditText>(R.id.modifier_item_name)

@@ -29,7 +29,9 @@
 
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            app:destination="@id/FirstFragment"
+            app:popUpTo="@id/FirstFragment"
+            app:popUpToInclusive="true" />
         <argument
             android:name="productId"
             app:argType="string" />
@@ -75,6 +77,7 @@
         <action
             android:id="@+id/action_addEditModifierFragment_to_FirstFragment"
             app:destination="@id/FirstFragment"
+            app:launchSingleTop="false"
             app:popUpTo="@id/FirstFragment"
             app:popUpToInclusive="true" />
     </fragment>

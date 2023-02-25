@@ -10,14 +10,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.fyp.R
-import com.example.fyp.database.ProductDatabase
 import com.example.fyp.databinding.ActivityMenuCreatorBinding
-import com.example.fyp.menucreator.data.model.Food
-import com.example.fyp.menucreator.data.model.Modifier
-import com.example.fyp.menucreator.data.model.ModifierItem
-import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.data.repository.ModifierItemRepository
-import com.example.fyp.menucreator.data.repository.ModifierRepository
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint

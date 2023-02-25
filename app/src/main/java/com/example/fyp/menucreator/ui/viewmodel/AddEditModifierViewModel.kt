@@ -2,17 +2,14 @@ package com.example.fyp.menucreator.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fyp.database.ProductDatabase
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.data.repository.ModifierItemRepository
 import com.example.fyp.menucreator.data.repository.ModifierRepository
-import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.collections.Map
@@ -336,9 +333,10 @@ class AddEditModifierViewModel @Inject constructor(
     }
 
     fun deleteModifierItem(id: String) {
-        itemMap.remove(id)
-        deleteCache.add(id)
-        println("$id added to delete cache")
+        if (id != ""){
+            itemMap.remove(id)
+            deleteCache.add(id)
+        }
     }
 
     fun updateItem(id: String, name: String, price: String, isEdit: Boolean) = viewModelScope.launch{

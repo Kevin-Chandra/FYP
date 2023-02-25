@@ -36,7 +36,6 @@ class AddEditFoodFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel : AddEditFoodViewModel by activityViewModels()
-//    private val foodDetailedViewModel : FoodDetailViewModel by activityViewModels()
 
     private lateinit var checkedItems : BooleanArray
     private var modifierList: Array<String> = arrayOf()
@@ -160,7 +159,8 @@ class AddEditFoodFragment : Fragment() {
             modifierLayoutEnabler(viewModel.food.modifiable)
             if (viewModel.food.modifierList.isNotEmpty() && viewModel.food.modifiable)
                 for (i in viewModel.food.modifierList)
-                    addModifierRow(i)
+                    if (binding.modifiersLinearLayout.childCount < viewModel.food.modifierList.size)
+                        addModifierRow(i)
         } catch (e: Exception){
             e.message?.let { errorDialog(it) }
         }
@@ -173,7 +173,7 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun handleAddModifier() {
-        AlertDialog.Builder(requireContext())
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Select Modifier")
             .setMultiChoiceItems(modifierList,checkedItems) { _, which, isChecked ->
                  // If the user checked the item, add it to the selected items
@@ -191,10 +191,10 @@ class AddEditFoodFragment : Fragment() {
                 }
             }
             .setNegativeButton("Cancel"){
-                    _,_ -> {}
+                _,_ ->
             }
             .create()
-            .show()
+        dialog.show()
     }
 
     private fun addModifierRow(id: String) {
@@ -213,7 +213,6 @@ class AddEditFoodFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun resetField() {
-//        viewModel.reset()
         if (command == NavigationCommand.EDIT){
             binding.productIdEditText.focusable = View.NOT_FOCUSABLE
         } else {
@@ -249,6 +248,7 @@ class AddEditFoodFragment : Fragment() {
                     isAddFoodObserved = !isAddFoodObserved
                     observeAddFood()
                 }
+                println("handle soc ${binding.productIdEditText.text.toString()}")
                 viewModel.addNewFood(
                     binding.productIdEditText.text.toString(),
                     binding.productNameEditText.text.toString(),
@@ -306,9 +306,9 @@ class AddEditFoodFragment : Fragment() {
         binding.modifiersLinearLayout.isEnabled = boolean
     }
 
-    private fun navigateBack(){
+    private fun navigateBack() =
         findNavController().navigate(AddEditFoodFragmentDirections.actionAddEditFoodFragmentToFirstFragment())
-    }
+
 
     private fun observeAddFood() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -319,20 +319,17 @@ class AddEditFoodFragment : Fragment() {
                         binding.progressBar2.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
+                        println("Add food response encountered error")
                         binding.progressBar2.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                        binding.progressBar2.visibility = View.GONE
-                        successToast("Food Added successfully")
-                        navigateBack()
-
-//                    binding.progressBar.hide()
-//                    objNote = state.data.first
-//                    isMakeEnableUI(false)
-//                    binding.done.hide()
-//                    binding.delete.show()
-//                    binding.edit.show()
+                        println("Add food success data ${it.data}")
+                        if (it.data){
+                            binding.progressBar2.visibility = View.GONE
+                            successToast("Food Added successfully")
+                            navigateBack()
+                        }
                     }
                 }
             }
@@ -346,23 +343,20 @@ class AddEditFoodFragment : Fragment() {
             viewModel.updateFoodResponse.collect() {
                 when (it) {
                     is UiState.Loading -> {
-                        println("Add food response loading")
+                        println("Update food response loading")
                         binding.progressBar2.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
+                        println("Update food response encountered error")
                         binding.progressBar2.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                        binding.progressBar2.visibility = View.GONE
-                        successToast("Update food successful is ${it.data}")
-                        navigateBack()
-//                    binding.progressBar.hide()
-//                    objNote = state.data.first
-//                    isMakeEnableUI(false)
-//                    binding.done.hide()
-//                    binding.delete.show()
-//                    binding.edit.show()
+                        if (it.data){
+                            binding.progressBar2.visibility = View.GONE
+                            successToast("Update food successful is ${it.data}")
+                            navigateBack()
+                        }
                     }
                 }
             }
@@ -370,27 +364,22 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun observeLoadFood() = viewLifecycleOwner.lifecycleScope.launch{
-        viewModel.foodLoaded.collect() {
-            println(it)
-            when (it) {
-                is UiState.Loading -> {
-                    binding.progressBar2.visibility = View.VISIBLE
-                }
-                is UiState.Failure -> {
-                    binding.progressBar2.visibility = View.GONE
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.foodLoaded.collect() {
+                println(it)
+                when (it) {
+                    is UiState.Loading -> {
+                        binding.progressBar2.visibility = View.VISIBLE
+                    }
+                    is UiState.Failure -> {
+                        binding.progressBar2.visibility = View.GONE
 //                    binding.progressBar.hide()
 //                    it.e?.message?.let { it1 -> errorDialog(it1) }
-                }
-                is UiState.Success -> {
-                    binding.progressBar2.visibility = View.GONE
-                    loadData()
-//                    it.data.first?.let { it1 -> successToast(it1.name + it.data.second) }
-//                    binding.progressBar.hide()
-//                    objNote = state.data.first
-//                    isMakeEnableUI(false)
-//                    binding.done.hide()
-//                    binding.delete.show()
-//                    binding.edit.show()
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar2.visibility = View.GONE
+                        loadData()
+                    }
                 }
             }
         }

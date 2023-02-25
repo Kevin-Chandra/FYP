@@ -10,7 +10,9 @@ import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,8 +48,8 @@ class AddEditFoodViewModel @Inject constructor(
     private val _foodLoaded = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
     val foodLoaded = _foodLoaded.asStateFlow()
 
-    private val _updateFoodResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
-    val updateFoodResponse = _updateFoodResponse.asStateFlow()
+    private val _updateFoodResponse = MutableSharedFlow<UiState<Boolean>>()
+    val updateFoodResponse = _updateFoodResponse.asSharedFlow()
 
     private val _addFoodResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
     val addFoodResponse = _addFoodResponse.asStateFlow()
@@ -72,9 +74,8 @@ class AddEditFoodViewModel @Inject constructor(
         }
     }
 
-    private suspend fun insertFood(food: Food): UiState<Boolean> {
+    private fun insertFood(food: Food){
         _addFoodResponse.value = foodRepository.addFood(food)
-        return addFoodResponse.value
     }
 
     private fun getFood(
@@ -106,9 +107,8 @@ class AddEditFoodViewModel @Inject constructor(
         isModifiable: Boolean,
         modifierList: ArrayList<String>
     )  = viewModelScope.launch (Dispatchers.IO) {
-
-        _addFoodResponse.value = UiState.Loading
         _addFoodResponse.value = isEntryValid(productId, name, price, false)
+        println("name is $name")
         if (addFoodResponse.value is UiState.Success) {
             insertFood(getFood(productId, name, price, description, isModifiable, modifierList))
         }
@@ -123,19 +123,21 @@ class AddEditFoodViewModel @Inject constructor(
         modifierList: ArrayList<String>
     ) = viewModelScope.launch(Dispatchers.IO) {
 
-        _updateFoodResponse.value = UiState.Loading
-        _updateFoodResponse.value = isEntryValid(productId, name, price, true)
-        if (updateFoodResponse.value is UiState.Success)
+        _updateFoodResponse.emit(UiState.Loading)
+        val response = isEntryValid(productId, name, price, true)
+        _updateFoodResponse.emit(response)
+        if (response is UiState.Success)
             updateFood(getFood(productId, name, price, description, isModifiable, modifierList),productId)
 
     }
 
     private fun updateFood(food: Food, id: String) = viewModelScope.launch(Dispatchers.IO) {
-        _updateFoodResponse.value = foodRepository.updateFood(id, food)
+        _updateFoodResponse.emit(foodRepository.updateFood(id, food))
     }
 
     private suspend fun isEntryValid(productId: String, name: String, price: String, edit: Boolean): UiState<Boolean> {
         return try {
+            println("I hope u  r here")
             if (!edit) {
                 if (productId.isBlank())
                     throw Exception("Product ID is blank!")
@@ -148,7 +150,7 @@ class AddEditFoodViewModel @Inject constructor(
                 throw Exception("Price is blank!")
             if (price.toDouble() < 0.0)
                 throw Exception("Price cannot be negative!")
-            UiState.Success(true)
+            UiState.Success(false)
         } catch (e: Exception) {
             if (e is CancellationException)
                 throw e
@@ -164,67 +166,6 @@ class AddEditFoodViewModel @Inject constructor(
             async { foodRepository.checkFoodId(id) }.await()
         }
 
-//    private fun observeValidator(action: (UiState<Boolean>) -> Unit ){
-//        viewModelScope.launch {
-//            validator.collect(){
-//                when(it){
-//                    is UiState.Success -> action.invoke(UiState.Success(true))
-//                    is UiState.Failure -> validator.value
-//                    else -> {}
-//                }
-//            }
-//        }
-//    }
-
-
-//    fun addModifier(modifier: Modifier){
-//        _food?.addModifier(modifier.productId)
-//    }
-//
-//    fun addModifierId(modifierId: String){
-//        _food?.addModifier(modifierId)
-//    }
-//
-//    fun removeModifier(modifier: Modifier){
-//        _food?.removeModifier(modifier.productId)
-//    }
-//
-//    fun removeModifierId(modifierId: String){
-//        _food?.removeModifier(modifierId)
-//    }
-//
-//    fun resetModifierList(){
-//        _food?.clearModifierList()
-//    }
-
-//    fun saveFood() {
-//        _food?.let { menu.insertFood(it) }
-//    }
-//
-//    fun updateFood(){
-//        productId?.let { menu.deleteFood(it) }
-//        saveFood()
-//    }
-//
-//    fun deleteFood(){
-//        productId?.let { menu.deleteFood(it) }
-//    }
-//
-//    fun getModifierKeyListFromDatabase(): List<String> {
-//        return menu.getModifierKeyList()
-//    }
-
-//    private fun initMap(){
-//        viewModelScope.launch {
-//            modifiers.collect() {
-//                when(it){
-//                    is UiState.Success -> _modifierMap = it.data.toMutableMap()
-//                    else -> {}
-//                }
-//            }
-//        }
-//    }
-//
     fun getModifier(id: String): Modifier? {
         return modifierMap[id]
     }

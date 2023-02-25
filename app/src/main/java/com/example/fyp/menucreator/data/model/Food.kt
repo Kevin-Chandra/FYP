@@ -12,7 +12,7 @@ data class Food(
     val category: FoodCategory? = null,
     val modifiable: Boolean = false,
     val allTimeSales: Int = -1,
-    val modifierList: ArrayList<String> = ArrayList<String>(),
+    val modifierList: ArrayList<String> = ArrayList(),
     @ServerTimestamp
     val date: Date = Date()
 ) : Product(productId, ProductType.FoodAndBeverage)

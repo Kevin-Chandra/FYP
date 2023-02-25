@@ -120,6 +120,7 @@ class FoodModifierDetailViewModel @Inject constructor(
         if (type == ProductType.FoodAndBeverage){
             _deleteResponse.value = foodRepository.deleteFood(id)
         } else{
+            println("Here???")
             //delete all items before deleting modifier
             for (item in modifier.modifierItemList){
                 _deleteItemResponse.value = itemRepository.deleteModifierItem(item)
@@ -201,6 +202,11 @@ class FoodModifierDetailViewModel @Inject constructor(
         _type = null
         _food = null
         _modifier = null
+    }
+
+    fun removeModifierFromFoodAndUpdate(list: ArrayList<String>) = viewModelScope.launch{
+        val newFood = food.copy(modifierList = list)
+        foodRepository.updateFood(newFood.productId,newFood)
     }
 
 

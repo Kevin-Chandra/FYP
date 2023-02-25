@@ -7,8 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.fyp.adapter.ModifierListItemAdapter
-import com.example.fyp.database.ProductDatabase
+import com.example.fyp.menucreator.ui.adapter.ModifierListItemAdapter
 import com.example.fyp.databinding.FragmentModifierListBinding
 import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.ModifierItemRepository
@@ -24,12 +23,6 @@ class ModifierListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel = ModifierListingViewModel(ModifierRepository(), ModifierItemRepository())
-
-    private val menu = ProductDatabase
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
