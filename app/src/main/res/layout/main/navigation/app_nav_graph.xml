@@ -3,37 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_nav_graph"
-    app:startDestination="@id/loginFragment">
-    <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.example.fyp.account_management.ui.fragment.LoginFragment"
-        tools:layout="@layout/fragment_login"
-        android:label="fragment_login">
-        <action
-            android:id="@+id/action_loginFragment_to_userRegisterFragment"
-            app:destination="@id/userRegisterFragment" />
-        <action
-            android:id="@+id/action_loginFragment_to_mainFragment"
-            app:destination="@id/mainFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/userRegisterFragment"
-        android:name="com.example.fyp.account_management.ui.fragment.UserRegisterFragment"
-        tools:layout="@layout/fragment_user_register"
-        android:label="fragment_user_register">
-        <action
-            android:id="@+id/action_userRegisterFragment_to_mainFragment"
-            app:destination="@id/mainFragment" />
-    </fragment>
+    app:startDestination="@id/mainFragment">
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.example.fyp.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" >
-        <action
-            android:id="@+id/action_mainFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_main" />
 </navigation>

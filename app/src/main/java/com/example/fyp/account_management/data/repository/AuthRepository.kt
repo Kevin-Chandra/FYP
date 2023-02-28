@@ -31,7 +31,7 @@ class AuthRepository @Inject constructor(
 
     private val userCollectionRef = database.collection(FireStoreCollection.USER)
 
-    suspend fun registerUser(
+    fun registerUser(
         email: String,
         password: String,
         user: Account,
@@ -41,7 +41,7 @@ class AuthRepository @Inject constructor(
             .addOnCompleteListener {
                 if (it.isSuccessful){
                     user.id = it.result.user?.uid?:""
-                    updateUserInfo(user){ state ->
+                    updateProfile(user){ state ->
                         when (state){
                             is Response.Success ->{
                                 result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
@@ -68,7 +68,7 @@ class AuthRepository @Inject constructor(
             }
             .addOnFailureListener{
                 result.invoke(Response.Error(it))
-            }.await()
+            }
     }
 
     private fun updateUserInfo(user: Account, result: (Response<String>) -> Unit) {
@@ -83,16 +83,20 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun updateProfile(newAccount: Account, result: (Response<String>) -> Unit) {
+    fun updateProfile(newAccount: Account, result: (Response<String>) -> Unit) {
         if (auth.currentUser == null) result.invoke(Response.Error(java.lang.Exception("User Not Available")))
-        auth.currentUser?.let {
+        auth.currentUser?.let {user->
             try{
                 val profileUpdate = UserProfileChangeRequest.Builder()
                     .setDisplayName(newAccount.first_name + newAccount.last_name)
                     .build()
                 updateUserInfo(newAccount,result)
-                it.updateProfile(profileUpdate).await()
-                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                user.updateProfile(profileUpdate)
+                    .addOnCompleteListener { it ->
+                        if (it.isSuccessful)
+                            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                    }
+
             } catch (e: Exception) {
                 result.invoke(Response.Error(e))
             }
@@ -126,6 +130,20 @@ class AuthRepository @Inject constructor(
     fun logout(result: () -> Unit) {
         auth.signOut()
         result.invoke()
+    }
+
+    fun forgotPassword(email: String, result: (Response<String>) -> Unit) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    result.invoke(Response.Success(Constants.AuthResult.SUCCESS_EMAIL_SENT))
+
+                } else {
+                    task.exception?.let { Response.Error(it) }?.let { result.invoke(it) }
+                }
+            }.addOnFailureListener {
+                result.invoke(Response.Error(Exception("Authentication failed, Check email")))
+            }
     }
 
     suspend fun getSession() : Account?{

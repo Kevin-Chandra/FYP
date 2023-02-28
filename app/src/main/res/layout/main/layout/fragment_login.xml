@@ -57,7 +57,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:hint="Password"
-            app:endIconMode="clear_text"
+            app:endIconMode="password_toggle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/email_edit_text_layout">
@@ -70,6 +70,20 @@
                 tools:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/forgot_password_btn"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Trouble signing in? Reset Password"
+            android:textAlignment="viewStart"
+            android:textAllCaps="false"
+            android:textColor="@color/purple_500"
+            android:textStyle="italic"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/password_edit_text_layout" />
+
         <RelativeLayout
             android:id="@+id/button_layout"
             android:layout_width="0dp"
@@ -80,7 +94,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/password_edit_text_layout">
+            app:layout_constraintTop_toBottomOf="@+id/forgot_password_btn">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/login_btn"

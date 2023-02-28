@@ -10,6 +10,7 @@ data class RegistrationState(
     val fname: String = "",
     val fnameError: String? = null,
     val lname: String? = null,
+    val lnameError: String? = null,
     val phone: String = "",
     val phoneError: String? = null,
     val address: String? = null,

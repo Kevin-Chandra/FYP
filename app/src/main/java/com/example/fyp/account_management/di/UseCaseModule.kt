@@ -48,9 +48,25 @@ object UseCaseModule {
 
     @Provides
     @Singleton
+    fun provideResetPasswordUseCase(
+        authRepo: AuthRepository
+    ) : ResetPasswordUseCase {
+        return ResetPasswordUseCase(authRepo)
+    }
+
+    @Provides
+    @Singleton
     fun provideValidateEmailUseCase() = ValidateEmailUseCase()
 
     @Provides
     @Singleton
     fun provideValidatePasswordUseCase() = ValidatePasswordUseCase()
+
+    @Provides
+    @Singleton
+    fun provideValidatePhoneUseCase() = ValidatePhoneUseCase()
+
+    @Provides
+    @Singleton
+    fun provideValidateNameUseCase() = ValidateNameUseCase()
 }

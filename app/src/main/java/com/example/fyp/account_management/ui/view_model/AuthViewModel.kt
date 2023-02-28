@@ -4,10 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.data.model.CustomerAccount
-import com.example.fyp.account_management.domain.use_case.EditAccountUseCase
-import com.example.fyp.account_management.domain.use_case.RegisterUseCase
-import com.example.fyp.account_management.domain.use_case.ValidateEmailUseCase
-import com.example.fyp.account_management.domain.use_case.ValidatePasswordUseCase
+import com.example.fyp.account_management.domain.use_case.*
 import com.example.fyp.account_management.util.RegistrationEvent
 import com.example.fyp.account_management.util.RegistrationState
 import com.example.fyp.account_management.util.Response
@@ -16,6 +13,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.lang.Exception
+import java.security.interfaces.RSAMultiPrimePrivateCrtKey
 import java.util.*
 import javax.inject.Inject
 
@@ -28,6 +26,8 @@ class AuthViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val editAccountUseCase: EditAccountUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val validateNameUseCase: ValidateNameUseCase,
+    private val validatePhoneUseCase: ValidatePhoneUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase
     ) : ViewModel(){
 
@@ -71,22 +71,40 @@ class AuthViewModel @Inject constructor(
         _registerResponse.value = Response.Loading
         val emailResult = validateEmailUseCase.invoke(registerState.value.email)
         val passwordResult = validatePasswordUseCase.invoke(registerState.value.password)
-        //TODO add more validate use case
+        val phoneResult = validatePhoneUseCase.invoke(registerState.value.phone)
+        val firstNameResult = validateNameUseCase.invoke(registerState.value.fname)
+        val lastNameResult = registerState.value.lname?.let { validateNameUseCase.invoke(it) }
 
         val hasError = listOf(
             emailResult,
-            passwordResult
+            passwordResult,
+            phoneResult,
+            firstNameResult,
+            lastNameResult ?: ValidationResult( successful = true)
         ).any { !it.successful }
 
+        println(registerState.value)
         if(hasError) {
             _registerState.value = registerState.value.copy(
                 emailError = emailResult.errorMessage,
-                passwordError = passwordResult.errorMessage
+                passwordError = passwordResult.errorMessage,
+                phoneError = phoneResult.errorMessage,
+                fnameError = firstNameResult.errorMessage,
+                lnameError = lastNameResult?.errorMessage,
             )
+            println("blocked here")
             _registerResponse.value = Response.Error(Exception("Field(s) is invalid!"))
             return
+        } else {
+            _registerState.value = registerState.value.copy(
+                emailError = null,
+                passwordError = null,
+                phoneError = null,
+                fnameError = null,
+                lnameError = null
+            )
         }
-
+        println("pass here")
         //success validation
         val account = getAccount(
                     registerState.value.fname,
@@ -96,14 +114,12 @@ class AuthViewModel @Inject constructor(
                     registerState.value.address,
                     registerState.value.birthday)
 
-        viewModelScope.launch {
-            registerUseCase.invoke(
-                registerState.value.email,
-                registerState.value.password,
-                account
-            ) {
-                _registerResponse.value = it
-            }
+        registerUseCase.invoke(
+            registerState.value.email,
+            registerState.value.password,
+            account
+        ) {
+            _registerResponse.value = it
         }
     }
 

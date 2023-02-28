@@ -6,8 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.fyp.account_management.AuthActivity
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.databinding.FragmentMainBinding
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
@@ -45,7 +47,9 @@ class MainFragment : Fragment() {
 
         binding.logoutBtn.setOnClickListener {
             authViewModel.logout {
-                findNavController().navigate(MainFragmentDirections.actionMainFragmentToLoginFragment())
+                startActivity(Intent(requireContext(), AuthActivity::class.java))
+                activity?.finish()
+                Toast.makeText(requireContext(),"Logged Out!" ,Toast.LENGTH_SHORT).show()
             }
         }
     }

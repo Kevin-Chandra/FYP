@@ -39,9 +39,19 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:hint="Email"
+                app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView">
+
+                <TextView
+                    android:id="@+id/email_error_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    tools:text="Error Text"
+                    android:textColor="@color/red"
+                    android:visibility="invisible"/>
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/email_edit_text"
@@ -60,8 +70,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
+                app:endIconMode="password_toggle"
                 android:hint="Password"
-                app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/email_edit_text_layout">
@@ -72,6 +82,15 @@
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
                     tools:text="" />
+
+                <TextView
+                    android:id="@+id/password_error_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    tools:text="Error Text"
+                    android:textColor="@color/red"
+                    android:visibility="invisible"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -95,6 +114,15 @@
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     tools:text="" />
+                <TextView
+                    android:id="@+id/fname_error_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    tools:text="Error Text"
+                    android:textColor="@color/red"
+                    android:visibility="invisible"/>
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -118,6 +146,15 @@
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     tools:text="" />
+
+                <TextView
+                    android:id="@+id/lname_error_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    tools:text="Error Text"
+                    android:textColor="@color/red"
+                    android:visibility="invisible"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -132,14 +169,26 @@
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/lname_edit_text_layout">
+                app:layout_constraintTop_toBottomOf="@+id/fname_edit_text_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/phone_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
+                    android:inputType="phone"
+                    android:maxLength="16"
+                    android:digits="1234567890+"
                     tools:text="" />
+
+                <TextView
+                    android:id="@+id/phone_error_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    tools:text="Error Text"
+                    android:textColor="@color/red"
+                    android:visibility="invisible"/>
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -193,13 +242,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/birthday_edit_text"
-                android:text="Birthday"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="24dp"
+                android:text="Birthday"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/address_edit_text_layout" />
@@ -220,14 +269,14 @@
                     android:id="@+id/register_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:text="Register"
                     android:textAllCaps="false"
                     android:textColor="@color/black"
-                    app:backgroundTint="@color/white"
-                    android:layout_centerInParent="true"/>
+                    app:backgroundTint="@color/white" />
 <!--                    app:layout_constraintEnd_toEndOf="parent"-->
 <!--                    app:layout_constraintStart_toStartOf="parent"-->
 <!--                    app:layout_constraintTop_toBottomOf="@+id/button_layout"-->
@@ -246,6 +295,19 @@
                     tools:visibility="visible" />
             </RelativeLayout>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/back_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="32dp"
+                android:text="Back"
+                android:textColor="@color/black"
+                app:backgroundTint="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/button_layout" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

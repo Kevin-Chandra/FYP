@@ -1,6 +1,7 @@
 package com.example.fyp.account_management.ui.fragment
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,12 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.example.fyp.MainActivity
 import com.example.fyp.account_management.ui.view_model.AuthViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.RegistrationEvent
@@ -51,9 +54,12 @@ class UserRegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeRegistration()
+        observeRegistrationState()
         setUpDatePicker()
 
-
+        binding.backBtn.setOnClickListener {
+            findNavController().navigate(UserRegisterFragmentDirections.actionUserRegisterFragmentToLoginFragment())
+        }
         binding.registerBtn.setOnClickListener{
             viewModel.onEvent(RegistrationEvent.Submit)
         }
@@ -110,20 +116,17 @@ class UserRegisterFragment : Fragment() {
             viewModel.registerResponse.collect() {
                 when (it) {
                     is Response.Loading -> {
-                        println("Registration response loading")
                         binding.registerProgress.visibility = View.VISIBLE
                     }
                     is Response.Error -> {
-                        println("Add food response encountered error")
                         binding.registerProgress.visibility = View.GONE
-                        println(it)
+                        it.exception.message?.let { it1 -> errorToast(it1) }
 //                        it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is Response.Success -> {
-                        println("Registration success data ${it.data}")
                         if (it.data == Constants.AuthResult.SUCCESS_SIGNUP){
                             binding.registerProgress.visibility = View.GONE
-                            println("Registration successfully")
+                            successToast("Registration success!")
                             navigateMainPage()
                         }
                     }
@@ -132,11 +135,62 @@ class UserRegisterFragment : Fragment() {
         }
     }
 
-    private fun errorView(view: View){
-        view.setBackgroundColor(Color.RED)
+    private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.registerState.collect() {
+                if (it.emailError != null){
+                    errorView(binding.emailErrorTv)
+                    binding.emailErrorTv.text = it.emailError.toString()
+                } else {
+                    disableError(binding.emailErrorTv)
+                }
+                if (it.passwordError != null){
+                    errorView(binding.passwordErrorTv)
+                    binding.passwordErrorTv.text = it.passwordError.toString()
+                } else {
+                    disableError(binding.passwordErrorTv)
+                }
+                if (it.fnameError != null){
+                    errorView(binding.fnameErrorTv)
+                    binding.fnameErrorTv.text = it.fnameError.toString()
+                } else {
+                    disableError(binding.fnameErrorTv)
+                }
+                if (it.lnameError != null){
+                    errorView(binding.lnameErrorTv)
+                    binding.lnameErrorTv.text = it.lnameError.toString()
+                } else {
+                    disableError(binding.lnameErrorTv)
+                }
+                if (it.phoneError != null){
+                    errorView(binding.phoneErrorTv)
+                    binding.phoneErrorTv.text = it.phoneError.toString()
+                } else {
+                    disableError(binding.phoneErrorTv)
+                }
+            }
+        }
     }
 
-    private fun navigateMainPage() = findNavController().navigate(UserRegisterFragmentDirections.actionUserRegisterFragmentToMainFragment())
+    private fun disableError(view: View){
+        view.visibility = View.GONE
+    }
+    private fun errorView(view: View){
+        view.visibility = View.VISIBLE
+    }
+
+    private fun errorToast(msg : String){
+        Toast.makeText(requireContext(),msg,Toast.LENGTH_LONG).show()
+    }
+
+    private fun successToast(msg : String){
+        Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
+    }
+
+    private fun navigateMainPage() = startActivity(
+        Intent(requireContext(),
+            MainActivity::class.java)
+    )
 
     override fun onDestroy() {
         super.onDestroy()

@@ -1,6 +1,5 @@
 package com.example.fyp.account_management.ui.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,21 +11,21 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.example.fyp.MainActivity
 import com.example.fyp.R
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentFirstBinding
+import com.example.fyp.databinding.FragmentForgotPasswordBinding
 import com.example.fyp.databinding.FragmentLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
-class LoginFragment : Fragment() {
+class ForgotPasswordFragment : Fragment() {
 
-    private var _binding: FragmentLoginBinding? = null
+    private var _binding: FragmentForgotPasswordBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel by viewModels<MainAuthViewModel>()
@@ -36,51 +35,38 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        _binding = FragmentForgotPasswordBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        observeLogin()
+        observeReset()
 
-        binding.registerBtn.setOnClickListener{
-            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToUserRegisterFragment())
+        binding.submitBtn.setOnClickListener {
+            viewModel.resetPassword(binding.emailEditText.text.toString())
         }
 
-        binding.loginBtn.setOnClickListener {
-            viewModel.login(
-                binding.emailEditText.text.toString(),
-                binding.passwordEditText.text.toString()
-            )
-        }
-        binding.forgotPasswordBtn.setOnClickListener {
-            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToForgotPasswordFragment())
-        }
     }
 
-    private fun observeLogin() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeReset() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.loginState.collect() {
+            viewModel.resetState.collect() {
                 when (it) {
                     is Response.Loading -> {
-                        println("Login response loading")
-                        binding.loginProgress.visibility = View.VISIBLE
+//                        println("Login response loading")
+                        binding.progressBar.visibility = View.VISIBLE
                     }
                     is Response.Error -> {
-                        println("Login encountered error")
-                        binding.loginProgress.visibility = View.GONE
+                        binding.progressBar.visibility = View.GONE
                         it.exception.message?.let { it1 -> toast(it1) }
-//                        it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is Response.Success -> {
-                        println("Login success data ${it.data}")
-                        if (it.data){
-                            binding.loginProgress.visibility = View.GONE
-                            println("Login successfully")
-                            navigateMainPage()
-                            activity?.finish()
+                        if (it.data == Constants.AuthResult.SUCCESS_EMAIL_SENT){
+                            binding.progressBar.visibility = View.GONE
+                            toast("Email sent!")
+                            navigateLoginPage()
                         }
                     }
                 }
@@ -88,10 +74,10 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun navigateMainPage() = startActivity(Intent(requireContext(),MainActivity::class.java))
+    private fun navigateLoginPage() = findNavController().navigate(ForgotPasswordFragmentDirections.actionForgotPasswordFragmentToLoginFragment())
 
     private fun toast(message: String){
-        Toast.makeText(requireContext(),message,Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(),message,Toast.LENGTH_SHORT).show()
     }
 
 }

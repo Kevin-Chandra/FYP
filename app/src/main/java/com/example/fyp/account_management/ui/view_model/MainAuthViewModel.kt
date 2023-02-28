@@ -20,7 +20,8 @@ import javax.inject.Inject
 class MainAuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val getSessionUseCase: GetSessionUseCase,
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase,
+    private val resetPasswordUseCase: ResetPasswordUseCase
 ) : ViewModel() {
 
     var user: Account? = null
@@ -28,12 +29,22 @@ class MainAuthViewModel @Inject constructor(
     private val _loginState = MutableStateFlow<Response<Boolean>>(Response.Success(false))
     val loginState = _loginState.asStateFlow()
 
+    private val _resetState = MutableStateFlow<Response<String>>(Response.Success(""))
+    val resetState = _resetState.asStateFlow()
+
     fun login(email: String, password: String) = viewModelScope.launch{
         _loginState.emit(Response.Loading)
             loginUseCase.invoke(email,password){
                 _loginState.value = it
             }
 
+    }
+
+    fun resetPassword(email: String) = viewModelScope.launch(Dispatchers.Main){
+        _resetState.value = Response.Loading
+        resetPasswordUseCase.invoke(email){
+            _resetState.value = it
+        }
     }
 
     fun getSession( result : (Account?) -> Unit ) = viewModelScope.launch(Dispatchers.Main){
