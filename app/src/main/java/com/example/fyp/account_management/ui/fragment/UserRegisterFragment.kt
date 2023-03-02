@@ -136,46 +136,37 @@ class UserRegisterFragment : Fragment() {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.registerState.collect() {
                 if (it.emailError != null){
-                    errorView(binding.emailErrorTv)
-                    binding.emailErrorTv.text = it.emailError.toString()
+                    binding.emailEditTextLayout.error = it.emailError.toString()
+
                 } else {
-                    disableError(binding.emailErrorTv)
+                    binding.emailEditTextLayout.error = null
                 }
                 if (it.passwordError != null){
-                    errorView(binding.passwordErrorTv)
-                    binding.passwordErrorTv.text = it.passwordError.toString()
+                    binding.passwordEditTextLayout.error = it.passwordError.toString()
+
                 } else {
-                    disableError(binding.passwordErrorTv)
+                    binding.passwordEditTextLayout.error = null
                 }
                 if (it.fnameError != null){
-                    errorView(binding.fnameErrorTv)
-                    binding.fnameErrorTv.text = it.fnameError.toString()
+                    binding.fnameEditTextLayout.error = it.fnameError.toString()
+
                 } else {
-                    disableError(binding.fnameErrorTv)
+                    binding.fnameEditTextLayout.error = null
                 }
                 if (it.lnameError != null){
-                    errorView(binding.lnameErrorTv)
-                    binding.lnameErrorTv.text = it.lnameError.toString()
+                    binding.lnameEditTextLayout.error = it.lnameError.toString()
+
                 } else {
-                    disableError(binding.lnameErrorTv)
+                    binding.lnameEditTextLayout.error = null
                 }
                 if (it.phoneError != null){
-                    errorView(binding.phoneErrorTv)
-                    binding.phoneErrorTv.text = it.phoneError.toString()
+                    binding.phoneEditTextLayout.error = it.phoneError.toString()
                 } else {
-                    disableError(binding.phoneErrorTv)
+                    binding.phoneEditTextLayout.error = null
                 }
             }
         }
     }
-
-    private fun disableError(view: View){
-        view.visibility = View.GONE
-    }
-    private fun errorView(view: View){
-        view.visibility = View.VISIBLE
-    }
-
     private fun errorToast(msg : String){
         Toast.makeText(requireContext(),msg,Toast.LENGTH_LONG).show()
     }

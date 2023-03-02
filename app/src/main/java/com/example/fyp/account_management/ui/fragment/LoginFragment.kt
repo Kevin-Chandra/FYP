@@ -65,20 +65,18 @@ class LoginFragment : Fragment() {
             viewModel.loginState.collect() {
                 when (it) {
                     is Response.Loading -> {
-                        println("Login response loading")
+                        binding.loginBtn.isEnabled = false
                         binding.loginProgress.visibility = View.VISIBLE
                     }
                     is Response.Error -> {
-                        println("Login encountered error")
+                        binding.loginBtn.isEnabled = true
                         binding.loginProgress.visibility = View.GONE
                         it.exception.message?.let { it1 -> toast(it1) }
-//                        it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is Response.Success -> {
-                        println("Login success data ${it.data}")
                         if (it.data){
                             binding.loginProgress.visibility = View.GONE
-                            println("Login successfully")
+                            binding.loginBtn.isEnabled = true
                             navigateMainPage()
                             activity?.finish()
                         }

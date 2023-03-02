@@ -39,19 +39,11 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:hint="Email"
+                app:errorEnabled="true"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView">
-
-                <TextView
-                    android:id="@+id/email_error_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    tools:text="Error Text"
-                    android:textColor="@color/red"
-                    android:visibility="invisible"/>
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/email_edit_text"
@@ -72,6 +64,7 @@
                 android:layout_marginEnd="16dp"
                 app:endIconMode="password_toggle"
                 android:hint="Password"
+                app:errorEnabled="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/email_edit_text_layout">
@@ -83,14 +76,6 @@
                     android:inputType="textPassword"
                     tools:text="" />
 
-                <TextView
-                    android:id="@+id/password_error_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    tools:text="Error Text"
-                    android:textColor="@color/red"
-                    android:visibility="invisible"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -102,6 +87,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:hint="First Name"
+                app:errorEnabled="true"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toStartOf="@+id/lname_edit_text_layout"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -114,14 +100,6 @@
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     tools:text="" />
-                <TextView
-                    android:id="@+id/fname_error_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    tools:text="Error Text"
-                    android:textColor="@color/red"
-                    android:visibility="invisible"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -134,6 +112,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:hint="Last Name"
+                app:errorEnabled="true"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -146,15 +125,6 @@
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     tools:text="" />
-
-                <TextView
-                    android:id="@+id/lname_error_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    tools:text="Error Text"
-                    android:textColor="@color/red"
-                    android:visibility="invisible"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -166,6 +136,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:hint="Phone Number"
+                app:errorEnabled="true"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -179,15 +150,6 @@
                     android:maxLength="16"
                     android:digits="1234567890+"
                     tools:text="" />
-
-                <TextView
-                    android:id="@+id/phone_error_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    tools:text="Error Text"
-                    android:textColor="@color/red"
-                    android:visibility="invisible"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -212,33 +174,6 @@
                     android:inputType="textMultiLine"
                     tools:text="" />
             </com.google.android.material.textfield.TextInputLayout>
-
-
-
-<!--            <com.google.android.material.textfield.TextInputLayout-->
-<!--                android:id="@+id/birthday_edit_text_layout"-->
-<!--                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginStart="16dp"-->
-<!--                android:layout_marginTop="16dp"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:hint="Birthday"-->
-<!--                app:endIconMode="clear_text"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toBottomOf="@+id/address_edit_text_layout">-->
-
-<!--                <EditText-->
-<!--                    android:id="@+id/birthday_edit_text"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:ems="10"-->
-<!--                    android:focusable="false"-->
-<!--                    android:inputType="date" />-->
-
-<!--            </com.google.android.material.textfield.TextInputLayout>-->
-
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/birthday_edit_text"
@@ -277,10 +212,6 @@
                     android:textAllCaps="false"
                     android:textColor="@color/black"
                     app:backgroundTint="@color/white" />
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toBottomOf="@+id/button_layout"-->
-
 
                 <ProgressBar
                     android:id="@+id/register_progress"
@@ -308,7 +239,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/button_layout" />
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

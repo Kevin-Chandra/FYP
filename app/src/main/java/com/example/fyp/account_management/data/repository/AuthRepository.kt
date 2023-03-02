@@ -155,19 +155,19 @@ class AuthRepository @Inject constructor(
         result: (Response<Boolean>) -> Unit
     ){
         try{
-            println("From authdb")
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener{
                     if (it.isSuccessful){
-                        println("Im here??")
                         result.invoke(Response.Success(true))
                     }
                 }
                 .addOnFailureListener {
-                    println("Oh no")
-                    result.invoke(Response.Error(it))
+                    if (it is FirebaseAuthInvalidCredentialsException)
+                        result.invoke(Response.Error(Exception("Email/Password is invalid")))
+                    else
+                        result.invoke(Response.Error(it))
                 }
-        } catch (e: Exception) {
+        }catch (e: Exception) {
             result.invoke(Response.Error(e))
         }
     }

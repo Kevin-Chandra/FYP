@@ -248,7 +248,6 @@ class AddEditFoodFragment : Fragment() {
                     isAddFoodObserved = !isAddFoodObserved
                     observeAddFood()
                 }
-                println("handle soc ${binding.productIdEditText.text.toString()}")
                 viewModel.addNewFood(
                     binding.productIdEditText.text.toString(),
                     binding.productNameEditText.text.toString(),
@@ -257,8 +256,6 @@ class AddEditFoodFragment : Fragment() {
                     binding.modifierSwitch.isChecked,
                     modifierList
                 )
-
-//                successToast("New food added successfully")
             } else {
                 if (!isUpdateFoodObserved){
                     isUpdateFoodObserved = !isUpdateFoodObserved
@@ -315,17 +312,17 @@ class AddEditFoodFragment : Fragment() {
             viewModel.addFoodResponse.collect() {
                 when (it) {
                     is UiState.Loading -> {
-                        println("Add food response loading")
+                        binding.saveButton.isEnabled = false
                         binding.progressBar2.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-                        println("Add food response encountered error")
+                        binding.saveButton.isEnabled = true
                         binding.progressBar2.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                        println("Add food success data ${it.data}")
                         if (it.data){
+                            binding.saveButton.isEnabled = true
                             binding.progressBar2.visibility = View.GONE
                             successToast("Food Added successfully")
                             navigateBack()
@@ -345,16 +342,19 @@ class AddEditFoodFragment : Fragment() {
                     is UiState.Loading -> {
                         println("Update food response loading")
                         binding.progressBar2.visibility = View.VISIBLE
+                        binding.saveButton.isEnabled = false
                     }
                     is UiState.Failure -> {
                         println("Update food response encountered error")
                         binding.progressBar2.visibility = View.GONE
+                        binding.saveButton.isEnabled = true
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
                         if (it.data){
+                            binding.saveButton.isEnabled = true
                             binding.progressBar2.visibility = View.GONE
-                            successToast("Update food successful is ${it.data}")
+                            successToast("Update food successful!")
                             navigateBack()
                         }
                     }
@@ -373,8 +373,6 @@ class AddEditFoodFragment : Fragment() {
                     }
                     is UiState.Failure -> {
                         binding.progressBar2.visibility = View.GONE
-//                    binding.progressBar.hide()
-//                    it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
                         binding.progressBar2.visibility = View.GONE

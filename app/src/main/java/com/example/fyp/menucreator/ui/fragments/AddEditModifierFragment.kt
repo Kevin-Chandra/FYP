@@ -270,16 +270,16 @@ class AddEditModifierFragment : Fragment() {
             viewModel.addResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
-                        println("Add modifier response loading")
+                        binding.saveButton.isEnabled = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-                        println("Add modifier response error")
+                        binding.saveButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                        println("CHECKKKKKKKK")
+                        binding.saveButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         successToast("Modifier Added successfully")
                         navigateBack()
@@ -369,18 +369,18 @@ class AddEditModifierFragment : Fragment() {
             viewModel.editFinishResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
-//                        println("Edit item finish response loading")
+                        binding.saveButton.isEnabled = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-                        println("EDIT response error")
                         binding.progressBar.visibility = View.GONE
+                        binding.saveButton.isEnabled = true
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                        println("Whats in me : ${it.data}")
                         if (it.data){
                             binding.progressBar.visibility = View.GONE
+                            binding.saveButton.isEnabled = true
                             successToast("Modifier successfully updated")
                             navigateBack()
                         }

@@ -88,13 +88,16 @@ class AuthViewModel @Inject constructor(
         var passwordResult = ValidationResult(successful = true)
         var lastNameResult : ValidationResult? = null
 
+        val response : MutableStateFlow<Response<String>>
+
         if (command == Constants.Command.ADD){
-            _registerResponse.value = Response.Loading
+            response = _registerResponse
              emailResult = validateEmailUseCase.invoke(registerState.value.email)
              passwordResult = validatePasswordUseCase.invoke(registerState.value.password)
         } else {
-            _updateResponse.value = Response.Loading
+            response = _updateResponse
         }
+        response.value = Response.Loading
 
         val phoneResult = validatePhoneUseCase.invoke(registerState.value.phone)
         val firstNameResult = validateNameUseCase.invoke(registerState.value.fname)
@@ -118,6 +121,7 @@ class AuthViewModel @Inject constructor(
                 fnameError = firstNameResult.errorMessage,
                 lnameError = lastNameResult?.errorMessage,
             )
+            response.value = Response.Error(Exception("Field(s) error"))
             return
         } else {
             _registerState.value = registerState.value.copy(
