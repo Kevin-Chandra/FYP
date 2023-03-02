@@ -9,7 +9,8 @@ data class CustomerAccount(
     override val phone: String = "",
     override val email: String = "",
     override val address: String = "",
-    override val birthday: Date? = null
+    override val birthday: Date? = null,
+    override val dateCreated: Date? = null
 ) : Account(
     id,
     first_name,
@@ -18,5 +19,6 @@ data class CustomerAccount(
     email,
     address,
     birthday,
-    AccountType.Customer
+    AccountType.Customer,
+    dateCreated
 )

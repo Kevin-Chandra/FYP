@@ -2,4 +2,40 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph2" />
+    android:id="@+id/account_nav_graph"
+    app:startDestination="@id/mainAccountFragment">
+    <fragment
+        android:id="@+id/mainAccountFragment"
+        android:name="com.example.fyp.account_management.ui.fragment.MainAccountFragment"
+        android:label="fragment_main_account"
+        tools:layout="@layout/fragment_main_account" >
+        <action
+            android:id="@+id/action_mainAccountFragment_to_editAccountFragment"
+            app:destination="@id/editAccountFragment" />
+        <action
+            android:id="@+id/action_mainAccountFragment_to_updatePasswordFragment"
+            app:destination="@id/updatePasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editAccountFragment"
+        android:name="com.example.fyp.account_management.ui.fragment.EditAccountFragment"
+        android:label="fragment_edit_account"
+        tools:layout="@layout/fragment_edit_account" >
+        <action
+            android:id="@+id/action_editAccountFragment_to_mainAccountFragment"
+            app:destination="@id/mainAccountFragment"
+            app:popUpTo="@id/mainAccountFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/updatePasswordFragment"
+        android:name="com.example.fyp.account_management.ui.fragment.UpdatePasswordFragment"
+        android:label="fragment_update_password"
+        tools:layout="@layout/fragment_update_password" >
+        <action
+            android:id="@+id/action_updatePasswordFragment_to_mainAccountFragment"
+            app:destination="@id/mainAccountFragment"
+            app:popUpTo="@id/mainAccountFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+</navigation>

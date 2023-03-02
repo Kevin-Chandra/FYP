@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.fyp.account_management.AccountActivity
 import com.example.fyp.account_management.AuthActivity
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.databinding.FragmentMainBinding
@@ -36,8 +37,14 @@ class MainFragment : Fragment() {
 
         authViewModel.getSession {
             if (it != null){
+                binding.shimmerHello.stopShimmer()
+                binding.shimmerHello.visibility = View.GONE
                 binding.helloTv.text = "Hello, ${it.first_name}"
             }
+        }
+
+        binding.accountBtn.setOnClickListener {
+            startActivity(Intent(requireContext(),AccountActivity::class.java))
         }
 
         binding.menuCreatorButton.setOnClickListener {
@@ -45,12 +52,6 @@ class MainFragment : Fragment() {
             startActivity(i)
         }
 
-        binding.logoutBtn.setOnClickListener {
-            authViewModel.logout {
-                startActivity(Intent(requireContext(), AuthActivity::class.java))
-                activity?.finish()
-                Toast.makeText(requireContext(),"Logged Out!" ,Toast.LENGTH_SHORT).show()
-            }
-        }
+
     }
 }

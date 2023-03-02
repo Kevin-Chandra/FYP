@@ -11,6 +11,12 @@ class ValidatePhoneUseCase {
                 errorMessage = "Phone number can't be blank"
             )
         }
+        if(phone.length < 5 || phone.length > 16) {
+            return ValidationResult(
+                successful = false,
+                errorMessage = "Phone number length is invalid"
+            )
+        }
         if(!Patterns.PHONE.matcher(phone).matches()) {
             return ValidationResult(
                 successful = false,

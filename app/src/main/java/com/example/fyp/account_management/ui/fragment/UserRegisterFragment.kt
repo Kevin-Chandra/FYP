@@ -63,9 +63,6 @@ class UserRegisterFragment : Fragment() {
         binding.registerBtn.setOnClickListener{
             viewModel.onEvent(RegistrationEvent.Submit)
         }
-        if (viewModel.registerState.value.emailError != null){
-            errorView(binding.emailEditTextLayout)
-        }
         binding.emailEditText.doAfterTextChanged {
             viewModel.onEvent(RegistrationEvent.EmailChanged(binding.emailEditText.text.toString()))
         }

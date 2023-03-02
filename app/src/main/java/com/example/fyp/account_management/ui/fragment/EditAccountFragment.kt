@@ -1,0 +1,213 @@
+package com.example.fyp.account_management.ui.fragment
+
+import android.app.DatePickerDialog
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import com.example.fyp.R
+import com.example.fyp.account_management.ui.view_model.AuthViewModel
+import com.example.fyp.account_management.util.Constants
+import com.example.fyp.account_management.util.RegistrationEvent
+import com.example.fyp.account_management.util.Response
+import com.example.fyp.databinding.FragmentEditAccountBinding
+import com.google.android.material.textfield.TextInputLayout
+import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.*
+
+@AndroidEntryPoint
+class EditAccountFragment : Fragment() {
+
+    private var _binding: FragmentEditAccountBinding? = null
+    private val binding get() = _binding!!
+
+    private var cal: Calendar = Calendar.getInstance()
+    private val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+    private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
+
+    private val viewModel by activityViewModels<AuthViewModel>()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentEditAccountBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.getSession()
+        observeLoading()
+        observeUpdate()
+        observeRegistrationState()
+        setUpDatePicker()
+
+        binding.cancelBtn.setOnClickListener {
+            navigateBack()
+        }
+        binding.saveBtn.setOnClickListener {
+            viewModel.onEvent(RegistrationEvent.Submit)
+        }
+        onFinishEditTextView(binding.firstNameEt,binding.firstNameEtl)
+        binding.firstNameEt.doAfterTextChanged {
+            viewModel.onEvent(RegistrationEvent.FirstNameChanged(binding.firstNameEt.text.toString()))
+        }
+        onFinishEditTextView(binding.lastNameEt,binding.lastNameEtl)
+        binding.lastNameEt.doAfterTextChanged {
+            viewModel.onEvent(RegistrationEvent.LastNameChanged(binding.lastNameEt.text.toString()))
+        }
+        onFinishEditTextView(binding.phoneEt,binding.phoneEtl)
+        binding.phoneEt.doAfterTextChanged {
+            viewModel.onEvent(RegistrationEvent.PhoneChanged(binding.phoneEt.text.toString()))
+        }
+        onFinishEditTextView(binding.addressEt,binding.addressEtl)
+        binding.addressEt.doAfterTextChanged {
+            viewModel.onEvent(RegistrationEvent.AddressChanged(binding.addressEt.text.toString()))
+        }
+        binding.birthdayEt.isEnabled = false
+        binding.birthdayEtl.setEndIconOnClickListener {
+            DatePickerDialog(
+                requireContext(),
+                dateSetListener,
+                // set DatePickerDialog to point to today's date when it loads up
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)).show()
+        }
+    }
+
+    private fun onEditTextView(tv: EditText, textInputLayout: TextInputLayout){
+        tv.isEnabled = true
+        textInputLayout.setEndIconDrawable(R.drawable.ic_done)
+        textInputLayout.setEndIconOnClickListener {
+            onFinishEditTextView(tv,textInputLayout)
+        }
+    }
+
+    private fun onFinishEditTextView(tv: EditText, textInputLayout: TextInputLayout){
+        tv.isEnabled = false
+        textInputLayout.setEndIconDrawable(R.drawable.ic_edit)
+        textInputLayout.setEndIconOnClickListener {
+            onEditTextView(tv,textInputLayout)
+        }
+    }
+
+    private fun setUpDatePicker(){
+        dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                cal.set(Calendar.YEAR, year)
+                cal.set(Calendar.MONTH, monthOfYear)
+                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                viewModel.onEvent(RegistrationEvent.BirthdayChanged(cal.time))
+                binding.birthdayEt.setText(sdf.format(cal.time))
+            }
+
+    }
+
+    private fun observeLoading() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.loadingState.collect() {
+                when (it) {
+                    is Response.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is Response.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        it.exception.message?.let { it1 -> errorToast(it1) }
+                    }
+                    is Response.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        if (it.data){
+                            loadData()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeUpdate() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.updateResponse.collect() {
+                when (it) {
+                    is Response.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is Response.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        it.exception.message?.let { it1 -> errorToast(it1) }
+                    }
+                    is Response.Success -> {
+                        if (it.data == Constants.AuthResult.SUCCESS_UPDATE){
+                            binding.progressBar.visibility = View.GONE
+                            successToast("Account Information Updated!")
+                            navigateBack()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun successToast(s: String) {
+        Toast.makeText(requireContext(),s,Toast.LENGTH_SHORT).show()
+    }
+
+    private fun errorToast(msg: String) {
+        Toast.makeText(requireContext(),msg,Toast.LENGTH_LONG).show()
+    }
+
+    private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.registerState.collect() {
+                if (it.fnameError != null){
+                    binding.firstNameEtl.error = it.fnameError
+                } else {
+                    binding.firstNameEtl.error = null
+                }
+                if (it.lnameError != null){
+                    binding.lastNameEtl.error = it.lnameError
+                } else {
+                    binding.lastNameEtl.error = null
+                }
+                if (it.phoneError != null){
+                    binding.phoneEtl.error = it.phoneError
+                } else {
+                    binding.phoneEtl.error = null
+                }
+            }
+        }
+    }
+
+    private fun navigateBack() {
+        findNavController().navigate(EditAccountFragmentDirections.actionEditAccountFragmentToMainAccountFragment())
+    }
+
+    private fun loadData() {
+        binding.apply {
+            firstNameEt.setText(viewModel.user.first_name)
+            lastNameEt.setText(viewModel.user.last_name)
+            phoneEt.setText(viewModel.user.phone)
+            addressEt.setText(viewModel.user.address)
+            birthdayEt.setText(
+                if (viewModel.user.birthday != null)
+                    sdf.format(((viewModel.user.birthday) as Date).time)
+                else
+                    null
+            )
+
+        }
+    }
+
+}

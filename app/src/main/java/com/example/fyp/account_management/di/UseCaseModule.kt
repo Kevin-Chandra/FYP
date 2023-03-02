@@ -69,4 +69,11 @@ object UseCaseModule {
     @Provides
     @Singleton
     fun provideValidateNameUseCase() = ValidateNameUseCase()
+
+    @Provides
+    @Singleton
+    fun provideUpdatePasswordUseCase(
+        authRepo: AuthRepository
+    ) = ChangePasswordUseCase(authRepo)
+
 }

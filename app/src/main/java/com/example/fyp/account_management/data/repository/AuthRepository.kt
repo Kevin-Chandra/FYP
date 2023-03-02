@@ -1,40 +1,32 @@
 package com.example.fyp.account_management.data.repository
 
-import com.example.fyp.account_management.data.Result
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.CustomerAccount
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.util.FireStoreCollection
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
+
 
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val database: FirebaseFirestore
 ) {
 
-    private val userCollectionRef = database.collection(FireStoreCollection.USER)
+    private val customerCollectionRef = database.collection(FireStoreCollection.USER)
 
     fun registerUser(
         email: String,
         password: String,
-        user: Account,
+        user: CustomerAccount,
         result: (Response<String>) -> Unit
     ) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -71,11 +63,66 @@ class AuthRepository @Inject constructor(
             }
     }
 
+    fun updatePassword(oldPass: String, newPass: String, result: (Response<String>) -> Unit){
+        val user = auth.currentUser!!
+        val credential = EmailAuthProvider.getCredential(user.email!!,oldPass)
+        user.reauthenticate(credential)
+            .addOnCompleteListener{
+                if (it.isSuccessful){
+                    user.updatePassword(newPass)
+                        .addOnCompleteListener { update ->
+                        if (update.isSuccessful)
+                            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE_PASSWORD))
+                        else
+                            result.invoke(Response.Error(Exception("Password Not Updated")))
+                    }
+                } else {
+                    result.invoke(Response.Error(Exception("Failed to authenticate user!")))
+                }
+            }.addOnFailureListener {
+                result.invoke(Response.Error(it))
+            }
+    }
+
+//    fun updateEmail(oldEmail : String, newEmail: String, password: String, result: (Response<String>) -> Unit){
+//        val credential = EmailAuthProvider.getCredential(oldEmail,password)
+//        val user = auth.currentUser!!
+//
+//        user.reauthenticate(credential)
+//            .addOnCompleteListener{
+//                if (it.isSuccessful){
+//                    user.updateEmail(newEmail)
+//                        .addOnCompleteListener { update ->
+//                            if (update.isSuccessful){
+//                                CoroutineScope(Dispatchers.IO).launch {
+//                                    val account = getSession()?.copy(email = newEmail)
+//                                    if (account != null) {
+//                                        updateProfile(account){
+//                                            result.invoke(Response.Success("Email Updated!"))
+//                                        }
+//                                    }
+//                                }
+//
+//                            }
+//                            else
+//                                result.invoke(Response.Error(Exception("Email Not Updated")))
+//                        }
+//                } else {
+//                    result.invoke(Response.Error(Exception("Failed to authenticate user!")))
+//                }
+//            }.addOnFailureListener {
+//                result.invoke(Response.Error(it))
+//            }
+//    }
+
     private fun updateUserInfo(user: Account, result: (Response<String>) -> Unit) {
-        val document = userCollectionRef.document(user.id)
+        val document = customerCollectionRef.document(user.id)
         CoroutineScope(Dispatchers.IO).launch{
             try{
-                document.set(user).await()
+                document.set(
+                    user,
+                    SetOptions.merge())
+                    .await()
                 result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
             } catch (e: Exception) {
                 result.invoke(Response.Error(e))
@@ -101,8 +148,6 @@ class AuthRepository @Inject constructor(
                 result.invoke(Response.Error(e))
             }
         }
-
-
     }
     fun loginUser(
         email: String,
@@ -150,7 +195,7 @@ class AuthRepository @Inject constructor(
         return if (auth.currentUser == null)
             null
         else {
-            val document = auth.currentUser?.uid?.let { userCollectionRef.document(it) }?.get()
+            val document = auth.currentUser?.uid?.let { customerCollectionRef.document(it) }?.get()
                 ?.await()
             document!!.toObject<CustomerAccount>()
         }

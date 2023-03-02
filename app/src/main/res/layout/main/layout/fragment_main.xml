@@ -6,6 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".MainFragment">
 
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_hello"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:shimmer_auto_start="true">
+                <EditText
+                    android:id="@+id/placeholder_hello_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/TextAppearance.MaterialComponents.Headline4"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:background="#DDDDDD"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
         <TextView
             android:id="@+id/hello_tv"
             style="@style/TextAppearance.MaterialComponents.Headline4"
@@ -30,19 +49,18 @@
             android:text="Menu Creator"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/logout_btn"
+            app:layout_constraintStart_toEndOf="@+id/account_btn"
             app:layout_constraintTop_toBottomOf="@+id/hello_tv" />
 
         <Button
-            android:id="@+id/logout_btn"
+            android:id="@+id/account_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:text="Logout"
+            android:text="Account"
+            app:layout_constraintBottom_toBottomOf="@+id/menu_creator_button"
             app:layout_constraintEnd_toStartOf="@+id/menu_creator_button"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/hello_tv" />
+            app:layout_constraintTop_toTopOf="@+id/menu_creator_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

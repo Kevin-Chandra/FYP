@@ -1,5 +1,6 @@
 package com.example.fyp.account_management.data.model
 
+import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
 abstract class Account(
@@ -10,7 +11,9 @@ abstract class Account(
         open val email: String = "",
         open val address: String = "",
         open val birthday: Date? = null,
-        open val accountType: AccountType = AccountType.Customer
+        open val accountType: AccountType = AccountType.Customer,
+        @ServerTimestamp
+        open val dateCreated: Date? = null
 )
 
 enum class AccountType (val accessLevel: Int){
