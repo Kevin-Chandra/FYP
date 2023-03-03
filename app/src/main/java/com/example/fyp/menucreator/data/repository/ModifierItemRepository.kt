@@ -15,7 +15,7 @@ import kotlinx.coroutines.tasks.await
 
 class ModifierItemRepository {
 
-    private val modifierItemCollectionRef = Firebase.firestore.collection(FireStoreCollection.MODIFIERITEM)
+    private val modifierItemCollectionRef = Firebase.firestore.collection(FireStoreCollection.MODIFIER_ITEM)
 
     fun addModifierItem(item: ModifierItem) : UiState<Boolean> {
         return try {

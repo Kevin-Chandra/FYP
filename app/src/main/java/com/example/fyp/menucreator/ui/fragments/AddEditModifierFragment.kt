@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -39,11 +40,11 @@ class AddEditModifierFragment : Fragment() {
 
     private lateinit var command: String
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         _binding = FragmentAddEditModifierBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -270,19 +271,22 @@ class AddEditModifierFragment : Fragment() {
             viewModel.addResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
+                        binding.saveButton.isFocusable = false
                         binding.saveButton.isEnabled = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
+                        binding.saveButton.isFocusable = true
                         binding.saveButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                        binding.saveButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         successToast("Modifier Added successfully")
                         navigateBack()
+                        binding.saveButton.isFocusable = true
+                        binding.saveButton.isEnabled = true
                     }
                 }
 
@@ -318,13 +322,15 @@ class AddEditModifierFragment : Fragment() {
             viewModel.addItemFinishResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
-                        println("Add item finish response loading")
+                        binding.saveButton.isFocusable = false
+                        binding.saveButton.isEnabled = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
                         println("Add item finish response error")
                         binding.progressBar.visibility = View.GONE
-//                        viewModel.deleteCache()
+                        binding.saveButton.isEnabled = true
+                        binding.saveButton.isFocusable = true
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
@@ -347,11 +353,13 @@ class AddEditModifierFragment : Fragment() {
             viewModel.editResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
-                        println("Add item finish response loading")
+                        binding.saveButton.isFocusable = false
+                        binding.saveButton.isEnabled = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-                        println("Add item finish response error")
+                        binding.saveButton.isFocusable = true
+                        binding.saveButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
@@ -369,17 +377,20 @@ class AddEditModifierFragment : Fragment() {
             viewModel.editFinishResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
+                        binding.saveButton.isFocusable = false
                         binding.saveButton.isEnabled = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
                         binding.progressBar.visibility = View.GONE
+                        binding.saveButton.isFocusable = true
                         binding.saveButton.isEnabled = true
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
                         if (it.data){
                             binding.progressBar.visibility = View.GONE
+                            binding.saveButton.isFocusable = true
                             binding.saveButton.isEnabled = true
                             successToast("Modifier successfully updated")
                             navigateBack()
@@ -395,17 +406,17 @@ class AddEditModifierFragment : Fragment() {
             viewModel.editItemResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
-                        println("Add item finish response loading")
+                        binding.saveButton.isFocusable = false
+                        binding.saveButton.isEnabled = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-                        println("Add item finish response error")
-//                        binding.progressBar.visibility = View.GONE
+                        binding.saveButton.isFocusable = true
+                        binding.saveButton.isEnabled = true
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
                         if (it.data == binding.modifierItemLayout.childCount-1) {
-                            println("all item data is valid")
                             addModifierToVm()
                         }
                     }
@@ -413,4 +424,10 @@ class AddEditModifierFragment : Fragment() {
             }
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+    }
+
 }

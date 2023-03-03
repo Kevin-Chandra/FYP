@@ -84,7 +84,8 @@ class AddEditFoodViewModel @Inject constructor(
         price: String,
         description: String,
         isModifiable: Boolean,
-        modifierList: ArrayList<String>
+        modifierList: ArrayList<String>,
+        createdDate: Date = Date()
     ): Food {
         return Food(
             productId = productId,
@@ -95,7 +96,8 @@ class AddEditFoodViewModel @Inject constructor(
             modifiable = isModifiable,
             allTimeSales = 0,
             modifierList = modifierList,
-            date = Date()
+            lastUpdated = Date(),
+            createdAt = createdDate
         )
     }
 
@@ -127,7 +129,7 @@ class AddEditFoodViewModel @Inject constructor(
         val response = isEntryValid(productId, name, price, true)
         _updateFoodResponse.emit(response)
         if (response is UiState.Success)
-            updateFood(getFood(productId, name, price, description, isModifiable, modifierList),productId)
+            updateFood(getFood(productId, name, price, description, isModifiable, modifierList,food.createdAt?:Date()),productId)
 
     }
 

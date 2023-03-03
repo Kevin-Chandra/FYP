@@ -6,10 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".menucreator.ui.fragments.AddEditFoodFragment">
 
-<!--    <include-->
-<!--        android:id="@+id/toolbar"-->
-<!--        layout="@layout/add_edit_toolbar" />-->
-
     <ProgressBar
         android:id="@+id/progressBar2"
         style="?android:attr/progressBarStyle"

@@ -1,5 +1,6 @@
 package com.example.fyp.menucreator.data.model
 
+import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 import kotlin.collections.ArrayList
@@ -13,6 +14,8 @@ data class Food(
     val modifiable: Boolean = false,
     val allTimeSales: Int = -1,
     val modifierList: ArrayList<String> = ArrayList(),
+    val lastUpdated: Date = Date(),
     @ServerTimestamp
-    val date: Date = Date()
+    @Exclude
+    val createdAt: Date? = null
 ) : Product(productId, ProductType.FoodAndBeverage)

@@ -2,8 +2,10 @@
     <string name="app_name">FYP</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
+    <string name="first_fragment_label">Product List</string>
+    <string name="second_fragment_label">Product Detailed View</string>
+    <string name="add_edit_food_fragment_label">Food Add/Edit</string>
+    <string name="add_edit_modifier_fragment_label">Modifier Add/Edit</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -14,4 +16,5 @@
     
     <string name="title_activity_authentication">Activity Authentication</string>
     <string name="title_activity_account">Account Activity</string>
+    <string name="settings">Settings</string>
 </resources>

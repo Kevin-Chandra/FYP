@@ -4,21 +4,24 @@ import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.findFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.R
 import com.example.fyp.databinding.FragmentAddEditFoodBinding
+import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.menucreator.ui.viewmodel.AddEditFoodViewModel
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
@@ -53,6 +56,9 @@ class AddEditFoodFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentAddEditFoodBinding.inflate(inflater, container, false)
+        (activity as MenuCreatorActivity).apply{
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        }
         loadModifier()
         return binding.root
     }
@@ -278,7 +284,10 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun successToast(msg: String){
-        view?.let { Snackbar.make(it,msg,Snackbar.LENGTH_SHORT).show() }
+        view?.let {
+            Snackbar.make(it,msg,Snackbar.LENGTH_SHORT)
+                .show()
+        }
     }
 
     private fun errorDialog(msg: String){
@@ -324,8 +333,8 @@ class AddEditFoodFragment : Fragment() {
                         if (it.data){
                             binding.saveButton.isEnabled = true
                             binding.progressBar2.visibility = View.GONE
-                            successToast("Food Added successfully")
                             navigateBack()
+                            successToast("Food Added successfully")
                         }
                     }
                 }
@@ -354,8 +363,8 @@ class AddEditFoodFragment : Fragment() {
                         if (it.data){
                             binding.saveButton.isEnabled = true
                             binding.progressBar2.visibility = View.GONE
-                            successToast("Update food successful!")
                             navigateBack()
+                            successToast("Update food successful!")
                         }
                     }
                 }
@@ -381,6 +390,14 @@ class AddEditFoodFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        (activity as AppCompatActivity).apply{
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        }
+
     }
 
     override fun onDestroyView() {

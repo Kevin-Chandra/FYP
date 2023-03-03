@@ -47,7 +47,7 @@
     <fragment
         android:id="@+id/addEditFoodFragment"
         android:name="com.example.fyp.menucreator.ui.fragments.AddEditFoodFragment"
-        android:label="fragment_add_edit_food"
+        android:label="@string/add_edit_food_fragment_label"
         tools:layout="@layout/fragment_add_edit_food" >
         <argument
             android:name="command"
@@ -65,7 +65,7 @@
     <fragment
         android:id="@+id/addEditModifierFragment"
         android:name="com.example.fyp.menucreator.ui.fragments.AddEditModifierFragment"
-        android:label="fragment_add_edit_modifier"
+        android:label="@string/add_edit_modifier_fragment_label"
         tools:layout="@layout/fragment_add_edit_modifier" >
         <argument
             android:name="command"

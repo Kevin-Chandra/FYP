@@ -1,17 +1,16 @@
 package com.example.fyp.menucreator.util
 
 object FireStoreCollection{
-    val FOOD = "Food"
-    val MODIFIER = "Modifier"
-    val MODIFIERITEM = "ModifierItem"
-    val CUSTOMER = "Customer"
-    val ADMIN = "Admin"
-    val MANAGER = "Manager"
-    val STAFF = "Staff"
-    val USER = "User"
+    const val FOOD = "Food"
+    const val MODIFIER = "Modifier"
+    const val MODIFIER_ITEM = "ModifierItem"
+    const val FOOD_CATEGORY = "FoodCategory"
+    const val USER = "User"
 }
 
 object FireStoreDocumentField{
+    const val ID = "id"
+    const val FOOD_CATEGORY_NAME = "name"
     val DATE = "date"
     val PRODUCT_ID = "productId"
 }

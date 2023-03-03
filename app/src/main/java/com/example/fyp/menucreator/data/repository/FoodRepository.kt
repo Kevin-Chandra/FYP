@@ -59,19 +59,6 @@ class FoodRepository(
         }
     }
 
-    suspend fun deleteFood(food: Food) : UiState<Boolean> {
-        val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,food.productId)
-            .get()
-            .await()
-        return try {
-            for (doc in query.documents)
-                foodCollectionRef.document(doc.id).delete().await()
-            UiState.Success(true)
-        } catch (e : Exception){
-            UiState.Failure(e)
-        }
-    }
-
     suspend fun deleteFood(id: String) : UiState<Boolean> {
         val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
             .get()

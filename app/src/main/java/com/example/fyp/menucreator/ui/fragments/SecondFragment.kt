@@ -157,12 +157,6 @@ class SecondFragment : Fragment() {
             viewModel.food.modifierList.isNotEmpty() &&
             foodBinding.modifiersContainerLayout.childCount < viewModel.food.modifierList.size) {
 
-//            .removeIf{ it == account.id }
-
-//            for ( i in 0 until viewModel.food.modifierList.size) {
-//                val id = viewModel.food.modifierList[i]
-//
-//            }
             val list = viewModel.food.modifierList
             val iterator = list.iterator()
             var toUpdate = false
@@ -189,27 +183,9 @@ class SecondFragment : Fragment() {
                 updateFood(list)
             }
 
-
-
-
-//            while(iterator.hasNext()){
-//                val id = iterator.next()
-//                val modifier = viewModel.getModifier(id)
-//                if (modifier != null){
-//                    val eachModifierBinding = ModifierViewComponentBinding.inflate(layoutInflater,foodBinding.root,false)
-//
-//                    //add each modifier view to modifier container layout
-//                    foodBinding.modifiersContainerLayout.addView(eachModifierBinding.root)
-//                    loadModifierItem(modifier,eachModifierBinding)
-//                } else {
-//                    errorDialog("[$id] is not available. Removing from food modifier list ")
-//                    iterator.remove(id)
-//                }
-//            }
         }
 
-        foodBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.food.date.toString()}"
-//        Log.d(TAG,_food?.modifierList.toString())
+        foodBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.food.lastUpdated.toString()}"
     }
 
     private fun updateFood(list: ArrayList<String>) {
