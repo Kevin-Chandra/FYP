@@ -3,6 +3,7 @@ package com.example.fyp.menucreator.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.menucreator.data.model.Food
+import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.repository.FoodRepository
 import com.example.fyp.menucreator.data.repository.ModifierRepository
@@ -83,6 +84,7 @@ class AddEditFoodViewModel @Inject constructor(
         name: String,
         price: String,
         description: String,
+        category: String,
         isModifiable: Boolean,
         modifierList: ArrayList<String>,
         createdDate: Date = Date()
@@ -92,7 +94,7 @@ class AddEditFoodViewModel @Inject constructor(
             name = name,
             price = price.toDouble(),
             description = description,
-            category = null,
+            category = category,
             modifiable = isModifiable,
             allTimeSales = 0,
             modifierList = modifierList,
@@ -106,13 +108,14 @@ class AddEditFoodViewModel @Inject constructor(
         name: String,
         price: String,
         description: String,
+        category: String,
         isModifiable: Boolean,
         modifierList: ArrayList<String>
     )  = viewModelScope.launch (Dispatchers.IO) {
-        _addFoodResponse.value = isEntryValid(productId, name, price, false)
+        _addFoodResponse.value = isEntryValid(productId, name, price,category, false)
         println("name is $name")
         if (addFoodResponse.value is UiState.Success) {
-            insertFood(getFood(productId, name, price, description, isModifiable, modifierList))
+            insertFood(getFood(productId, name, price, description,category, isModifiable, modifierList))
         }
     }
 
@@ -121,15 +124,16 @@ class AddEditFoodViewModel @Inject constructor(
         name: String,
         price: String,
         description: String,
+        category: String,
         isModifiable: Boolean,
         modifierList: ArrayList<String>
     ) = viewModelScope.launch(Dispatchers.IO) {
 
         _updateFoodResponse.emit(UiState.Loading)
-        val response = isEntryValid(productId, name, price, true)
+        val response = isEntryValid(productId, name, price,category, true)
         _updateFoodResponse.emit(response)
         if (response is UiState.Success)
-            updateFood(getFood(productId, name, price, description, isModifiable, modifierList,food.createdAt?:Date()),productId)
+            updateFood(getFood(productId, name, price, description,category, isModifiable, modifierList,food.createdAt?:Date()),productId)
 
     }
 
@@ -137,9 +141,8 @@ class AddEditFoodViewModel @Inject constructor(
         _updateFoodResponse.emit(foodRepository.updateFood(id, food))
     }
 
-    private suspend fun isEntryValid(productId: String, name: String, price: String, edit: Boolean): UiState<Boolean> {
+    private suspend fun isEntryValid(productId: String, name: String, price: String,category: String, edit: Boolean): UiState<Boolean> {
         return try {
-            println("I hope u  r here")
             if (!edit) {
                 if (productId.isBlank())
                     throw Exception("Product ID is blank!")
@@ -152,6 +155,8 @@ class AddEditFoodViewModel @Inject constructor(
                 throw Exception("Price is blank!")
             if (price.toDouble() < 0.0)
                 throw Exception("Price cannot be negative!")
+            if (category.isBlank())
+                throw Exception("Category not selected!")
             UiState.Success(false)
         } catch (e: Exception) {
             if (e is CancellationException)

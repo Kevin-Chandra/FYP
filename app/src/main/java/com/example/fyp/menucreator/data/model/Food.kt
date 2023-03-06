@@ -10,7 +10,7 @@ data class Food(
     override val name: String = "",
     override val price: Double = -1.0,
     val description: String = "",
-    val category: FoodCategory? = null,
+    val category: String = "",
     val modifiable: Boolean = false,
     val allTimeSales: Int = -1,
     val modifierList: ArrayList<String> = ArrayList(),

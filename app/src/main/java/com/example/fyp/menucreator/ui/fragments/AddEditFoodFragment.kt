@@ -5,10 +5,12 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.*
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -21,8 +23,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.R
 import com.example.fyp.databinding.FragmentAddEditFoodBinding
+import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.menucreator.ui.viewmodel.AddEditFoodViewModel
+import com.example.fyp.menucreator.ui.viewmodel.FoodCategoryViewModel
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.snackbar.Snackbar
@@ -39,15 +43,21 @@ class AddEditFoodFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel : AddEditFoodViewModel by activityViewModels()
+    private val catViewModel  by activityViewModels<FoodCategoryViewModel>()
 
     private lateinit var checkedItems : BooleanArray
     private var modifierList: Array<String> = arrayOf()
     private val selectedItems = TreeSet<String>()
 
+    private var categoryList: List<FoodCategory> = listOf()
+    private var categoryString: MutableList<String> = mutableListOf()
+
     private var isAddFoodObserved = false
     private var isUpdateFoodObserved = false
 
     private lateinit var command: String
+
+    private var arrayAdapter: ArrayAdapter<String>? = null
 
     private var allowReset = false
 
@@ -60,17 +70,16 @@ class AddEditFoodFragment : Fragment() {
             supportActionBar?.setDisplayHomeAsUpEnabled(false)
         }
         loadModifier()
+        loadCategory()
         return binding.root
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        modifierList = viewModel.modifierMap.keys.toTypedArray()
-//        println("List ${modifierList.size}")
         //checked items -> boolean array to track which elements is ticked
-
 
         arguments?.let {
             command = AddEditFoodFragmentArgs.fromBundle(it).command
@@ -99,20 +108,42 @@ class AddEditFoodFragment : Fragment() {
         }
     }
 
-    private fun loadModifier() = lifecycleScope.launch{
-        viewModel.modifiers.collect() {
-            when (it) {
-                is UiState.Success -> {
-                    modifierList = it.data.keys.toTypedArray()
-                    checkedItems = BooleanArray(modifierList.size)
-                    allowReset = true
-                    println("Modifier Loaded")
+    private fun loadModifier() = lifecycleScope.launch {
+//        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.modifiers.collect() {
+                when (it) {
+                    is UiState.Success -> {
+                        modifierList = it.data.keys.toTypedArray()
+                        checkedItems = BooleanArray(modifierList.size)
+                        allowReset = true
+                        println("Modifier Loaded")
+                    }
+                    is UiState.Failure -> println(it.e)
+                    is UiState.Loading -> allowReset = false
                 }
-                is UiState.Failure -> println(it.e)
-                is UiState.Loading -> allowReset = false
+            }
+//        }
+    }
+    private fun loadCategory() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            catViewModel.categories.collect() {
+                when (it) {
+                    is UiState.Success -> {
+                        categoryList = it.data.toList()
+                        categoryString.clear()
+                        for (i in categoryList) {
+                            categoryString.add(i.name)
+                        }
+                        arrayAdapter = ArrayAdapter(requireContext(),R.layout.dropdown_item,categoryString)
+                        binding.categoryEt.setAdapter(arrayAdapter)
+                    }
+                    is UiState.Failure -> println(it.e)
+                    is UiState.Loading -> {}
+                }
             }
         }
     }
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -160,6 +191,7 @@ class AddEditFoodFragment : Fragment() {
                 productNameEditText.setText(viewModel.food.name)
                 productPriceEditText.setText(viewModel.food.price.toString())
                 productDescriptionEditText.setText(viewModel.food.description)
+                categoryEt.setText(viewModel.food.category)
                 modifierSwitch.isChecked = viewModel.food.modifiable
             }
             modifierLayoutEnabler(viewModel.food.modifiable)
@@ -259,6 +291,7 @@ class AddEditFoodFragment : Fragment() {
                     binding.productNameEditText.text.toString(),
                     binding.productPriceEditText.text.toString(),
                     binding.productDescriptionEditText.text.toString(),
+                    binding.categoryEt.text.toString(),
                     binding.modifierSwitch.isChecked,
                     modifierList
                 )
@@ -272,6 +305,7 @@ class AddEditFoodFragment : Fragment() {
                     binding.productNameEditText.text.toString(),
                     binding.productPriceEditText.text.toString(),
                     binding.productDescriptionEditText.text.toString(),
+                    binding.categoryEt.text.toString(),
                     binding.modifierSwitch.isChecked,
                     modifierList
                 )
@@ -282,12 +316,8 @@ class AddEditFoodFragment : Fragment() {
             e.message?.let { errorDialog(it) }
         }
     }
-
     private fun successToast(msg: String){
-        view?.let {
-            Snackbar.make(it,msg,Snackbar.LENGTH_SHORT)
-                .show()
-        }
+        Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
     }
 
     private fun errorDialog(msg: String){

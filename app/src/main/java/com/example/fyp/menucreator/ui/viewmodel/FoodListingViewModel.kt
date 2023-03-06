@@ -24,8 +24,15 @@ class FoodListingViewModel @Inject constructor(
 
     private fun getFoodList() = viewModelScope.launch{
         _foods.value = UiState.Loading
-        foodRepository.subscribeFoodUpdates().collect { result ->
-            _foods.value = result
+        foodRepository.subscribeFoodUpdates().collect {
+            when (it) {
+                is UiState.Success -> {
+                    _foods.value = UiState.Success(it.data.sortedBy { it1 -> it1.category })
+                }
+                else -> {
+                    _foods.value = it
+                }
+            }
         }
     }
 

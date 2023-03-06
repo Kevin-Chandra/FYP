@@ -32,11 +32,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:soundEffectsEnabled="false"
+            android:text="Category"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/description_textview"
+            tools:text="Category" />
+
+        <TextView
+            android:id="@+id/description_textview3"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
             android:soundEffectsEnabled="false"
             android:text="Description"
-            app:layout_constraintBottom_toTopOf="@+id/description_textview"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/product_name_text_view"
             tools:text="Description" />
@@ -46,10 +57,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/description_textview3"
+            tools:text="Description" />
+
+        <TextView
+            android:id="@+id/category_value_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/description_textview2"
-            tools:text="Description" />
+            tools:text="Category" />
 
         <TextView
             android:id="@+id/price_title_textview"
@@ -60,7 +79,7 @@
             android:layout_marginTop="16dp"
             android:text="Price"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/description_textview"
+            app:layout_constraintTop_toBottomOf="@+id/category_value_tv"
             tools:text="Price" />
 
         <TextView

@@ -46,7 +46,6 @@ class FoodRepository(
                 return@addSnapshotListener
             }
             querySnapshot?.let{
-//                val foodList = arrayListOf<Food>()
                 val foodsResponse = run {
                     val foods = querySnapshot.toObjects(Food::class.java)
                     UiState.Success(foods)

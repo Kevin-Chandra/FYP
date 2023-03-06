@@ -30,6 +30,7 @@ class ProductListItemAdapter(
             binding.productIdTextView.text = food.productId
             binding.productNameTextView.text = food.name
             binding.productDescriptionTextView.text = food.description
+            binding.chip.text = food.category
 
             binding.root.setOnClickListener{ onItemClicked.invoke(food)}
         }

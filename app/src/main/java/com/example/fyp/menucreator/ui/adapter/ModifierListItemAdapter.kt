@@ -28,7 +28,7 @@ class ModifierListItemAdapter(
         fun bind(modifier: Modifier){
             binding.productIdTextView.text = modifier.productId
             binding.productNameTextView.text = modifier.name
-//            binding.productDescriptionTextView.text = modifier.modifierItemList.
+            binding.chip.visibility = View.GONE
             binding.root.setOnClickListener{ onItemClicked.invoke(modifier)}
         }
     }

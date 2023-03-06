@@ -8,13 +8,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.fyp.account_management.util.Constants
 import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.databinding.FragmentProductListBinding
 import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.ui.viewmodel.FoodListingViewModel
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProductListFragment : Fragment() {
@@ -44,7 +44,7 @@ class ProductListFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        viewLifecycleOwner.lifecycleScope.launch{
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted{
             viewModel.foods.collect() {
                 when (it) {
                     is UiState.Success -> {foodAdapter.submitList(it.data.toMutableList())
@@ -57,10 +57,8 @@ class ProductListFragment : Fragment() {
 
         binding.recyclerView.adapter = foodAdapter
 
-
-//        binding.recyclerView.adapter = context?.let { ProductListItemAdapter(it,menu.getFoodList()) }
         binding.fabAddFood.setOnClickListener{
-            val action = FirstFragmentDirections.actionFirstFragmentToAddEditFoodFragment("add",null)
+            val action = FirstFragmentDirections.actionFirstFragmentToAddEditFoodFragment(Constants.Command.ADD,null)
             findNavController().navigate(action)
         }
     }

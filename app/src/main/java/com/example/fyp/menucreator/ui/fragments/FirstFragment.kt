@@ -1,11 +1,11 @@
 package com.example.fyp.menucreator.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
+import com.example.fyp.R
 import com.example.fyp.databinding.FragmentFirstBinding
 import com.example.fyp.menucreator.ui.adapter.MenuCreatorViewPagerAdapter
 import com.google.android.material.tabs.TabLayout
@@ -31,6 +31,7 @@ class FirstFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -62,6 +63,25 @@ class FirstFragment : Fragment() {
         viewPager.setCurrentItem(lastTab, false)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.action_settings -> {
+                navigateSettings()
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){
+        super.onCreateOptionsMenu(menu,inflater)
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_main, menu)
+    }
+    private fun navigateSettings() = findNavController().navigate(FirstFragmentDirections.actionFirstFragmentToSettingsFragment())
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

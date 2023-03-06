@@ -151,6 +151,7 @@ class SecondFragment : Fragment() {
             binding.baseLayout.addView(foodBinding.root)
         foodBinding.productNameTextView.text = viewModel.food.name
         foodBinding.descriptionTextview.text = viewModel.food.description
+        foodBinding.categoryValueTv.text = viewModel.food.category
         foodBinding.priceTextview.text = viewModel.food.price.toString()
 
         if (viewModel.food.modifiable &&
