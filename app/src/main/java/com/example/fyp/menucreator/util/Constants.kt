@@ -19,3 +19,7 @@ object NavigationCommand{
     val ADD = "add"
     val EDIT = "edit"
 }
+
+object FirebaseStorageReference{
+    const val IMAGE_REFERENCE = "productImages/"
+}

@@ -9,6 +9,7 @@ import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.FoodRepository
 import com.example.fyp.menucreator.data.repository.ModifierItemRepository
 import com.example.fyp.menucreator.data.repository.ModifierRepository
+import com.example.fyp.menucreator.domain.DeleteImageUseCase
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,8 @@ import javax.inject.Inject
 class FoodModifierDetailViewModel @Inject constructor(
     private val foodRepository: FoodRepository,
     private val modifierRepository: ModifierRepository,
-    private val itemRepository: ModifierItemRepository
+    private val itemRepository: ModifierItemRepository,
+    private val deleteImageUseCase: DeleteImageUseCase
 ) : ViewModel() {
 
     private val _foods = MutableStateFlow<UiState<List<Food>>>(UiState.Loading)
@@ -118,9 +120,12 @@ class FoodModifierDetailViewModel @Inject constructor(
     fun deleteProduct(id: String) = viewModelScope.launch{
         _deleteResponse.value = UiState.Loading
         if (type == ProductType.FoodAndBeverage){
+            val tempFood = foodMap[id]
+            tempFood?.imagePath?.let { deleteImageUseCase(it){state ->
+                _deleteResponse.value = state
+            } }
             _deleteResponse.value = foodRepository.deleteFood(id)
         } else{
-            println("Here???")
             //delete all items before deleting modifier
             for (item in modifier.modifierItemList){
                 _deleteItemResponse.value = itemRepository.deleteModifierItem(item)

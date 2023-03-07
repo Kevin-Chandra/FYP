@@ -1,13 +1,7 @@
 package com.example.fyp.menucreator.di
 
-import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.data.repository.MenuSettingsRepository
-import com.example.fyp.menucreator.data.repository.ModifierItemRepository
-import com.example.fyp.menucreator.data.repository.ModifierRepository
-import com.example.fyp.menucreator.domain.AddFoodCategoryUseCase
-import com.example.fyp.menucreator.domain.DeleteFoodCategoryUseCase
-import com.example.fyp.menucreator.domain.GetFoodCategoryUseCase
-import com.example.fyp.menucreator.domain.UpdateFoodCategoryUseCase
+import com.example.fyp.menucreator.data.repository.*
+import com.example.fyp.menucreator.domain.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -64,5 +58,17 @@ object AppModule  {
     @Singleton
     fun provideCategoryUseCase(repo : MenuSettingsRepository): GetFoodCategoryUseCase{
         return GetFoodCategoryUseCase(repo)
+    }
+
+    @Provides
+    @Singleton
+    fun provideImageRepo(): ProductImageRepository{
+        return ProductImageRepository()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUploadImageUseCase(repo : ProductImageRepository): UploadImageUseCase{
+        return UploadImageUseCase(repo)
     }
 }

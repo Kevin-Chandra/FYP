@@ -3,9 +3,11 @@ package com.example.fyp.menucreator.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.fyp.databinding.RowProductItemBinding
 import com.example.fyp.menucreator.data.model.Food
 
@@ -31,6 +33,13 @@ class ProductListItemAdapter(
             binding.productNameTextView.text = food.name
             binding.productDescriptionTextView.text = food.description
             binding.chip.text = food.category
+            if (food.imageUri != null){
+                Glide.with(binding.imageView)
+                    .load(food.imageUri.toUri())
+                    .centerCrop()
+                    .into(binding.imageView)
+            }
+
 
             binding.root.setOnClickListener{ onItemClicked.invoke(food)}
         }

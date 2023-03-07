@@ -30,7 +30,6 @@ class ProductListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        println("On create view")
         // Inflate the layout for this fragment
         _binding = FragmentProductListBinding.inflate(inflater, container, false)
         return binding.root

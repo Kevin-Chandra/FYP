@@ -2,6 +2,8 @@ package com.example.fyp.menucreator.ui.fragments
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -12,15 +14,18 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.net.toUri
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.findFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.databinding.FragmentAddEditFoodBinding
 import com.example.fyp.menucreator.data.model.FoodCategory
@@ -61,6 +66,16 @@ class AddEditFoodFragment : Fragment() {
 
     private var allowReset = false
 
+    private var imageUri : Uri? = null
+
+    private var imageChanged = false
+
+    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
+        if (it != null) {
+            imageUri = it
+            setImage(it)
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -69,6 +84,7 @@ class AddEditFoodFragment : Fragment() {
         (activity as MenuCreatorActivity).apply{
             supportActionBar?.setDisplayHomeAsUpEnabled(false)
         }
+        imageChanged = false
         loadModifier()
         loadCategory()
         return binding.root
@@ -94,6 +110,11 @@ class AddEditFoodFragment : Fragment() {
             }
         }
 
+        binding.imageView.setOnClickListener {
+            imageChanged = true
+            getContent.launch("image/*")
+        }
+
         binding.addModifierButton.setOnClickListener{
             handleAddModifier()
         }
@@ -106,6 +127,10 @@ class AddEditFoodFragment : Fragment() {
         binding.modifierSwitch.setOnClickListener {
             modifierLayoutEnabler(binding.modifierSwitch.isChecked)
         }
+    }
+
+    private fun setImage(uri: Uri){
+        binding.imageView.setImageURI(uri)
     }
 
     private fun loadModifier() = lifecycleScope.launch {
@@ -194,6 +219,8 @@ class AddEditFoodFragment : Fragment() {
                 categoryEt.setText(viewModel.food.category)
                 modifierSwitch.isChecked = viewModel.food.modifiable
             }
+
+
             modifierLayoutEnabler(viewModel.food.modifiable)
             if (viewModel.food.modifierList.isNotEmpty() && viewModel.food.modifiable)
                 for (i in viewModel.food.modifierList)
@@ -293,7 +320,9 @@ class AddEditFoodFragment : Fragment() {
                     binding.productDescriptionEditText.text.toString(),
                     binding.categoryEt.text.toString(),
                     binding.modifierSwitch.isChecked,
-                    modifierList
+                    imageUri,
+                    modifierList,
+                    imageChanged
                 )
             } else {
                 if (!isUpdateFoodObserved){
@@ -306,8 +335,10 @@ class AddEditFoodFragment : Fragment() {
                     binding.productPriceEditText.text.toString(),
                     binding.productDescriptionEditText.text.toString(),
                     binding.categoryEt.text.toString(),
+                    imageUri,
                     binding.modifierSwitch.isChecked,
-                    modifierList
+                    modifierList,
+                    imageChanged
                 )
 //                successToast("Edited food saved")
             }
@@ -352,16 +383,19 @@ class AddEditFoodFragment : Fragment() {
                 when (it) {
                     is UiState.Loading -> {
                         binding.saveButton.isEnabled = false
+                        binding.resetButton.isEnabled = false
                         binding.progressBar2.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
                         binding.saveButton.isEnabled = true
+                        binding.resetButton.isEnabled = true
                         binding.progressBar2.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
                         if (it.data){
                             binding.saveButton.isEnabled = true
+                            binding.resetButton.isEnabled = true
                             binding.progressBar2.visibility = View.GONE
                             navigateBack()
                             successToast("Food Added successfully")
@@ -379,19 +413,21 @@ class AddEditFoodFragment : Fragment() {
             viewModel.updateFoodResponse.collect() {
                 when (it) {
                     is UiState.Loading -> {
-                        println("Update food response loading")
                         binding.progressBar2.visibility = View.VISIBLE
                         binding.saveButton.isEnabled = false
+                        binding.resetButton.isEnabled = false
                     }
                     is UiState.Failure -> {
                         println("Update food response encountered error")
                         binding.progressBar2.visibility = View.GONE
                         binding.saveButton.isEnabled = true
+                        binding.resetButton.isEnabled = true
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
                         if (it.data){
                             binding.saveButton.isEnabled = true
+                            binding.resetButton.isEnabled = true
                             binding.progressBar2.visibility = View.GONE
                             navigateBack()
                             successToast("Update food successful!")
@@ -415,11 +451,19 @@ class AddEditFoodFragment : Fragment() {
                     }
                     is UiState.Success -> {
                         binding.progressBar2.visibility = View.GONE
-                        loadData()
+                        launch {loadData()}
+                        loadImage()
                     }
                 }
             }
         }
+    }
+
+    private fun loadImage() = lifecycleScope.launch{
+//        println(viewModel.food.imageUri)
+        Glide.with(requireContext())
+            .load(viewModel.food.imageUri?.toUri())
+            .into(binding.imageView)
     }
 
     override fun onStop() {

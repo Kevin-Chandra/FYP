@@ -1,5 +1,6 @@
 package com.example.fyp.menucreator.data.model
 
+import android.net.Uri
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
@@ -12,6 +13,8 @@ data class Food(
     val description: String = "",
     val category: String = "",
     val modifiable: Boolean = false,
+    val imagePath: String? = null,
+    val imageUri: String? = null,
     val allTimeSales: Int = -1,
     val modifierList: ArrayList<String> = ArrayList(),
     val lastUpdated: Date = Date(),
