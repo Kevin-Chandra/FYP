@@ -143,6 +143,8 @@ class AddEditFoodViewModel @Inject constructor(
                 if (image != null){
                     val result = async {uploadImage(image)}.await()
                     insertFood(getFood(productId, name, price, description,category, isModifiable,result.first,result.second, modifierList))
+                } else {
+                    insertFood(getFood(productId, name, price, description,category, isModifiable,null,null, modifierList))
                 }
             } else {
                 insertFood(getFood(productId, name, price, description,category, isModifiable,null,null, modifierList))

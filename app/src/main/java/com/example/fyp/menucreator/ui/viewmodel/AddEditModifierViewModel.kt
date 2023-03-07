@@ -186,7 +186,7 @@ class AddEditModifierViewModel @Inject constructor(
     }
 
 
-    fun addItems(id: String, name: String, price: String) = viewModelScope.launch {
+    fun addItems(id: String, name: String, price: String, result: (Boolean)->Unit) = viewModelScope.launch {
         _addItemFinishResponse.value = UiState.Loading
         _addItemResponse.value = UiState.Loading
         _addItemResponse.value = isModifierItemEntryValid(id, name, price)
@@ -196,9 +196,14 @@ class AddEditModifierViewModel @Inject constructor(
                 _addItemFinishResponse.update {
                     UiState.Success(count)
                 }
+                result.invoke(true)
             } else {
                 _addItemResponse.value = UiState.Failure(Exception("Item ID [$id] already exist!"))
+                result.invoke(false)
             }
+        } else if (addItemResponse.value is UiState.Failure) {
+            _addItemFinishResponse.value = UiState.Failure((addItemResponse.value as UiState.Failure).e)
+            result.invoke(false)
         }
     }
 

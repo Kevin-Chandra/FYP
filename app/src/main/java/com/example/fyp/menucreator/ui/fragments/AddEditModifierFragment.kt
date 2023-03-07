@@ -24,6 +24,7 @@ import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -143,17 +144,22 @@ class AddEditModifierFragment : Fragment() {
     }
     private fun addModifier(){
         if (command == NavigationCommand.ADD){
+            var check = true
             for (index in 0 until binding.modifierItemLayout.childCount - 1) {
+                if (!check)
+                    break
                 val view = binding.modifierItemLayout[index]
                 val id = view.findViewById<EditText>(R.id.row_modifier_item_id).text.toString()
                 val name = view.findViewById<EditText>(R.id.modifier_item_name).text.toString()
                 val price = view.findViewById<EditText>(R.id.modifier_item_price).text.toString()
-                viewModel.addItems(id, name, price)
+                viewModel.addItems(id, name, price){
+                    check = it
+                }
             }
             if (!isAddObserved){
                 isAddObserved = !isAddObserved
                 observeAddModifier()
-                observeAddItemModifier()
+//                observeAddItemModifier()
                 observeAddItemFinishModifier()
             }
         }
@@ -294,29 +300,6 @@ class AddEditModifierFragment : Fragment() {
         }
     }
 
-    private fun observeAddItemModifier() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addItemResponse.collect() { it ->
-                when (it) {
-                    is UiState.Loading -> {
-                        println("Add item response loading")
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Failure -> {
-                        println("Add item response error")
-                        binding.progressBar.visibility = View.GONE
-                        it.e?.message?.let { it1 -> errorDialog(it1) }
-                    }
-                    is UiState.Success -> {
-//                        binding.progressBar.visibility = View.GONE
-//                        successToast("Modifier Item Added successfully")
-                    }
-                }
-            }
-        }
-    }
-
-
     private fun observeAddItemFinishModifier() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.addItemFinishResponse.collect() { it ->
@@ -338,7 +321,6 @@ class AddEditModifierFragment : Fragment() {
                         if (it.data == binding.modifierItemLayout.childCount-1) {
                             println("im inside")
                             binding.progressBar.visibility = View.GONE
-//                            successToast("Modifier Item Finish")
                             addModifierToVm()
 //                        }
                         }
