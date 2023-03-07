@@ -80,8 +80,6 @@ class FoodModifierDetailViewModel @Inject constructor(
         loadModifierItemMap()
     }
     fun initialize(id: String, type: ProductType){
-//        reset()
-        println("Initialize vm called $id")
         _productId = id
         _type = type
     }
@@ -91,7 +89,6 @@ class FoodModifierDetailViewModel @Inject constructor(
             when (it) {
                 is UiState.Success -> {
                         if (type == ProductType.FoodAndBeverage) {
-                            println("food =  ${getFood(productId)}")
                             _food = getFood(productId)
                             _foodLoaded.value = UiState.Success(true)
                         } else{

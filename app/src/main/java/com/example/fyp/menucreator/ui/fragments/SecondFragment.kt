@@ -14,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.example.fyp.R
 import com.example.fyp.databinding.*
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ProductType
@@ -21,6 +23,8 @@ import com.example.fyp.menucreator.ui.viewmodel.FoodModifierDetailViewModel
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val TAG = "Second Fragment"
 
@@ -60,7 +64,6 @@ class SecondFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        println("Oncreate called")
     }
 
     override fun onCreateView(
@@ -73,7 +76,6 @@ class SecondFragment : Fragment() {
             productId = SecondFragmentArgs.fromBundle(it).productId
             type = SecondFragmentArgs.fromBundle(it).type
             viewModel.initialize(SecondFragmentArgs.fromBundle(it).productId,SecondFragmentArgs.fromBundle(it).type)
-            println("argument block passed")
         }
 
         if (viewModel.type == ProductType.FoodAndBeverage) {
@@ -146,6 +148,10 @@ class SecondFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun loadFoodData(){
+
+        foodBinding.apply {
+            shimmerImage.startShimmer()
+        }
         //add food_view_component layout to the base layout
         if (foodBinding.root.parent == null)
             binding.baseLayout.addView(foodBinding.root)
@@ -153,7 +159,12 @@ class SecondFragment : Fragment() {
         foodBinding.descriptionTextview.text = viewModel.food.description
         foodBinding.categoryValueTv.text = viewModel.food.category
         foodBinding.priceTextview.text = viewModel.food.price.toString()
-
+        foodBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.food.lastUpdated.toString()}"
+        if (viewModel.food.imageUri != null){
+            loadImage()
+        } else {
+            foodBinding.imageView.setImageResource(R.drawable.ic_image)
+        }
         if (viewModel.food.modifiable &&
             viewModel.food.modifierList.isNotEmpty() &&
             foodBinding.modifiersContainerLayout.childCount < viewModel.food.modifierList.size) {
@@ -186,7 +197,7 @@ class SecondFragment : Fragment() {
 
         }
 
-        foodBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.food.lastUpdated.toString()}"
+
     }
 
     private fun updateFood(list: ArrayList<String>) {
@@ -206,6 +217,14 @@ class SecondFragment : Fragment() {
                 containerBinding.modifierItemContainerLayout.addView(itemBinding.root)
             }
         }
+    }
+
+    private fun loadImage() = lifecycleScope.launch(Dispatchers.Main){
+        Glide.with(requireContext())
+            .load(viewModel.food.imageUri)
+            .into(foodBinding.imageView)
+        foodBinding.shimmerImage.stopShimmer()
+        foodBinding.shimmerImage.visibility = View.GONE
     }
 
     private fun errorDialog(msg: String){

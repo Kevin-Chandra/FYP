@@ -110,9 +110,15 @@ class AddEditFoodFragment : Fragment() {
             }
         }
 
-        binding.imageView.setOnClickListener {
+
+
+        binding.setImageBtn.setOnClickListener {
             imageChanged = true
             getContent.launch("image/*")
+        }
+
+        binding.deleteImgBtn.setOnClickListener {
+            binding.imageView.setImageResource(R.drawable.ic_image)
         }
 
         binding.addModifierButton.setOnClickListener{
@@ -460,10 +466,14 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun loadImage() = lifecycleScope.launch{
-//        println(viewModel.food.imageUri)
-        Glide.with(requireContext())
-            .load(viewModel.food.imageUri?.toUri())
-            .into(binding.imageView)
+        if (viewModel.food.imageUri != null){
+            Glide.with(requireContext())
+                .load(viewModel.food.imageUri?.toUri())
+                .into(binding.imageView)
+        } else {
+            binding.imageView.setImageResource(R.drawable.ic_image)
+        }
+
     }
 
     override fun onStop() {

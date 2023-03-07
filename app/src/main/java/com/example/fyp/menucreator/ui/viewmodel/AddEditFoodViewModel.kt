@@ -206,7 +206,7 @@ class AddEditFoodViewModel @Inject constructor(
         return a
     }
 
-    private fun deleteImage(path: String){
+    fun deleteImage(path: String){
         deleteImageUseCase(path){
         }
     }
