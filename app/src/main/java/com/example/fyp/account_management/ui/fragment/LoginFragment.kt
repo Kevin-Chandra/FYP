@@ -86,7 +86,12 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun navigateMainPage() = startActivity(Intent(requireContext(),MainActivity::class.java))
+    private fun navigateMainPage() {
+        val i = Intent(requireContext(), MainActivity::class.java)
+        // set the new task and clear flags
+        i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(i)
+    }
 
     private fun toast(message: String){
         Toast.makeText(requireContext(),message,Toast.LENGTH_LONG).show()

@@ -15,7 +15,7 @@ class ProductImageRepository {
 
     suspend fun uploadImage(imageUri: Uri, result: (UiState<Pair<String,String>>) -> Unit){
         val key = UUID.randomUUID().toString()
-        val path = FirebaseStorageReference.IMAGE_REFERENCE + key
+        val path = FirebaseStorageReference.PRODUCT_IMAGE_REFERENCE + key
 
         try {
             val uri = imageStorageRef.child(path).putFile(imageUri)

@@ -10,6 +10,8 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.example.fyp.MainActivity
 import com.example.fyp.R
 import com.example.fyp.account_management.AuthActivity
 import com.example.fyp.account_management.data.model.Account
@@ -43,6 +45,12 @@ class MainAccountFragment : Fragment() {
         authViewModel.getSession {
             user = it
             binding.accountNameTv.text = user?.first_name + " " +  user?.last_name
+            if (user?.profileUri != null){
+                Glide.with(requireContext())
+                    .load(user?.profileUri)
+                    .centerCrop()
+                    .into(binding.profileIv)
+            }
         }
 
         binding.editAccountBtn.setOnClickListener {
@@ -55,7 +63,9 @@ class MainAccountFragment : Fragment() {
 
         binding.logoutBtn.setOnClickListener {
             authViewModel.logout {
-                startActivity(Intent(requireContext(), AuthActivity::class.java))
+                val i = Intent(requireContext(), AuthActivity::class.java)
+                i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(i)
                 activity?.finish()
                 Toast.makeText(requireContext(),"Logged Out!" , Toast.LENGTH_SHORT).show()
             }

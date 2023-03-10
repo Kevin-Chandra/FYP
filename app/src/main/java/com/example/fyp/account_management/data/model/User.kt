@@ -11,6 +11,8 @@ abstract class Account(
         open val email: String = "",
         open val address: String = "",
         open val birthday: Date? = null,
+        open var profileImagePath : String? = null,
+        open var profileUri : String? = null,
         open val accountType: AccountType = AccountType.Customer,
         @ServerTimestamp
         open val dateCreated: Date? = null

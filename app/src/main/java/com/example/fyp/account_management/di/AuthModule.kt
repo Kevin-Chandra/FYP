@@ -3,6 +3,7 @@ package com.example.fyp.account_management.di
 import com.example.fyp.account_management.data.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,9 +19,10 @@ object AuthModule {
     @Singleton
     fun provideAuthRepository(
         auth: FirebaseAuth,
-        firestore: FirebaseFirestore
+        firestore: FirebaseFirestore,
+        storage: FirebaseStorage
     ) : AuthRepository{
-        return AuthRepository(auth,firestore)
+        return AuthRepository(auth,firestore,storage)
     }
 
     @Provides
@@ -33,5 +35,11 @@ object AuthModule {
     @Singleton
     fun provideFirebaseAuth() : FirebaseAuth{
         return FirebaseAuth.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage() : FirebaseStorage{
+        return FirebaseStorage.getInstance()
     }
 }

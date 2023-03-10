@@ -8,11 +8,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.fyp.databinding.RowProductItemBinding
 import com.example.fyp.menucreator.data.model.Food
 
+
 class ProductListItemAdapter(
-    private val onItemClicked: (Food) -> Unit
+    private val onItemClicked: (Food) -> Unit,
 ) : ListAdapter<Food, ProductListItemAdapter.FoodViewHolder>(DiffCallback){
 
     companion object {
@@ -33,10 +35,14 @@ class ProductListItemAdapter(
             binding.productNameTextView.text = food.name
             binding.productDescriptionTextView.text = food.description
             binding.chip.text = food.category
+            val myOptions = RequestOptions()
+                .override(binding.imageView.width, binding.imageView.height)
+                .centerCrop()
+
             if (food.imageUri != null){
                 Glide.with(binding.imageView)
                     .load(food.imageUri.toUri())
-                    .centerCrop()
+                    .apply(myOptions)
                     .into(binding.imageView)
             }
 

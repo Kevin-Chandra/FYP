@@ -3,6 +3,8 @@ package com.example.fyp.account_management.ui.fragment
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -27,6 +31,8 @@ import com.google.android.material.theme.overlay.MaterialThemeOverlay
 import com.google.firebase.database.collection.LLRBNode
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 
 @AndroidEntryPoint
@@ -39,8 +45,18 @@ class UserRegisterFragment : Fragment() {
 
     private val viewModel by activityViewModels<AuthViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private var uri: Uri? = null
+
+    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
+        if (it != null){
+            uri = it
+            setImage(it)
+        }
+    }
+
+    private fun setImage(it: Uri) {
+        binding.profileImgImageView.setImageURI(it)
+        viewModel.onEvent(RegistrationEvent.ImageChanged(it))
     }
 
     override fun onCreateView(
@@ -57,6 +73,9 @@ class UserRegisterFragment : Fragment() {
         observeRegistrationState()
         setUpDatePicker()
 
+        binding.editImgBtn.setOnClickListener {
+            getContent.launch("image/*")
+        }
         binding.backBtn.setOnClickListener {
             findNavController().navigate(UserRegisterFragmentDirections.actionUserRegisterFragmentToLoginFragment())
         }
@@ -83,6 +102,7 @@ class UserRegisterFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setUpDatePicker(){
         val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
@@ -93,13 +113,16 @@ class UserRegisterFragment : Fragment() {
             }
 
         binding.birthdayEditText.setOnClickListener {
-            DatePickerDialog(
+            val dateDialog = DatePickerDialog(
                 requireContext(),
                 dateSetListener,
                 // set DatePickerDialog to point to today's date when it loads up
                 cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)).show()
+                cal.get(Calendar.DAY_OF_MONTH))
+            val maxDate = LocalDate.now().minusYears(12)
+            dateDialog.datePicker.maxDate = Date.from(maxDate.atStartOfDay(ZoneId.systemDefault()).toInstant()).time
+            dateDialog.show()
         }
 
     }
@@ -175,10 +198,11 @@ class UserRegisterFragment : Fragment() {
         Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
     }
 
-    private fun navigateMainPage() = startActivity(
-        Intent(requireContext(),
-            MainActivity::class.java)
-    )
+    private fun navigateMainPage() {
+        val i = Intent(requireContext(), MainActivity::class.java)
+        i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(i)
+    }
 
     override fun onDestroy() {
         super.onDestroy()

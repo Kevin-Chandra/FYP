@@ -21,5 +21,6 @@ object NavigationCommand{
 }
 
 object FirebaseStorageReference{
-    const val IMAGE_REFERENCE = "productImages/"
+    const val PRODUCT_IMAGE_REFERENCE = "productImages/"
+    const val PROfILE_IMAGE_REFERENCE = "profileImages/"
 }

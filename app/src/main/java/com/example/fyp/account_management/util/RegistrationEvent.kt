@@ -1,5 +1,6 @@
 package com.example.fyp.account_management.util
 
+import android.net.Uri
 import java.util.Date
 
 sealed class RegistrationEvent {
@@ -10,5 +11,6 @@ sealed class RegistrationEvent {
     data class PhoneChanged(val phone: String): RegistrationEvent()
     data class AddressChanged(val address: String): RegistrationEvent()
     data class BirthdayChanged(val date: Date) : RegistrationEvent()
+    data class ImageChanged(val image: Uri) : RegistrationEvent()
     object Submit: RegistrationEvent()
 }

@@ -1,5 +1,6 @@
 package com.example.fyp.account_management.ui.view_model
 
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.Account
@@ -77,6 +78,9 @@ class AuthViewModel @Inject constructor(
             is RegistrationEvent.AddressChanged -> {
                 _registerState.value = registerState.value.copy(address = event.address)
             }
+            is RegistrationEvent.ImageChanged -> {
+                _registerState.value = registerState.value.copy(image = event.image)
+            }
             is RegistrationEvent.Submit -> {
                 submitData()
             }
@@ -153,22 +157,22 @@ class AuthViewModel @Inject constructor(
         registerUseCase.invoke(
             registerState.value.email,
             registerState.value.password,
-            account
+            account,
+            registerState.value.image
         ) {
             _registerResponse.value = it
         }
     }
 
-    private fun update(){
+    private fun update() {
         val newAccount = user.copy(
             first_name = registerState.value.fname,
-            last_name = registerState.value.lname?: "",
+            last_name = registerState.value.lname ?: "",
             phone = registerState.value.phone,
-            address = registerState.value.address?: "",
-            birthday = registerState.value.birthday
+            address = registerState.value.address ?: "",
+            birthday = registerState.value.birthday,
         )
-        println("In update block : ${newAccount.birthday}")
-        editAccountUseCase(newAccount){
+        editAccountUseCase(newAccount, registerState.value.image) {
             _updateResponse.value = it
         }
     }
@@ -189,12 +193,10 @@ class AuthViewModel @Inject constructor(
             email,
             address?:"",
             birthday,
+            null,
+            null,
             Date()
         )
-    }
-
-    fun updatePassword(){
-
     }
 
     fun getSession() = viewModelScope.launch{
@@ -202,7 +204,7 @@ class AuthViewModel @Inject constructor(
         _user = getSessionUseCase() as CustomerAccount
 
         if (_user != null) {
-            println(user.birthday?.time)
+            println("user uri " +user.profileUri)
             loadToRegisterState()
             command = Constants.Command.EDIT
             _loadingState.value = Response.Success(true)
@@ -216,6 +218,7 @@ class AuthViewModel @Inject constructor(
         onEvent(RegistrationEvent.PhoneChanged(user.phone))
         onEvent(RegistrationEvent.FirstNameChanged(user.first_name))
         onEvent(RegistrationEvent.LastNameChanged(user.last_name))
+//        user.profileUri?.let { RegistrationEvent.ImageChanged(it.toUri()) }?.let { onEvent(it) }
         user.birthday?.let { RegistrationEvent.BirthdayChanged(it) }?.let { onEvent(it) }
     }
 

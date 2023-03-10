@@ -1,6 +1,8 @@
 package com.example.fyp.account_management.ui.fragment
 
 import android.app.DatePickerDialog
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -15,6 +20,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.account_management.ui.view_model.AuthViewModel
 import com.example.fyp.account_management.util.Constants
@@ -24,6 +30,8 @@ import com.example.fyp.databinding.FragmentEditAccountBinding
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 
 @AndroidEntryPoint
@@ -38,6 +46,20 @@ class EditAccountFragment : Fragment() {
 
     private val viewModel by activityViewModels<AuthViewModel>()
 
+    private var uri : Uri? = null
+
+    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
+        if (it != null){
+            uri = it
+            setImage(it)
+        }
+    }
+
+    private fun setImage(it: Uri) {
+        binding.profileImgImageView.setImageURI(it)
+        viewModel.onEvent(RegistrationEvent.ImageChanged(it))
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,6 +68,7 @@ class EditAccountFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getSession()
@@ -54,6 +77,9 @@ class EditAccountFragment : Fragment() {
         observeRegistrationState()
         setUpDatePicker()
 
+        binding.editImgBtn.setOnClickListener {
+            getContent.launch("image/*")
+        }
         binding.cancelBtn.setOnClickListener {
             navigateBack()
         }
@@ -78,13 +104,15 @@ class EditAccountFragment : Fragment() {
         }
         binding.birthdayEt.isEnabled = false
         binding.birthdayEtl.setEndIconOnClickListener {
-            DatePickerDialog(
+            val dateDialog = DatePickerDialog(
                 requireContext(),
                 dateSetListener,
-                // set DatePickerDialog to point to today's date when it loads up
                 cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)).show()
+                cal.get(Calendar.DAY_OF_MONTH))
+            val maxDate = LocalDate.now().minusYears(12)
+            dateDialog.datePicker.maxDate = Date.from(maxDate.atStartOfDay(ZoneId.systemDefault()).toInstant()).time
+            dateDialog.show()
         }
     }
 
@@ -206,7 +234,13 @@ class EditAccountFragment : Fragment() {
                 else
                     null
             )
-
+            if (viewModel.user.profileUri != null){
+                Glide.with(requireContext())
+                    .load(viewModel.user.profileUri?.toUri())
+                    .centerCrop()
+                    .override(binding.profileImgImageView.width,binding.profileImgImageView.height)
+                    .into(binding.profileImgImageView)
+            }
         }
     }
 

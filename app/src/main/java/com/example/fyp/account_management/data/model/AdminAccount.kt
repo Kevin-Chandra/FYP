@@ -9,6 +9,8 @@ data class AdminAccount(
     override val phone: String = "",
     override val email: String = "",
     override val address: String = "",
+    override var profileUri: String?,
+    override var profileImagePath: String?,
     override val birthday: Date? = null
 ) : Account(
     id,
@@ -18,5 +20,7 @@ data class AdminAccount(
     email,
     address,
     birthday,
+    profileImagePath,
+    profileUri,
     AccountType.Admin
 )

@@ -1,31 +1,37 @@
 package com.example.fyp.account_management.data.repository
 
+import android.net.Uri
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.CustomerAccount
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.util.FireStoreCollection
+import com.example.fyp.menucreator.util.FirebaseStorageReference
+import com.example.fyp.menucreator.util.UiState
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.toObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
+import java.util.*
 import javax.inject.Inject
 
 
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val database: FirebaseFirestore
+    private val database: FirebaseFirestore,
+    private val imageDatabase: FirebaseStorage
 ) {
 
     private val customerCollectionRef = database.collection(FireStoreCollection.USER)
+    private val imageRef = imageDatabase.reference
 
     fun registerUser(
         email: String,
         password: String,
+        image: Uri?,
         user: CustomerAccount,
         result: (Response<String>) -> Unit
     ) {
@@ -33,7 +39,7 @@ class AuthRepository @Inject constructor(
             .addOnCompleteListener {
                 if (it.isSuccessful){
                     user.id = it.result.user?.uid?:""
-                    updateProfile(user){ state ->
+                    updateProfile(user,image){ state ->
                         when (state){
                             is Response.Success ->{
                                 result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
@@ -130,18 +136,44 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    fun updateProfile(newAccount: Account, result: (Response<String>) -> Unit) {
-        if (auth.currentUser == null) result.invoke(Response.Error(java.lang.Exception("User Not Available")))
+    fun updateProfile(newAccount: Account, profileImage: Uri?, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
+        if (auth.currentUser == null) {
+            result.invoke(Response.Error(java.lang.Exception("User Not Available")))
+            return@launch
+        }
+        var temp : Pair<String,String>? = null
+        if (profileImage != null){
+                async {
+                    uploadImage(profileImage){
+                        when (it){
+                            is Response.Success -> {
+                                temp = it.data
+                            }
+                            is Response.Error -> {
+                                result.invoke(Response.Error(it.exception))
+                            }
+                            else -> {}
+                        }
+                    }
+                }.await()
+            if (temp == null)
+                return@launch
+        }
         auth.currentUser?.let {user->
             try{
                 val profileUpdate = UserProfileChangeRequest.Builder()
                     .setDisplayName(newAccount.first_name + newAccount.last_name)
                     .build()
-                updateUserInfo(newAccount,result)
                 user.updateProfile(profileUpdate)
                     .addOnCompleteListener { it ->
-                        if (it.isSuccessful)
+                        if (it.isSuccessful) {
+                            if (temp != null){
+                                newAccount.profileUri = temp?.first
+                                newAccount.profileImagePath = temp?.second
+                            }
+                            updateUserInfo(newAccount, result)
                             result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                        }
                     }
 
             } catch (e: Exception) {
@@ -200,4 +232,30 @@ class AuthRepository @Inject constructor(
             document!!.toObject<CustomerAccount>()
         }
     }
+
+    private suspend fun uploadImage(image: Uri, result: (Response<Pair<String,String>>) -> Unit) {
+        val key = auth.currentUser?.uid
+        val path = FirebaseStorageReference.PROfILE_IMAGE_REFERENCE + key
+        try {
+            val uri = imageRef.child(path).putFile(image)
+                .await()
+                .storage
+                .downloadUrl
+                .await()
+            result.invoke(Response.Success(Pair(uri.toString(),path)))
+        } catch (e:java.lang.Exception){
+            result.invoke(Response.Error(e))
+        }
+    }
+
+    private fun deleteImage(path: String, result: (Response<String>) -> Unit){
+        imageRef.child(path)
+            .delete()
+            .addOnSuccessListener {
+                result.invoke(Response.Success("IMAGE SUCCESSFULLY DELETED"))
+            }.addOnFailureListener {
+                result.invoke(Response.Error(it))
+            }
+    }
+
 }

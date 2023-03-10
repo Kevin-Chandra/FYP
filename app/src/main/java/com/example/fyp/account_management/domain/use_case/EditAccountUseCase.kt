@@ -1,5 +1,6 @@
 package com.example.fyp.account_management.domain.use_case
 
+import android.net.Uri
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.CustomerAccount
 import com.example.fyp.account_management.data.repository.AuthRepository
@@ -12,6 +13,7 @@ class EditAccountUseCase @Inject constructor(
 ) {
     operator fun invoke(
         newAccount: CustomerAccount,
+        image : Uri?,
         result: (Response<String>) -> Unit
-    ) = authRepository.updateProfile(newAccount,result)
+    ) = authRepository.updateProfile(newAccount,image,result)
 }
