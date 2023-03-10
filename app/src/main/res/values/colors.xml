@@ -8,4 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FF0000</color>
+    <color name="regButtonColor">#FF000000</color>
+    <color name="borderlessButtonColor">#FFFFFF</color>
+    <color name="borderlessButtonBackgroundColor">#FF000000</color>
 </resources>

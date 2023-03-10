@@ -20,12 +20,14 @@
                 android:layout_height="150dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="24dp"
+                android:backgroundTint="@color/borderlessButtonBackgroundColor"
                 app:cardCornerRadius="250dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView">
 
                 <ImageView
+
                     android:id="@+id/profile_img_image_view"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
@@ -57,7 +59,6 @@
                 android:layout_marginEnd="16dp"
                 android:text="Registration"
                 android:textAlignment="center"
-                android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -130,7 +131,7 @@
                     android:id="@+id/fname_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
+                    android:inputType="textCapWords"
                     tools:text="" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -155,7 +156,7 @@
                     android:id="@+id/lname_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
+                    android:inputType="textCapWords"
                     tools:text="" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -216,6 +217,8 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="24dp"
                 android:text="Birthday"
+                android:backgroundTint="@color/borderlessButtonColor"
+                android:textColor="@color/borderlessButtonBackgroundColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/address_edit_text_layout" />
@@ -242,8 +245,8 @@
                     android:layout_marginEnd="16dp"
                     android:text="Register"
                     android:textAllCaps="false"
-                    android:textColor="@color/black"
-                    app:backgroundTint="@color/white" />
+                    android:textColor="@color/borderlessButtonColor"
+                    app:backgroundTint="@color/borderlessButtonBackgroundColor" />
 
                 <ProgressBar
                     android:id="@+id/register_progress"
@@ -266,8 +269,8 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="32dp"
                 android:text="Back"
-                android:textColor="@color/black"
-                app:backgroundTint="@color/white"
+                android:textColor="@color/borderlessButtonColor"
+                app:backgroundTint="@color/borderlessButtonBackgroundColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/button_layout" />

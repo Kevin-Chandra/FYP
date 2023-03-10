@@ -89,7 +89,7 @@
                 android:id="@+id/first_name_et"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
+                android:inputType="textCapWords|textPersonName"
                 tools:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -114,7 +114,7 @@
                 android:id="@+id/last_name_et"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
+                android:inputType="textCapWords|textPersonName"
                 tools:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
