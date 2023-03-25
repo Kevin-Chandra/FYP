@@ -88,7 +88,6 @@ class LoginFragment : Fragment() {
 
     private fun navigateMainPage() {
         val i = Intent(requireContext(), MainActivity::class.java)
-        // set the new task and clear flags
         i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(i)
     }

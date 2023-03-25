@@ -11,8 +11,10 @@ object FireStoreCollection{
 object FireStoreDocumentField{
     const val ID = "id"
     const val FOOD_CATEGORY_NAME = "name"
-    val DATE = "date"
-    val PRODUCT_ID = "productId"
+    const val DATE = "date"
+    const val PRODUCT_ID = "productId"
+    const val ACCOUNT_TYPE = "accountType"
+    const val PROFILE_IMAGE_PATH = "profileImagePath"
 }
 
 object NavigationCommand{

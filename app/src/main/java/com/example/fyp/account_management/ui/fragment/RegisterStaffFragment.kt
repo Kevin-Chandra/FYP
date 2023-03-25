@@ -22,9 +22,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.MainActivity
 import com.example.fyp.account_management.ui.view_model.AuthViewModel
+import com.example.fyp.account_management.ui.view_model.RegisterStaffViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.RegistrationEvent
 import com.example.fyp.account_management.util.Response
+import com.example.fyp.account_management.util.StaffRegistrationEvent
+import com.example.fyp.databinding.FragmentRegisterStaffBinding
 import com.example.fyp.databinding.FragmentUserRegisterBinding
 import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.theme.overlay.MaterialThemeOverlay
@@ -36,14 +39,14 @@ import java.time.ZoneId
 import java.util.*
 
 @AndroidEntryPoint
-class UserRegisterFragment : Fragment() {
+class RegisterStaffFragment : Fragment() {
 
-    private var _binding: FragmentUserRegisterBinding? = null
+    private var _binding: FragmentRegisterStaffBinding? = null
     private val binding get() = _binding!!
 
     private var cal: Calendar = Calendar.getInstance()
 
-    private val viewModel by activityViewModels<AuthViewModel>()
+    private val viewModel by activityViewModels<RegisterStaffViewModel>()
 
     private var uri: Uri? = null
 
@@ -56,14 +59,14 @@ class UserRegisterFragment : Fragment() {
 
     private fun setImage(it: Uri) {
         binding.profileImgImageView.setImageURI(it)
-        viewModel.onEvent(RegistrationEvent.ImageChanged(it))
+//        viewModel.onEvent(RegistrationEvent.ImageChanged(it))
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentUserRegisterBinding.inflate(inflater, container, false)
+        _binding = FragmentRegisterStaffBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -81,37 +84,34 @@ class UserRegisterFragment : Fragment() {
             findNavController().navigateUp()
         }
         binding.registerBtn.setOnClickListener{
-            viewModel.onEvent(RegistrationEvent.Submit)
+            viewModel.onEvent(StaffRegistrationEvent.Submit)
         }
         binding.emailEditText.doAfterTextChanged {
-            viewModel.onEvent(RegistrationEvent.EmailChanged(binding.emailEditText.text.toString()))
-        }
-        binding.passwordEditText.doAfterTextChanged {
-            viewModel.onEvent(RegistrationEvent.PasswordChanged(binding.passwordEditText.text.toString()))
+            viewModel.onEvent(StaffRegistrationEvent.EmailChanged(binding.emailEditText.text.toString()))
         }
         binding.fnameEditText.doAfterTextChanged {
-            viewModel.onEvent(RegistrationEvent.FirstNameChanged(binding.fnameEditText.text.toString()))
+            viewModel.onEvent(StaffRegistrationEvent.FirstNameChanged(binding.fnameEditText.text.toString()))
         }
         binding.lnameEditText.doAfterTextChanged {
-            viewModel.onEvent(RegistrationEvent.LastNameChanged(binding.lnameEditText.text.toString()))
+            viewModel.onEvent(StaffRegistrationEvent.LastNameChanged(binding.lnameEditText.text.toString()))
         }
         binding.phoneEditText.doAfterTextChanged {
-            viewModel.onEvent(RegistrationEvent.PhoneChanged(binding.phoneEditText.text.toString()))
+            viewModel.onEvent(StaffRegistrationEvent.PhoneChanged(binding.phoneEditText.text.toString()))
         }
         binding.addressEditText.doAfterTextChanged {
-            viewModel.onEvent(RegistrationEvent.AddressChanged(binding.addressEditText.text.toString()))
+            viewModel.onEvent(StaffRegistrationEvent.AddressChanged(binding.addressEditText.text.toString()))
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setUpDatePicker(){
         val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                viewModel.onEvent(RegistrationEvent.BirthdayChanged(cal.time))
-                updateDateInView()
-            }
+            cal.set(Calendar.YEAR, year)
+            cal.set(Calendar.MONTH, monthOfYear)
+            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            viewModel.onEvent(StaffRegistrationEvent.BirthdayChanged(cal.time))
+            updateDateInView()
+        }
 
         binding.birthdayEditText.setOnClickListener {
             val dateDialog = DatePickerDialog(
@@ -137,20 +137,18 @@ class UserRegisterFragment : Fragment() {
             viewModel.registerResponse.collect() {
                 when (it) {
                     is Response.Loading -> {
-                        binding.registerBtn.isEnabled = false
                         binding.registerProgress.visibility = View.VISIBLE
                     }
                     is Response.Error -> {
                         binding.registerProgress.visibility = View.GONE
-                        binding.registerBtn.isEnabled = true
                         it.exception.message?.let { it1 -> errorToast(it1) }
+//                        it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is Response.Success -> {
                         if (it.data == Constants.AuthResult.SUCCESS_SIGNUP){
-                            binding.registerBtn.isEnabled = true
                             binding.registerProgress.visibility = View.GONE
-                            successToast("Registration success!")
-                            navigateMainPage()
+                            successToast("Staff successfully registered!")
+                            navigateBack()
                         }
                     }
                 }
@@ -166,12 +164,6 @@ class UserRegisterFragment : Fragment() {
 
                 } else {
                     binding.emailEditTextLayout.error = null
-                }
-                if (it.passwordError != null){
-                    binding.passwordEditTextLayout.error = it.passwordError.toString()
-
-                } else {
-                    binding.passwordEditTextLayout.error = null
                 }
                 if (it.fnameError != null){
                     binding.fnameEditTextLayout.error = it.fnameError.toString()
@@ -201,10 +193,8 @@ class UserRegisterFragment : Fragment() {
         Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
     }
 
-    private fun navigateMainPage() {
-        val i = Intent(requireContext(), MainActivity::class.java)
-        i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(i)
+    private fun navigateBack() {
+        findNavController().navigateUp()
     }
 
     override fun onDestroy() {

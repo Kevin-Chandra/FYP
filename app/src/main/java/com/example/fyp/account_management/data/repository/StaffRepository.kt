@@ -12,7 +12,6 @@ import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.menucreator.util.FirebaseStorageReference
 import com.google.firebase.auth.*
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.toObject
@@ -23,8 +22,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.random.Random
 
-
-class AuthRepository @Inject constructor(
+class StaffRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val database: FirebaseFirestore,
     private val imageDatabase: FirebaseStorage,
@@ -33,21 +31,28 @@ class AuthRepository @Inject constructor(
     private val userCollectionRef = database.collection(FireStoreCollection.USER)
     private val imageRef = imageDatabase.reference
 
-    fun registerUser(
+    private fun generateRandomPassword(length: Int): String{
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*())_+<>?{}:"
+        return (1..length)
+            .map { chars[Random.nextInt(0, chars.length)] }
+            .joinToString("")
+    }
+
+    fun registerStaff(
         email: String,
-        password: String,
-        image: Uri?,
-        user: CustomerAccount,
+        user: StaffAccount,
         result: (Response<String>) -> Unit,
     ) {
+        val password = generateRandomPassword(10)
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful){
+                    println(" pass : $password")
                     user.id = it.result.user?.uid?:""
-                    updateProfile(user,image){ state ->
+                    updateProfile(user){ state ->
                         when (state){
                             is Response.Success ->{
-                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                                result.invoke(Response.Success("Email sent!"))
                             }
                             else -> {
 
@@ -70,34 +75,6 @@ class AuthRepository @Inject constructor(
                 }
             }
             .addOnFailureListener{
-                result.invoke(Response.Error(it))
-            }
-    }
-
-    private fun generateRandomPassword(length: Int): String{
-        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        return (1..length)
-            .map { chars[Random.nextInt(0, chars.length)] }
-            .joinToString("")
-    }
-
-    fun updatePassword(oldPass: String, newPass: String, result: (Response<String>) -> Unit){
-        val user = auth.currentUser!!
-        val credential = EmailAuthProvider.getCredential(user.email!!,oldPass)
-        user.reauthenticate(credential)
-            .addOnCompleteListener{
-                if (it.isSuccessful){
-                    user.updatePassword(newPass)
-                        .addOnCompleteListener { update ->
-                        if (update.isSuccessful)
-                            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE_PASSWORD))
-                        else
-                            result.invoke(Response.Error(Exception("Password Not Updated")))
-                    }
-                } else {
-                    result.invoke(Response.Error(Exception("Failed to authenticate user!")))
-                }
-            }.addOnFailureListener {
                 result.invoke(Response.Error(it))
             }
     }
@@ -133,7 +110,7 @@ class AuthRepository @Inject constructor(
 //            }
 //    }
 
-    private fun updateUserInfo(user: Account, result: (Response<String>) -> Unit) {
+    private fun updateUserInfo(user: StaffAccount, result: (Response<String>) -> Unit) {
         val document = userCollectionRef.document(user.id)
         CoroutineScope(Dispatchers.IO).launch{
             try{
@@ -148,7 +125,7 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    fun updateProfile(newAccount: Account, profileImage: Uri? = null, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
+    fun updateProfile(newAccount: StaffAccount, profileImage: Uri? = null, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
         if (auth.currentUser == null) {
             result.invoke(Response.Error(java.lang.Exception("User Not Available")))
             return@launch
@@ -193,64 +170,6 @@ class AuthRepository @Inject constructor(
             }
         }
     }
-    fun loginUser(
-        email: String,
-        password: String,
-        result: (Response<Boolean>) -> Unit,
-    ){
-        try{
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener{
-                    if (it.isSuccessful){
-                        result.invoke(Response.Success(true))
-                    }
-                }
-                .addOnFailureListener {
-                    if (it is FirebaseAuthInvalidCredentialsException)
-                        result.invoke(Response.Error(Exception("Email/Password is invalid")))
-                    else
-                        result.invoke(Response.Error(it))
-                }
-        }catch (e: Exception) {
-            result.invoke(Response.Error(e))
-        }
-    }
-
-    fun logout(result: () -> Unit) {
-        auth.signOut()
-        result.invoke()
-    }
-
-    fun forgotPassword(email: String, result: (Response<String>) -> Unit) {
-        auth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    result.invoke(Response.Success(Constants.AuthResult.SUCCESS_EMAIL_SENT))
-
-                } else {
-                    task.exception?.let { Response.Error(it) }?.let { result.invoke(it) }
-                }
-            }.addOnFailureListener {
-                result.invoke(Response.Error(Exception("Authentication failed, Check email")))
-            }
-    }
-
-    suspend fun getSession() : Account? {
-        return if (auth.currentUser == null)
-            null
-        else {
-            val document = auth.currentUser?.uid?.let { userCollectionRef.document(it) }?.get()
-                ?.await()
-            when (document?.get(FireStoreDocumentField.ACCOUNT_TYPE) ){
-                AccountType.Customer.name -> document.toObject<CustomerAccount>()
-                AccountType.Admin.name -> document.toObject<AdminAccount>()
-                AccountType.Manager.name -> document.toObject<CustomerAccount>()
-                AccountType.KitchenStaff.name -> document.toObject<KitchenStaffAccount>()
-                AccountType.Staff.name -> document.toObject<StaffAccount>()
-                else -> null
-            }
-        }
-    }
 
     private suspend fun uploadImage(image: Uri, result: (Response<Pair<String,String>>) -> Unit) {
         val key = auth.currentUser?.uid
@@ -266,45 +185,15 @@ class AuthRepository @Inject constructor(
             result.invoke(Response.Error(e))
         }
     }
-
-    fun deleteAccount(password: String, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch{
-        val user = auth.currentUser!!
-        val credential = EmailAuthProvider.getCredential(user.email!!,password)
-        val account = userCollectionRef.document(user.uid).get().await()
-        user.reauthenticate(credential)
-            .addOnCompleteListener{
-                if (it.isSuccessful){
-                    if (account[FireStoreDocumentField.PROFILE_IMAGE_PATH] != null || account[FireStoreDocumentField.PROFILE_IMAGE_PATH] != "")
-                        deleteImage(account.get(FireStoreDocumentField.PROFILE_IMAGE_PATH).toString(),result)
-                    userCollectionRef.document(user.uid).delete()
-                        .addOnSuccessListener {
-                            result.invoke(Response.Success("Account data deleted!"))
-                        }.addOnFailureListener { e ->
-                            result.invoke(Response.Error(e))
-                            throw CancellationException()
-                        }
-                    auth.currentUser!!.delete()
-                        .addOnSuccessListener {
-                            result.invoke(Response.Success("Account deleted successfully!"))
-                        }.addOnFailureListener { e ->
-                            result.invoke(Response.Error(e))
-                            throw CancellationException()
-                    }
-                }
-            }.addOnFailureListener {
-                result.invoke(Response.Error(Exception("Authentication failed")))
-            }
-    }
-
-    private fun deleteImage(path: String, result: (Response<String>) -> Unit){
-        println("path $path")
-        imageRef.child(path)
-            .delete()
-            .addOnSuccessListener {
-                result.invoke(Response.Success("IMAGE SUCCESSFULLY DELETED"))
-            }.addOnFailureListener {
-                result.invoke(Response.Error(it))
-            }
-    }
+//
+//    private fun deleteImage(path: String, result: (Response<String>) -> Unit){
+//        imageRef.child(path)
+//            .delete()
+//            .addOnSuccessListener {
+//                result.invoke(Response.Success("IMAGE SUCCESSFULLY DELETED"))
+//            }.addOnFailureListener {
+//                result.invoke(Response.Error(it))
+//            }
+//    }
 
 }

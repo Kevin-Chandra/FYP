@@ -21,7 +21,8 @@ class MainAuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val getSessionUseCase: GetSessionUseCase,
     private val logoutUseCase: LogoutUseCase,
-    private val resetPasswordUseCase: ResetPasswordUseCase
+    private val resetPasswordUseCase: ResetPasswordUseCase,
+    private val deleteAccountUseCase: DeleteAccountUseCase
 ) : ViewModel() {
 
     var user: Account? = null
@@ -31,6 +32,9 @@ class MainAuthViewModel @Inject constructor(
 
     private val _resetState = MutableStateFlow<Response<String>>(Response.Success(""))
     val resetState = _resetState.asStateFlow()
+
+    private val _deleteAccountState = MutableStateFlow<Response<String>>(Response.Success(""))
+    val deleteAccountState = _deleteAccountState.asStateFlow()
 
     fun login(email: String, password: String) = viewModelScope.launch{
         _loginState.emit(Response.Loading)
@@ -53,6 +57,13 @@ class MainAuthViewModel @Inject constructor(
 
     fun logout( result : () -> Unit){
         logoutUseCase.invoke(result)
+    }
+
+    fun deleteAccount(password: String) = viewModelScope.launch{
+        _deleteAccountState.value = Response.Loading
+        deleteAccountUseCase.invoke(password){
+            _deleteAccountState.value = it
+        }
     }
 
 }

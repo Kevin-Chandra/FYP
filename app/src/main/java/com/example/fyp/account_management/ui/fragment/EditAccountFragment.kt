@@ -22,7 +22,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.fyp.R
+import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.AuthViewModel
+import com.example.fyp.account_management.ui.view_model.RegisterStaffViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.RegistrationEvent
 import com.example.fyp.account_management.util.Response
@@ -44,7 +46,10 @@ class EditAccountFragment : Fragment() {
     private val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
 
-    private val viewModel by activityViewModels<AuthViewModel>()
+    private val viewModel by viewModels<AuthViewModel>()
+    private val staffViewModel by activityViewModels<RegisterStaffViewModel>()
+
+    private lateinit var accountType: AccountType
 
     private var uri : Uri? = null
 
@@ -68,9 +73,9 @@ class EditAccountFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         viewModel.getSession()
         observeLoading()
         observeUpdate()
@@ -219,7 +224,7 @@ class EditAccountFragment : Fragment() {
     }
 
     private fun navigateBack() {
-        findNavController().navigate(EditAccountFragmentDirections.actionEditAccountFragmentToMainAccountFragment())
+        findNavController().navigateUp()
     }
 
     private fun loadData() {

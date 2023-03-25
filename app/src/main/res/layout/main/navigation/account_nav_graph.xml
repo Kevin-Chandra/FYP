@@ -15,27 +15,23 @@
         <action
             android:id="@+id/action_mainAccountFragment_to_updatePasswordFragment"
             app:destination="@id/updatePasswordFragment" />
+        <action
+            android:id="@+id/action_mainAccountFragment_to_registerStaffFragment"
+            app:destination="@id/registerStaffFragment" />
     </fragment>
     <fragment
         android:id="@+id/editAccountFragment"
         android:name="com.example.fyp.account_management.ui.fragment.EditAccountFragment"
         android:label="fragment_edit_account"
-        tools:layout="@layout/fragment_edit_account" >
-        <action
-            android:id="@+id/action_editAccountFragment_to_mainAccountFragment"
-            app:destination="@id/mainAccountFragment"
-            app:popUpTo="@id/mainAccountFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_edit_account" />
     <fragment
         android:id="@+id/updatePasswordFragment"
         android:name="com.example.fyp.account_management.ui.fragment.UpdatePasswordFragment"
         android:label="fragment_update_password"
-        tools:layout="@layout/fragment_update_password" >
-        <action
-            android:id="@+id/action_updatePasswordFragment_to_mainAccountFragment"
-            app:destination="@id/mainAccountFragment"
-            app:popUpTo="@id/mainAccountFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_update_password" />
+    <fragment
+        android:id="@+id/registerStaffFragment"
+        android:name="com.example.fyp.account_management.ui.fragment.RegisterStaffFragment"
+        android:label="fragment_register_staff"
+        tools:layout="@layout/fragment_register_staff" />
 </navigation>

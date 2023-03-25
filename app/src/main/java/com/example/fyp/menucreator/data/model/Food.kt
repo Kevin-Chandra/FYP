@@ -20,5 +20,6 @@ data class Food(
     val lastUpdated: Date = Date(),
     @ServerTimestamp
     @Exclude
-    val createdAt: Date? = null
+    val createdAt: Date? = null,
+    var availability : Boolean? = true
 ) : Product(productId, ProductType.FoodAndBeverage)

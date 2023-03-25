@@ -3,9 +3,7 @@ package com.example.fyp.account_management.ui.view_model
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.AccountType
-import com.example.fyp.account_management.data.model.CustomerAccount
+import com.example.fyp.account_management.data.model.*
 import com.example.fyp.account_management.domain.use_case.*
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.RegistrationEvent
@@ -40,8 +38,15 @@ class AuthViewModel @Inject constructor(
 
     private var command: String = Constants.Command.ADD
 
-    private var _user: CustomerAccount? = null
+    private var _user: Account? = null
     val user get() = _user!!
+
+    private var type: AccountType? = null
+
+    private var customer: CustomerAccount? = null
+    private var admin: AdminAccount? = null
+    private var staff: StaffAccount? = null
+    private var manager: ManagerAccount? = null
 
     private val _loadingState = MutableStateFlow<Response<Boolean>>(Response.Loading)
     val loadingState = _loadingState.asStateFlow()
@@ -165,13 +170,37 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun update() {
-        val newAccount = user.copy(
-            first_name = registerState.value.fname,
-            last_name = registerState.value.lname ?: "",
-            phone = registerState.value.phone,
-            address = registerState.value.address ?: "",
-            birthday = registerState.value.birthday,
-        )
+        val newAccount: Account?
+        when (type) {
+            AccountType.Admin -> {
+                newAccount = admin!!.copy(
+                    first_name = registerState.value.fname,
+                    last_name = registerState.value.lname ?: "",
+                    phone = registerState.value.phone,
+                    address = registerState.value.address ?: "",
+                    birthday = registerState.value.birthday,
+                )
+            }
+            AccountType.Customer -> {
+                newAccount = customer!!.copy(
+                    first_name = registerState.value.fname,
+                    last_name = registerState.value.lname ?: "",
+                    phone = registerState.value.phone,
+                    address = registerState.value.address ?: "",
+                    birthday = registerState.value.birthday,
+                )
+            }
+            else -> {
+                newAccount = customer!!.copy(
+                    first_name = registerState.value.fname,
+                    last_name = registerState.value.lname ?: "",
+                    phone = registerState.value.phone,
+                    address = registerState.value.address ?: "",
+                    birthday = registerState.value.birthday,
+                )
+            }
+        }
+
         editAccountUseCase(newAccount, registerState.value.image) {
             _updateResponse.value = it
         }
@@ -201,10 +230,19 @@ class AuthViewModel @Inject constructor(
 
     fun getSession() = viewModelScope.launch{
         reset()
-        _user = getSessionUseCase() as CustomerAccount
+
+        _user = getSessionUseCase()
+        type = user.accountType
+
+        when (_user?.accountType){
+            AccountType.Customer -> customer = _user as CustomerAccount
+            AccountType.Admin -> admin = _user as AdminAccount
+            AccountType.Staff -> staff = _user as StaffAccount
+            AccountType.Manager -> manager = _user as ManagerAccount
+            else -> customer = _user as CustomerAccount
+        }
 
         if (_user != null) {
-            println("user uri " +user.profileUri)
             loadToRegisterState()
             command = Constants.Command.EDIT
             _loadingState.value = Response.Success(true)

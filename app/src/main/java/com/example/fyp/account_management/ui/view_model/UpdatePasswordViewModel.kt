@@ -2,6 +2,7 @@ package com.example.fyp.account_management.ui.view_model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.CustomerAccount
 import com.example.fyp.account_management.domain.use_case.ChangePasswordUseCase
 import com.example.fyp.account_management.domain.use_case.GetSessionUseCase
@@ -25,11 +26,11 @@ class UpdatePasswordViewModel @Inject constructor(
     private val _changePassState = MutableStateFlow<Response<String>>(Response.Success(""))
     val changePassState = _changePassState.asStateFlow()
 
-    private var _user: CustomerAccount? = null
+    private var _user: Account? = null
     val user get() = _user!!
 
     fun getSession() = viewModelScope.launch{
-        _user = getSessionUseCase() as CustomerAccount
+        _user = getSessionUseCase()
 
         if (_user == null) {
             _changePassState.value = Response.Error(Exception("Account unavailable or not logged in"))

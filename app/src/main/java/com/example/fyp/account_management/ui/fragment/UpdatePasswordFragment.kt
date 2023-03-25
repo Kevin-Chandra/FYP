@@ -82,7 +82,7 @@ class UpdatePasswordFragment : Fragment() {
         }
     }
 
-    private fun navigateBack() = findNavController().navigate(UpdatePasswordFragmentDirections.actionUpdatePasswordFragmentToMainAccountFragment())
+    private fun navigateBack() = findNavController().navigateUp()
 
     private fun errorToast(s: String) {
         Toast.makeText(requireContext(),s,Toast.LENGTH_LONG).show()
