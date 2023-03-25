@@ -205,16 +205,19 @@ class EditAccountFragment : Fragment() {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.registerState.collect() {
                 if (it.fnameError != null){
+                    binding.firstNameEt.isEnabled = true
                     binding.firstNameEtl.error = it.fnameError
                 } else {
                     binding.firstNameEtl.error = null
                 }
                 if (it.lnameError != null){
+                    binding.lastNameEt.isEnabled = true
                     binding.lastNameEtl.error = it.lnameError
                 } else {
                     binding.lastNameEtl.error = null
                 }
                 if (it.phoneError != null){
+                    binding.phoneEt.isEnabled = true
                     binding.phoneEtl.error = it.phoneError
                 } else {
                     binding.phoneEtl.error = null
