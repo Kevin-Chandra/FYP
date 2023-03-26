@@ -41,13 +41,6 @@ class AuthViewModel @Inject constructor(
     private var _user: Account? = null
     val user get() = _user!!
 
-    private var type: AccountType? = null
-//
-//    private var customer: CustomerAccount? = null
-//    private var admin: AdminAccount? = null
-//    private var staff: StaffAccount? = null
-//    private var manager: ManagerAccount? = null
-
     private val _loadingState = MutableStateFlow<Response<Boolean>>(Response.Loading)
     val loadingState = _loadingState.asStateFlow()
 

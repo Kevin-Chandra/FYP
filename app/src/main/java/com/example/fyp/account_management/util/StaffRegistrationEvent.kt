@@ -12,5 +12,6 @@ sealed class StaffRegistrationEvent {
     data class PhoneChanged(val phone: String): StaffRegistrationEvent()
     data class AddressChanged(val address: String): StaffRegistrationEvent()
     data class BirthdayChanged(val date: Date) : StaffRegistrationEvent()
+    data class ImageChanged(val uri: Uri) : StaffRegistrationEvent()
     object Submit: StaffRegistrationEvent()
 }

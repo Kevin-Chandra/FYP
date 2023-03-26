@@ -47,14 +47,13 @@ class AuthRepository @Inject constructor(
                     updateProfile(user,image){ state ->
                         when (state){
                             is Response.Success ->{
-                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_SIGNUP))
                             }
                             else -> {
 
                             }
                         }
                     }
-                    result.invoke(Response.Success(Constants.AuthResult.SUCCESS_SIGNUP))
                 } else {
                     try {
                         throw it.exception ?: Exception("Invalid authentication")
@@ -72,13 +71,6 @@ class AuthRepository @Inject constructor(
             .addOnFailureListener{
                 result.invoke(Response.Error(it))
             }
-    }
-
-    private fun generateRandomPassword(length: Int): String{
-        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        return (1..length)
-            .map { chars[Random.nextInt(0, chars.length)] }
-            .joinToString("")
     }
 
     fun updatePassword(oldPass: String, newPass: String, result: (Response<String>) -> Unit){

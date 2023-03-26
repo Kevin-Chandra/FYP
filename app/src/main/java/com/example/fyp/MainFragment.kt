@@ -36,6 +36,7 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         authViewModel.getSession {
+            println("acc $it")
             if (it != null){
                 binding.shimmerHello.stopShimmer()
                 binding.shimmerHello.visibility = View.GONE

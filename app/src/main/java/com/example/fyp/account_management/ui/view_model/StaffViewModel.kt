@@ -20,7 +20,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class StaffViewModel @Inject constructor(
-    private val registerStaffUseCase: RegisterStaffUseCase,
+    private val registerUseCase: RegisterUseCase,
     private val getPendingStaffUseCase: GetPendingStaffUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val validateNameUseCase: ValidateNameUseCase,
@@ -85,6 +85,9 @@ class StaffViewModel @Inject constructor(
             }
             is StaffRegistrationEvent.AddressChanged -> {
                 _registerState.value = registerState.value.copy(address = event.address)
+            }
+            is StaffRegistrationEvent.ImageChanged -> {
+                _registerState.value = registerState.value.copy(image = event.uri)
             }
             is StaffRegistrationEvent.Submit -> {
                 submitData()
@@ -151,10 +154,11 @@ class StaffViewModel @Inject constructor(
             registerState.value.address,
             registerState.value.birthday)
 
-        registerStaffUseCase.invoke(
+        registerUseCase.invoke(
             registerState.value.email,
             registerState.value.password,
             account,
+            registerState.value.image
         ) {
             _registerResponse.value = it
         }
@@ -192,7 +196,9 @@ class StaffViewModel @Inject constructor(
             null,
             null,
             AccountType.Staff,
-            Date()
+            Date(),
+            null,
+            StaffPosition.Pending
         )
     }
 

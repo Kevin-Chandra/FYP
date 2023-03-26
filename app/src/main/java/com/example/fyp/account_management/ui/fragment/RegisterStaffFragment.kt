@@ -1,6 +1,7 @@
 package com.example.fyp.account_management.ui.fragment
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -17,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.example.fyp.MainActivity
 import com.example.fyp.account_management.ui.view_model.StaffViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
@@ -49,7 +51,7 @@ class RegisterStaffFragment : Fragment() {
 
     private fun setImage(it: Uri) {
         binding.profileImgImageView.setImageURI(it)
-//        viewModel.onEvent(RegistrationEvent.ImageChanged(it))
+        viewModel.onEvent(StaffRegistrationEvent.ImageChanged(it))
     }
 
     override fun onCreateView(
@@ -142,7 +144,7 @@ class RegisterStaffFragment : Fragment() {
                         if (it.data == Constants.AuthResult.SUCCESS_SIGNUP){
                             binding.registerProgress.visibility = View.GONE
                             successToast("Staff successfully registered!")
-                            navigateBack()
+                            navigateMain()
                         }
                     }
                 }
@@ -199,8 +201,10 @@ class RegisterStaffFragment : Fragment() {
         Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
     }
 
-    private fun navigateBack() {
-        findNavController().navigateUp()
+    private fun navigateMain() {
+        val i = Intent(requireContext(), MainActivity::class.java)
+        i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(i)
     }
 
     override fun onDestroy() {

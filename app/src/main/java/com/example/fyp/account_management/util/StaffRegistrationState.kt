@@ -17,5 +17,6 @@ data class StaffRegistrationState(
     val phone: String = "",
     val phoneError: String? = null,
     val address: String? = null,
-    val birthday: Date? = null
+    val birthday: Date? = null,
+    val image: Uri? = null
 )
