@@ -4,8 +4,12 @@ import android.net.Uri
 import java.util.*
 
 data class StaffRegistrationState(
+    val token: String = "",
+    val tokenError: String? = null,
     val email: String = "",
     val emailError: String? = null,
+    val password: String = "",
+    val passwordError: String? = null,
     val fname: String = "",
     val fnameError: String? = null,
     val lname: String? = null,

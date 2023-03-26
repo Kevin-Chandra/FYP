@@ -16,8 +16,8 @@
             android:id="@+id/action_mainAccountFragment_to_updatePasswordFragment"
             app:destination="@id/updatePasswordFragment" />
         <action
-            android:id="@+id/action_mainAccountFragment_to_registerStaffFragment"
-            app:destination="@id/registerStaffFragment" />
+            android:id="@+id/action_mainAccountFragment_to_manageStaffFragment"
+            app:destination="@id/manageStaffFragment" />
     </fragment>
     <fragment
         android:id="@+id/editAccountFragment"
@@ -30,8 +30,7 @@
         android:label="fragment_update_password"
         tools:layout="@layout/fragment_update_password" />
     <fragment
-        android:id="@+id/registerStaffFragment"
-        android:name="com.example.fyp.account_management.ui.fragment.RegisterStaffFragment"
-        android:label="fragment_register_staff"
-        tools:layout="@layout/fragment_register_staff" />
+        android:id="@+id/manageStaffFragment"
+        android:name="com.example.fyp.account_management.ui.fragment.ManageStaffFragment"
+        android:label="ManageStaffFragment" />
 </navigation>

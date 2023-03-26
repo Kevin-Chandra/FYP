@@ -15,27 +15,23 @@
         <action
             android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
             app:destination="@id/forgotPasswordFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_registerStaffFragment"
+            app:destination="@id/registerStaffFragment" />
     </fragment>
     <fragment
         android:id="@+id/userRegisterFragment"
         android:name="com.example.fyp.account_management.ui.fragment.UserRegisterFragment"
         android:label="fragment_user_register"
-        tools:layout="@layout/fragment_user_register" >
-        <action
-            android:id="@+id/action_userRegisterFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_user_register" />
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.example.fyp.account_management.ui.fragment.ForgotPasswordFragment"
         android:label="fragment_forgot_password"
-        tools:layout="@layout/fragment_forgot_password" >
-        <action
-            android:id="@+id/action_forgotPasswordFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_forgot_password" />
+    <fragment
+        android:id="@+id/registerStaffFragment"
+        android:name="com.example.fyp.account_management.ui.fragment.RegisterStaffFragment"
+        android:label="fragment_register_staff"
+        tools:layout="@layout/fragment_register_staff" />
 </navigation>

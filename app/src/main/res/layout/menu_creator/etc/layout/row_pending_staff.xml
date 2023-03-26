@@ -17,52 +17,71 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_launcher_foreground"
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
-            android:id="@+id/product_name_text_view"
+            android:id="@+id/name_tv"
+            style="@style/TextAppearance.Material3.HeadlineSmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            style="@style/TextAppearance.Material3.HeadlineMedium"
-            tools:text="Title"
-            android:scrollHorizontally="true"
+            android:layout_marginEnd="16dp"
             android:ellipsize="end"
             android:maxLines="1"
+            android:scrollHorizontally="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/product_id_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/chip"
-            tools:text="Product ID" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Title" />
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chip"
-            android:layout_width="wrap_content"
+            android:id="@+id/accept_chip"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:backgroundTint="@color/green"
+            android:text="Accept"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
             android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/reject_chip"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/product_description_edit_text"
-            tools:text="Beverage" />
+            app:layout_constraintTop_toBottomOf="@+id/email_tv" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/reject_chip"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:backgroundTint="@color/red"
+            android:text="Reject"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/accept_chip"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/accept_chip"
+            app:layout_constraintTop_toTopOf="@+id/accept_chip" />
 
         <TextView
-            android:id="@+id/product_description_edit_text"
+            android:id="@+id/email_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -73,8 +92,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/product_name_text_view"
-            tools:text="Description jbsd usvfus hs fuhsu hh usb us ubdu ud au " />
+            app:layout_constraintTop_toBottomOf="@+id/name_tv"
+            tools:text="Description jbsd usvfus hs fuhsu hh usb us ubddfu ud au " />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

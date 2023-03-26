@@ -33,7 +33,7 @@ class ProductListItemAdapter(
         fun bind(food: Food){
             binding.productIdTextView.text = food.productId
             binding.productNameTextView.text = food.name
-            binding.productDescriptionTextView.text = food.description
+            binding.productDescriptionEditText.text = food.description
             binding.chip.text = food.category
             val myOptions = RequestOptions()
                 .override(binding.imageView.width, binding.imageView.height)

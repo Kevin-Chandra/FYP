@@ -74,7 +74,7 @@ class ForgotPasswordFragment : Fragment() {
         }
     }
 
-    private fun navigateLoginPage() = findNavController().navigate(ForgotPasswordFragmentDirections.actionForgotPasswordFragmentToLoginFragment())
+    private fun navigateLoginPage() = findNavController().navigateUp()
 
     private fun toast(message: String){
         Toast.makeText(requireContext(),message,Toast.LENGTH_SHORT).show()

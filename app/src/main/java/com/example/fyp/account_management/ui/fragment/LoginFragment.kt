@@ -45,6 +45,10 @@ class LoginFragment : Fragment() {
 
         observeLogin()
 
+        binding.staffRegisterBtn.setOnClickListener {
+            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToRegisterStaffFragment())
+        }
+
         binding.registerBtn.setOnClickListener{
             findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToUserRegisterFragment())
         }

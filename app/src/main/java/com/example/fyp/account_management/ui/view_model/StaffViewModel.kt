@@ -1,23 +1,16 @@
 package com.example.fyp.account_management.ui.view_model
 
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType
-import com.example.fyp.account_management.data.model.CustomerAccount
-import com.example.fyp.account_management.data.model.StaffAccount
+import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.domain.use_case.*
 import com.example.fyp.account_management.util.*
-import com.google.firebase.auth.FirebaseUser
-import com.google.protobuf.BoolValueOrBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.lang.Exception
-import java.security.interfaces.RSAMultiPrimePrivateCrtKey
 import java.util.*
 import javax.inject.Inject
 
@@ -26,21 +19,26 @@ import javax.inject.Inject
  * This view model served to register and edit account
  */
 @HiltViewModel
-class RegisterStaffViewModel @Inject constructor(
+class StaffViewModel @Inject constructor(
     private val registerStaffUseCase: RegisterStaffUseCase,
-    private val editAccountUseCase: EditAccountUseCase,
+    private val getPendingStaffUseCase: GetPendingStaffUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val validateNameUseCase: ValidateNameUseCase,
     private val validatePhoneUseCase: ValidatePhoneUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase,
-    private val getSessionUseCase: GetSessionUseCase,
+    private val getTokenUseCase: GetRegisterStaffTokenUseCase,
+    private val processPendingStaffUseCase: ProcessPendingStaffUseCase
     ) : ViewModel(){
 
     // TODO RECHECK ALL register staff
-    private var command: String = Constants.Command.ADD
 
-    private var _user: CustomerAccount? = null
+    private var _user: Account? = null
     val user get() = _user!!
+
+    private var token: String = ""
+
+    private val _pendingAccounts = MutableStateFlow<Response<List<Account>>>(Response.Loading)
+    val pendingAccounts = _pendingAccounts.asStateFlow()
 
     private val _loadingState = MutableStateFlow<Response<Boolean>>(Response.Loading)
     val loadingState = _loadingState.asStateFlow()
@@ -54,10 +52,24 @@ class RegisterStaffViewModel @Inject constructor(
     private val _updateResponse = MutableStateFlow<Response<String>>(Response.Success(""))
     val updateResponse = _updateResponse.asStateFlow()
 
+    private val _processPendingResponse = MutableStateFlow<Response<String>>(Response.Success(""))
+    val processPendingResponse = _processPendingResponse.asStateFlow()
+
+    init {
+        getPendingStaff()
+        getToken()
+    }
+
     fun onEvent(event: StaffRegistrationEvent) {
         when(event) {
+            is StaffRegistrationEvent.TokenChanged -> {
+                _registerState.value = registerState.value.copy(token = event.token)
+            }
             is StaffRegistrationEvent.EmailChanged -> {
                 _registerState.value = registerState.value.copy(email = event.email)
+            }
+            is StaffRegistrationEvent.PasswordChanged -> {
+                _registerState.value = registerState.value.copy( password = event.password)
             }
             is StaffRegistrationEvent.FirstNameChanged -> {
                 _registerState.value = registerState.value.copy(fname = event.fname)
@@ -81,26 +93,25 @@ class RegisterStaffViewModel @Inject constructor(
     }
 
     private fun submitData() {
-        var emailResult = ValidationResult(successful = true)
-        var lastNameResult : ValidationResult? = null
+        _registerResponse.value = Response.Loading
 
-        val response : MutableStateFlow<Response<String>>
-
-        if (command == Constants.Command.ADD){
-            response = _registerResponse
-             emailResult = validateEmailUseCase.invoke(registerState.value.email)
+        val tokenResult = if (registerState.value.token != token){
+            ValidationResult(false, "Invalid Token")
         } else {
-            response = _updateResponse
+            ValidationResult(true)
         }
-        response.value = Response.Loading
-
+        val emailResult = validateEmailUseCase.invoke(registerState.value.email)
+        val passwordResult = validatePasswordUseCase.invoke(registerState.value.password)
         val phoneResult = validatePhoneUseCase.invoke(registerState.value.phone)
         val firstNameResult = validateNameUseCase.invoke(registerState.value.fname)
+        var lastNameResult : ValidationResult? = null
         if (registerState.value.lname != null && registerState.value.lname != "")
             lastNameResult = registerState.value.lname?.let { validateNameUseCase.invoke(it) }
 
         val hasError = listOf(
+            tokenResult,
             emailResult,
+            passwordResult,
             phoneResult,
             firstNameResult,
             lastNameResult ?: ValidationResult( successful = true)
@@ -109,28 +120,26 @@ class RegisterStaffViewModel @Inject constructor(
 
         if(hasError) {
             _registerState.value = registerState.value.copy(
+                tokenError = tokenResult.errorMessage,
                 emailError = emailResult.errorMessage,
+                passwordError = passwordResult.errorMessage,
                 phoneError = phoneResult.errorMessage,
                 fnameError = firstNameResult.errorMessage,
                 lnameError = lastNameResult?.errorMessage,
             )
-            response.value = Response.Error(Exception("Field(s) error"))
+            _registerResponse.value = Response.Error(Exception("Field(s) error"))
             return
         } else {
             _registerState.value = registerState.value.copy(
+                tokenError = null,
                 emailError = null,
+                passwordError = null,
                 phoneError = null,
                 fnameError = null,
                 lnameError = null
             )
         }
         register()
-//        if (command == Constants.Command.ADD){
-//
-//        } else {
-////            update()
-//        }
-
     }
 
     private fun register() {
@@ -144,6 +153,7 @@ class RegisterStaffViewModel @Inject constructor(
 
         registerStaffUseCase.invoke(
             registerState.value.email,
+            registerState.value.password,
             account,
         ) {
             _registerResponse.value = it
@@ -170,8 +180,8 @@ class RegisterStaffViewModel @Inject constructor(
         email: String,
         address: String?,
         birthday: Date?
-    ) : StaffAccount {
-        return StaffAccount(
+    ) : Account {
+        return Account(
             "",
             first_name,
             last_name?: "",
@@ -181,8 +191,53 @@ class RegisterStaffViewModel @Inject constructor(
             birthday,
             null,
             null,
+            AccountType.Staff,
             Date()
         )
+    }
+
+    private fun getToken() = getTokenUseCase.invoke {
+        viewModelScope.launch {
+            it.collect() {
+                token = when (it) {
+                    is Response.Success -> {
+                        it.data
+                    }
+                    else -> {
+                        ""
+                    }
+                }
+            }
+        }
+    }
+
+    fun getPendingStaff() = getPendingStaffUseCase.invoke {
+        viewModelScope.launch {
+            it.collect {
+                _pendingAccounts.value = it
+            }
+        }
+    }
+
+    fun acceptPendingStaff(account: Account) = viewModelScope.launch{
+        _processPendingResponse.value = Response.Loading
+        processPendingStaffUseCase.invoke(account,StaffPosition.Regular){
+            _processPendingResponse.value = it
+        }
+    }
+
+    fun acceptPendingStaff(account: Account, position: StaffPosition) = viewModelScope.launch{
+        _processPendingResponse.value = Response.Loading
+        processPendingStaffUseCase.invoke(account,position){
+            _processPendingResponse.value = it
+        }
+    }
+
+    fun rejectPendingStaff(account: Account) = viewModelScope.launch{
+        _processPendingResponse.value = Response.Loading
+        processPendingStaffUseCase.invoke(account,StaffPosition.Disabled){
+            _processPendingResponse.value = it
+        }
     }
 
 //    fun getSession() = viewModelScope.launch{

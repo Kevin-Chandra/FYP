@@ -3,7 +3,6 @@ package com.example.fyp.account_management.ui.view_model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.CustomerAccount
 import com.example.fyp.account_management.domain.use_case.ChangePasswordUseCase
 import com.example.fyp.account_management.domain.use_case.GetSessionUseCase
 import com.example.fyp.account_management.domain.use_case.ValidatePasswordUseCase

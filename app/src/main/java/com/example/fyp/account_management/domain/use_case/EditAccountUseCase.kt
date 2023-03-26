@@ -2,8 +2,6 @@ package com.example.fyp.account_management.domain.use_case
 
 import android.net.Uri
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.AccountType
-import com.example.fyp.account_management.data.model.CustomerAccount
 import com.example.fyp.account_management.data.repository.AuthRepository
 import com.example.fyp.account_management.util.Response
 import kotlinx.coroutines.flow.StateFlow

@@ -1,8 +1,6 @@
 package com.example.fyp.account_management.ui.fragment
 
 import android.app.DatePickerDialog
-import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -10,7 +8,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -20,18 +17,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.example.fyp.MainActivity
-import com.example.fyp.account_management.ui.view_model.AuthViewModel
-import com.example.fyp.account_management.ui.view_model.RegisterStaffViewModel
+import com.example.fyp.account_management.ui.view_model.StaffViewModel
 import com.example.fyp.account_management.util.Constants
-import com.example.fyp.account_management.util.RegistrationEvent
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.account_management.util.StaffRegistrationEvent
 import com.example.fyp.databinding.FragmentRegisterStaffBinding
-import com.example.fyp.databinding.FragmentUserRegisterBinding
-import com.example.fyp.menucreator.util.UiState
-import com.google.android.material.theme.overlay.MaterialThemeOverlay
-import com.google.firebase.database.collection.LLRBNode
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -46,7 +36,7 @@ class RegisterStaffFragment : Fragment() {
 
     private var cal: Calendar = Calendar.getInstance()
 
-    private val viewModel by activityViewModels<RegisterStaffViewModel>()
+    private val viewModel by activityViewModels<StaffViewModel>()
 
     private var uri: Uri? = null
 
@@ -70,7 +60,6 @@ class RegisterStaffFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeRegistration()
@@ -89,6 +78,12 @@ class RegisterStaffFragment : Fragment() {
         binding.emailEditText.doAfterTextChanged {
             viewModel.onEvent(StaffRegistrationEvent.EmailChanged(binding.emailEditText.text.toString()))
         }
+        binding.regTokenEditText.doAfterTextChanged {
+            viewModel.onEvent(StaffRegistrationEvent.TokenChanged(binding.regTokenEditText.text.toString()))
+        }
+        binding.passwordEditText.doAfterTextChanged {
+            viewModel.onEvent(StaffRegistrationEvent.PasswordChanged(binding.passwordEditText.text.toString()))
+        }
         binding.fnameEditText.doAfterTextChanged {
             viewModel.onEvent(StaffRegistrationEvent.FirstNameChanged(binding.fnameEditText.text.toString()))
         }
@@ -103,7 +98,6 @@ class RegisterStaffFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setUpDatePicker(){
         val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
             cal.set(Calendar.YEAR, year)
@@ -159,11 +153,23 @@ class RegisterStaffFragment : Fragment() {
     private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.registerState.collect() {
+                if (it.tokenError != null){
+                    binding.regTokenEditTextLayout.error = it.tokenError.toString()
+
+                } else {
+                    binding.regTokenEditTextLayout.error = null
+                }
                 if (it.emailError != null){
                     binding.emailEditTextLayout.error = it.emailError.toString()
 
                 } else {
                     binding.emailEditTextLayout.error = null
+                }
+                if (it.passwordError != null){
+                    binding.passwordEditTextLayout.error = it.passwordError.toString()
+
+                } else {
+                    binding.passwordEditTextLayout.error = null
                 }
                 if (it.fnameError != null){
                     binding.fnameEditTextLayout.error = it.fnameError.toString()

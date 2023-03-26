@@ -149,6 +149,22 @@
             app:layout_constraintStart_toEndOf="@+id/title_textView2"
             app:layout_constraintTop_toBottomOf="@+id/button_layout" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/staff_register_btn"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="6dp"
+            android:text="Register for staff"
+            android:textAlignment="center"
+            android:ellipsize="end"
+            android:textAllCaps="false"
+            android:textColor="@color/regButtonColor"
+            android:textStyle="italic|bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/register_btn" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

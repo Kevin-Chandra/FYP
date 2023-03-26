@@ -37,7 +37,7 @@ class AuthRepository @Inject constructor(
         email: String,
         password: String,
         image: Uri?,
-        user: CustomerAccount,
+        user: Account,
         result: (Response<String>) -> Unit,
     ) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -241,14 +241,15 @@ class AuthRepository @Inject constructor(
         else {
             val document = auth.currentUser?.uid?.let { userCollectionRef.document(it) }?.get()
                 ?.await()
-            when (document?.get(FireStoreDocumentField.ACCOUNT_TYPE) ){
-                AccountType.Customer.name -> document.toObject<CustomerAccount>()
-                AccountType.Admin.name -> document.toObject<AdminAccount>()
-                AccountType.Manager.name -> document.toObject<CustomerAccount>()
-                AccountType.KitchenStaff.name -> document.toObject<KitchenStaffAccount>()
-                AccountType.Staff.name -> document.toObject<StaffAccount>()
-                else -> null
-            }
+            document?.toObject<Account>()
+//            when (document?.get(FireStoreDocumentField.ACCOUNT_TYPE) ){
+//                AccountType.Customer -> document.toObject<CustomerAccount>()
+//                AccountType.Admin -> document.toObject<AdminAccount>()
+//                AccountType.Manager -> document.toObject<CustomerAccount>()
+//                is AccountType.KitchenStaff -> document.toObject<KitchenStaffAccount>()
+//                is AccountType.Staff -> document.toObject<StaffAccount>()
+//                else -> null
+//            }
         }
     }
 

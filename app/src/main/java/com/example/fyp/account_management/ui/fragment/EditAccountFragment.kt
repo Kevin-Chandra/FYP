@@ -2,7 +2,6 @@ package com.example.fyp.account_management.ui.fragment
 
 import android.app.DatePickerDialog
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,10 +10,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.core.widget.doAfterTextChanged
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,7 +21,6 @@ import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.AuthViewModel
-import com.example.fyp.account_management.ui.view_model.RegisterStaffViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.RegistrationEvent
 import com.example.fyp.account_management.util.Response
@@ -47,7 +43,6 @@ class EditAccountFragment : Fragment() {
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
 
     private val viewModel by viewModels<AuthViewModel>()
-    private val staffViewModel by activityViewModels<RegisterStaffViewModel>()
 
     private lateinit var accountType: AccountType
 
@@ -179,6 +174,7 @@ class EditAccountFragment : Fragment() {
                     }
                     is Response.Error -> {
                         binding.progressBar.visibility = View.GONE
+                        println(it)
                         it.exception.message?.let { it1 -> errorToast(it1) }
                     }
                     is Response.Success -> {

@@ -8,15 +8,20 @@ import androidx.core.content.ContextCompat.startActivity
 import com.example.fyp.account_management.data.model.*
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
+import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.menucreator.util.FirebaseStorageReference
+import com.example.fyp.menucreator.util.UiState
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 import java.util.*
 import javax.inject.Inject
@@ -28,38 +33,35 @@ class StaffRepository @Inject constructor(
     private val imageDatabase: FirebaseStorage,
 ) {
 
+    private val adminSettings = database.collection(FireStoreCollection.ADMIN_SETTINGS)
     private val userCollectionRef = database.collection(FireStoreCollection.USER)
     private val imageRef = imageDatabase.reference
 
-    private fun generateRandomPassword(length: Int): String{
-        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*())_+<>?{}:"
-        return (1..length)
-            .map { chars[Random.nextInt(0, chars.length)] }
-            .joinToString("")
-    }
+
 
     fun registerStaff(
         email: String,
-        user: StaffAccount,
+        password: String,
+        user: Account,
         result: (Response<String>) -> Unit,
     ) {
-        val password = generateRandomPassword(10)
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful){
-                    println(" pass : $password")
                     user.id = it.result.user?.uid?:""
+                    user.staffPosition = StaffPosition.Pending
                     updateProfile(user){ state ->
                         when (state){
                             is Response.Success ->{
-                                result.invoke(Response.Success("Email sent!"))
+                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_SIGNUP))
                             }
-                            else -> {
-
+                            is Response.Error -> {
+                                result.invoke(Response.Error(Exception("Something went wrong")))
                             }
+                            else -> {}
                         }
                     }
-                    result.invoke(Response.Success(Constants.AuthResult.SUCCESS_SIGNUP))
+//                    result.invoke(Response.Success(Constants.AuthResult.SUCCESS_SIGNUP))
                 } else {
                     try {
                         throw it.exception ?: Exception("Invalid authentication")
@@ -110,7 +112,7 @@ class StaffRepository @Inject constructor(
 //            }
 //    }
 
-    private fun updateUserInfo(user: StaffAccount, result: (Response<String>) -> Unit) {
+    private fun updateUserInfo(user: Account, result: (Response<String>) -> Unit) {
         val document = userCollectionRef.document(user.id)
         CoroutineScope(Dispatchers.IO).launch{
             try{
@@ -125,7 +127,7 @@ class StaffRepository @Inject constructor(
         }
     }
 
-    fun updateProfile(newAccount: StaffAccount, profileImage: Uri? = null, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
+    fun updateProfile(newAccount: Account, profileImage: Uri? = null, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
         if (auth.currentUser == null) {
             result.invoke(Response.Error(java.lang.Exception("User Not Available")))
             return@launch
@@ -185,6 +187,57 @@ class StaffRepository @Inject constructor(
             result.invoke(Response.Error(e))
         }
     }
+
+    private fun initializeSetting(){
+        adminSettings.add(mapOf(FireStoreDocumentField.ID to "Setting"))
+    }
+
+    fun setToken(token: String, result: (Response<String>) -> Unit){
+        adminSettings.document(FireStoreDocumentField.STAFF_REGISTRATION_TOKEN)
+            .set(mapOf( FireStoreDocumentField.STAFF_REGISTRATION_TOKEN to token))
+            .addOnSuccessListener {
+                result.invoke(Response.Success("Token Updated"))
+            }.addOnFailureListener {
+                result.invoke(Response.Error(it))
+            }
+    }
+
+    fun getToken(result: (Flow<Response<String>>) -> Unit){
+        adminSettings.document(FireStoreDocumentField.STAFF_REGISTRATION_TOKEN)
+            .addSnapshotListener{ snapshot,e ->
+                if (e != null) {
+                    result.invoke(flowOf(Response.Error(e)))
+                    return@addSnapshotListener
+                }
+                result.invoke(flowOf(Response.Success(snapshot?.get(FireStoreDocumentField.STAFF_REGISTRATION_TOKEN).toString())))
+            }
+//            .get()
+//            .addOnCompleteListener {
+//                if (it.isSuccessful){
+//                    result.invoke(flowOf(Response.Success(it.result.get()))
+//                }
+//            }
+    }
+
+    fun getPendingStaff(result: (Flow<Response<List<Account>>>) -> Unit) = CoroutineScope(Dispatchers.IO).launch{
+        userCollectionRef
+            .whereEqualTo(FireStoreDocumentField.ACCOUNT_TYPE,AccountType.Staff)
+            .whereEqualTo(FireStoreDocumentField.STAFF_STATUS,StaffPosition.Pending)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    result.invoke(flowOf(Response.Error(e)))
+                    return@addSnapshotListener
+                }
+
+                val successResponse = run{
+                    val accounts = snapshot?.toObjects<Account>()
+                    Response.Success(accounts?: emptyList())
+                }
+
+                result.invoke(flowOf(successResponse))
+            }
+    }
+
 //
 //    private fun deleteImage(path: String, result: (Response<String>) -> Unit){
 //        imageRef.child(path)

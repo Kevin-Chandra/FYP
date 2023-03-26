@@ -85,7 +85,12 @@ class MainAccountFragment : Fragment() {
         }
 
         binding.registerStaffBtn.setOnClickListener {
-            findNavController().navigate(MainAccountFragmentDirections.actionMainAccountFragmentToRegisterStaffFragment())
+            println(user?.accountType)
+            if (user!!.accountType != AccountType.Admin && user!!.accountType != AccountType.Manager){
+                errorDialog("You have no permission!")
+                return@setOnClickListener
+            }
+            findNavController().navigate(MainAccountFragmentDirections.actionMainAccountFragmentToManageStaffFragment())
         }
         binding.editAccountBtn.setOnClickListener {
             when (user!!.accountType){
@@ -147,5 +152,16 @@ class MainAccountFragment : Fragment() {
 
     private fun errorToast(msg: String) {
         Toast.makeText(requireContext(),msg,Toast.LENGTH_LONG).show()
+    }
+
+    private fun errorDialog(msg: String){
+        AlertDialog.Builder(requireContext())
+            .setTitle("Error")
+            .setMessage(msg)
+            .setCancelable(false)
+            .setPositiveButton("Ok"){ dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 }
