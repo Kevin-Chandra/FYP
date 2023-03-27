@@ -29,6 +29,7 @@ import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentEditAccountBinding
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -148,7 +149,7 @@ class EditAccountFragment : Fragment() {
 
     }
 
-    private fun observeLoading() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeLoading() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.loadingState.collect() {
                 when (it) {
@@ -170,7 +171,7 @@ class EditAccountFragment : Fragment() {
         }
     }
 
-    private fun observeUpdate() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeUpdate() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.updateResponse.collect() {
                 when (it) {
@@ -204,7 +205,7 @@ class EditAccountFragment : Fragment() {
         Toast.makeText(context,msg,Toast.LENGTH_LONG).show()
     }
 
-    private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.registerState.collect() {
                 if (it.fnameError != null){
