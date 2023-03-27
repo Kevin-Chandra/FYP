@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
 import androidx.core.widget.doAfterTextChanged
@@ -44,6 +46,8 @@ class EditAccountFragment : Fragment() {
 
     private val viewModel by viewModels<AuthViewModel>()
 
+    private lateinit var callback: OnBackPressedCallback
+
     private var uri : Uri? = null
 
     private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
@@ -68,6 +72,9 @@ class EditAccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        callback = requireActivity().onBackPressedDispatcher.addCallback(this) {}
+        callback.isEnabled = false
 
         viewModel.getSession()
         observeLoading()
@@ -168,15 +175,17 @@ class EditAccountFragment : Fragment() {
             viewModel.updateResponse.collect() {
                 when (it) {
                     is Response.Loading -> {
+                        callback.isEnabled = true
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is Response.Error -> {
+                        callback.isEnabled = false
                         binding.progressBar.visibility = View.GONE
-                        println(it)
                         it.exception.message?.let { it1 -> errorToast(it1) }
                     }
                     is Response.Success -> {
                         if (it.data == Constants.AuthResult.SUCCESS_UPDATE){
+                            callback.isEnabled = false
                             binding.progressBar.visibility = View.GONE
                             successToast("Account Information Updated!")
                             navigateBack()
@@ -188,11 +197,11 @@ class EditAccountFragment : Fragment() {
     }
 
     private fun successToast(s: String) {
-        Toast.makeText(requireContext(),s,Toast.LENGTH_SHORT).show()
+        Toast.makeText(context,s,Toast.LENGTH_SHORT).show()
     }
 
     private fun errorToast(msg: String) {
-        Toast.makeText(requireContext(),msg,Toast.LENGTH_LONG).show()
+        Toast.makeText(context,msg,Toast.LENGTH_LONG).show()
     }
 
     private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -245,5 +254,7 @@ class EditAccountFragment : Fragment() {
             }
         }
     }
+
+
 
 }

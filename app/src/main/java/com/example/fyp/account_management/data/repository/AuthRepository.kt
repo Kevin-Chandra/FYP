@@ -164,57 +164,49 @@ class AuthRepository @Inject constructor(
             return@launch
         }
         var a: Deferred<Pair<String, String>?>? = null
-        val parentJob = CoroutineScope(Dispatchers.IO).launch {
-            if (profileImage != null) {
-                a = async { uploadImage(profileImage, result) }
-            }
-            val updateUserJob = launch {
-                updateUserInfo(newAccount, result)
-            }
-            auth.currentUser?.let { user ->
-                try {
-                    val profileUpdate = UserProfileChangeRequest.Builder()
-                        .setDisplayName(newAccount.first_name + newAccount.last_name)
-                        .build()
-                    user.updateProfile(profileUpdate)
-                        .addOnCompleteListener { it ->
-                            if (it.isSuccessful) {
+        if (profileImage != null) {
+            a = async { uploadImage(profileImage, result) }
+        }
+        val updateUserJob = launch {
+            updateUserInfo(newAccount, result)
+        }
+        auth.currentUser?.let { user ->
+            try {
+                val profileUpdate = UserProfileChangeRequest.Builder()
+                    .setDisplayName(newAccount.first_name + newAccount.last_name)
+                    .build()
+                user.updateProfile(profileUpdate)
+                    .addOnCompleteListener { it ->
+                        if (it.isSuccessful) {
+                            val job = launch {
+                                updateUserJob.join()
                                 if (profileImage != null) {
                                     launch {
-                                        updateUserJob.join()
-                                        launch {
-                                            updateUserField(
-                                                newAccount.id,
-                                                FireStoreDocumentField.PROFILE_URI,
-                                                a?.await()?.first,
-                                                result
-                                            )
-                                        }
-                                        launch {
-                                            updateUserField(
-                                                newAccount.id,
-                                                FireStoreDocumentField.PROFILE_IMAGE_PATH,
-                                                a?.await()?.second,
-                                                result
-                                            )
-                                        }
+                                        updateUserField(
+                                            newAccount.id,
+                                            FireStoreDocumentField.PROFILE_URI,
+                                            a?.await()?.first,
+                                            result
+                                        )
+                                    }
+                                    launch {
+                                        updateUserField(
+                                            newAccount.id,
+                                            FireStoreDocumentField.PROFILE_IMAGE_PATH,
+                                            a?.await()?.second,
+                                            result
+                                        )
                                     }
                                 }
                             }
+                            job.invokeOnCompletion {
+                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                            }
                         }
-
-                } catch (e: Exception) {
-                    result.invoke(Response.Error(e))
-                }
+                    }
+            } catch (e: Exception) {
+                result.invoke(Response.Error(e))
             }
-        }
-        parentJob.invokeOnCompletion {
-            if (it != null) {
-                result.invoke(Response.Error(Exception(it.message)))
-                return@invokeOnCompletion
-            }
-            println("Finished")
-            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
         }
     }
     fun loginUser(
