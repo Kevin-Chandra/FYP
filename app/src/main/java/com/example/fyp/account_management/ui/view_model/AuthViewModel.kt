@@ -164,28 +164,6 @@ class AuthViewModel @Inject constructor(
 
     private fun update() {
         val newAccount: Account?
-//        when (type) {
-//            AccountType.Admin -> {
-//                newAccount = admin!!.copy(
-//                    first_name = registerState.value.fname,
-//                    last_name = registerState.value.lname ?: "",
-//                    phone = registerState.value.phone,
-//                    address = registerState.value.address ?: "",
-//                    birthday = registerState.value.birthday,
-//                )
-//            }
-//            AccountType.Customer -> {
-//                newAccount = customer!!.copy(
-//                    first_name = registerState.value.fname,
-//                    last_name = registerState.value.lname ?: "",
-//                    phone = registerState.value.phone,
-//                    address = registerState.value.address ?: "",
-//                    birthday = registerState.value.birthday,
-//                )
-//            }
-//            else -> {
-//            }
-//        }
         newAccount = user.copy(
             first_name = registerState.value.fname,
             last_name = registerState.value.lname ?: "",

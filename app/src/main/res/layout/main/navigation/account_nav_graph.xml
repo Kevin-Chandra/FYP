@@ -32,5 +32,14 @@
     <fragment
         android:id="@+id/manageStaffFragment"
         android:name="com.example.fyp.account_management.ui.fragment.ManageStaffFragment"
-        android:label="ManageStaffFragment" />
+        android:label="ManageStaffFragment" >
+        <action
+            android:id="@+id/action_manageStaffFragment_to_staffDetailsFragment"
+            app:destination="@id/staffDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/staffDetailsFragment"
+        android:name="com.example.fyp.account_management.ui.fragment.StaffDetailsFragment"
+        android:label="fragment_staff_details"
+        tools:layout="@layout/fragment_staff_details" />
 </navigation>

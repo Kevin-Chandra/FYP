@@ -139,50 +139,76 @@ class AuthRepository @Inject constructor(
             }
         }
     }
+    private fun updateUserField(userId: String,field: String,data: Any?,result: (Response<String>) -> Unit) =
+        CoroutineScope(Dispatchers.IO).launch {
+            val document = userCollectionRef.document(userId)
+            try {
+                document.update(field,data).await()
+                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+            } catch (e: Exception) {
+                result.invoke(Response.Error(e))
+            }
+        }
 
     fun updateProfile(newAccount: Account, profileImage: Uri? = null, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
         if (auth.currentUser == null) {
             result.invoke(Response.Error(java.lang.Exception("User Not Available")))
             return@launch
         }
-        var temp : Pair<String,String>? = null
-        if (profileImage != null){
-                async {
-                    uploadImage(profileImage){
-                        when (it){
-                            is Response.Success -> {
-                                temp = it.data
-                            }
-                            is Response.Error -> {
-                                result.invoke(Response.Error(it.exception))
-                            }
-                            else -> {}
-                        }
-                    }
-                }.await()
-            if (temp == null)
-                return@launch
-        }
-        auth.currentUser?.let {user->
-            try{
-                val profileUpdate = UserProfileChangeRequest.Builder()
-                    .setDisplayName(newAccount.first_name + newAccount.last_name)
-                    .build()
-                user.updateProfile(profileUpdate)
-                    .addOnCompleteListener { it ->
-                        if (it.isSuccessful) {
-                            if (temp != null){
-                                newAccount.profileUri = temp?.first
-                                newAccount.profileImagePath = temp?.second
-                            }
-                            updateUserInfo(newAccount, result)
-                            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
-                        }
-                    }
-
-            } catch (e: Exception) {
-                result.invoke(Response.Error(e))
+        var a: Deferred<Pair<String, String>?>? = null
+        val parentJob = CoroutineScope(Dispatchers.IO).launch {
+            if (profileImage != null) {
+                a = async { uploadImage(profileImage, result) }
             }
+            val updateUserJob = launch {
+                updateUserInfo(newAccount, result)
+            }
+            auth.currentUser?.let { user ->
+                try {
+                    val profileUpdate = UserProfileChangeRequest.Builder()
+                        .setDisplayName(newAccount.first_name + newAccount.last_name)
+                        .build()
+                    user.updateProfile(profileUpdate)
+                        .addOnCompleteListener { it ->
+                            if (it.isSuccessful) {
+                                if (profileImage != null) {
+                                    launch {
+                                        updateUserJob.join()
+                                    }
+                                    launch {
+                                        updateUserField(
+                                            newAccount.id,
+                                            FireStoreDocumentField.PROFILE_URI,
+                                            a?.await()?.first,
+                                            result
+                                        )
+                                    }
+                                    launch {
+                                        updateUserField(
+                                            newAccount.id,
+                                            FireStoreDocumentField.PROFILE_IMAGE_PATH,
+                                            a?.await()?.second,
+                                            result
+                                        )
+                                    }
+                                }
+                            } else {
+                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                            }
+                        }
+
+                } catch (e: Exception) {
+                    result.invoke(Response.Error(e))
+                }
+            }
+        }
+        parentJob.invokeOnCompletion {
+            if (it != null) {
+                result.invoke(Response.Error(Exception(it.message)))
+                return@invokeOnCompletion
+            }
+            println("Finished")
+            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
         }
     }
     fun loginUser(
@@ -234,29 +260,23 @@ class AuthRepository @Inject constructor(
             val document = auth.currentUser?.uid?.let { userCollectionRef.document(it) }?.get()
                 ?.await()
             document?.toObject<Account>()
-//            when (document?.get(FireStoreDocumentField.ACCOUNT_TYPE) ){
-//                AccountType.Customer -> document.toObject<CustomerAccount>()
-//                AccountType.Admin -> document.toObject<AdminAccount>()
-//                AccountType.Manager -> document.toObject<CustomerAccount>()
-//                is AccountType.KitchenStaff -> document.toObject<KitchenStaffAccount>()
-//                is AccountType.Staff -> document.toObject<StaffAccount>()
-//                else -> null
-//            }
         }
     }
 
-    private suspend fun uploadImage(image: Uri, result: (Response<Pair<String,String>>) -> Unit) {
+    private suspend fun uploadImage(image: Uri, result: (Response<String>) -> Unit) : Pair<String,String>? {
         val key = auth.currentUser?.uid
         val path = FirebaseStorageReference.PROfILE_IMAGE_REFERENCE + key
-        try {
+        return try {
             val uri = imageRef.child(path).putFile(image)
                 .await()
                 .storage
                 .downloadUrl
                 .await()
-            result.invoke(Response.Success(Pair(uri.toString(),path)))
+            result.invoke(Response.Success("Image Uploaded"))
+            Pair(uri.toString(),path)
         } catch (e:java.lang.Exception){
             result.invoke(Response.Error(e))
+            null
         }
     }
 

@@ -44,8 +44,6 @@ class EditAccountFragment : Fragment() {
 
     private val viewModel by viewModels<AuthViewModel>()
 
-    private lateinit var accountType: AccountType
-
     private var uri : Uri? = null
 
     private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){

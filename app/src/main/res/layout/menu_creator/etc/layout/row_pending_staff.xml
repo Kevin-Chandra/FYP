@@ -47,7 +47,6 @@
             android:id="@+id/accept_chip"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:backgroundTint="@color/green"
@@ -56,9 +55,9 @@
             android:textAllCaps="true"
             android:textColor="@color/white"
             android:textSize="12sp"
-            app:layout_constraintEnd_toStartOf="@+id/reject_chip"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintStart_toEndOf="@+id/reject_chip"
             app:layout_constraintTop_toBottomOf="@+id/email_tv" />
 
         <com.google.android.material.chip.Chip
@@ -66,7 +65,6 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:backgroundTint="@color/red"
             android:text="Reject"
             android:textAlignment="center"
@@ -75,10 +73,11 @@
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/accept_chip"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/accept_chip"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/accept_chip"
-            app:layout_constraintTop_toTopOf="@+id/accept_chip" />
+            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintTop_toTopOf="@+id/accept_chip"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/email_tv"

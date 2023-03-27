@@ -237,7 +237,6 @@ class AddEditFoodFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun addNewFood(){
         binding.productIdEditText.focusable = View.FOCUSABLE
         modifierLayoutEnabler(false)
@@ -282,7 +281,6 @@ class AddEditFoodFragment : Fragment() {
         binding.modifiersLinearLayout.addView(inflater,index)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun resetField() {
         if (command == NavigationCommand.EDIT){
             binding.productIdEditText.focusable = View.NOT_FOCUSABLE

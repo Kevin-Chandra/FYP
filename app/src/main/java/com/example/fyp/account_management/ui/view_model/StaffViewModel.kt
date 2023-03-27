@@ -246,34 +246,12 @@ class StaffViewModel @Inject constructor(
         }
     }
 
-//    fun getSession() = viewModelScope.launch{
-//        reset()
-//        _user = getSessionUseCase() as CustomerAccount
-//
-//        if (_user != null) {
-//            println("user uri " +user.profileUri)
-//            loadToRegisterState()
-//            command = Constants.Command.EDIT
-//            _loadingState.value = Response.Success(true)
-//        } else {
-//            _loadingState.value = Response.Error(Exception("User Not Found"))
-//        }
-//    }
+    fun loadStaff(account: Account){
+        _user = account
+    }
 
-//    private fun loadToRegisterState() {
-//        onEvent(RegistrationEvent.AddressChanged(user.address))
-//        onEvent(RegistrationEvent.PhoneChanged(user.phone))
-//        onEvent(RegistrationEvent.FirstNameChanged(user.first_name))
-//        onEvent(RegistrationEvent.LastNameChanged(user.last_name))
-////        user.profileUri?.let { RegistrationEvent.ImageChanged(it.toUri()) }?.let { onEvent(it) }
-//        user.birthday?.let { RegistrationEvent.BirthdayChanged(it) }?.let { onEvent(it) }
-//    }
+    fun getAccount(accountId: String){
 
-//    private fun reset(){
-//        _registerState.value = RegistrationState()
-//        _updateResponse.value = Response.Success("")
-//        _registerResponse.value = Response.Success("")
-//        _loadingState.value = Response.Loading
-//    }
+    }
 
 }

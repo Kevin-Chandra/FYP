@@ -68,7 +68,8 @@ class ManageStaffFragment : Fragment() {
         },{
             staffViewModel.rejectPendingStaff(it)
           },{
-
+            staffViewModel.loadStaff(it)
+            findNavController().navigate(ManageStaffFragmentDirections.actionManageStaffFragmentToStaffDetailsFragment())
             })
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted{

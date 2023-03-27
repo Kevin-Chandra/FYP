@@ -60,6 +60,7 @@ class MainAccountFragment : Fragment() {
                 Glide.with(requireContext())
                     .load(user?.profileUri)
                     .placeholder(R.drawable.ic_profile_placeholder_24)
+                    .skipMemoryCache(true)
                     .centerCrop()
                     .into(binding.profileIv)
             }
