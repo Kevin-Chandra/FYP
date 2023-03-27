@@ -49,6 +49,8 @@ class StaffDetailsFragment : Fragment() {
 
         val list = mutableListOf<StaffPosition>()
         for (i in StaffPosition.values()){
+            if (i == StaffPosition.Pending || i == StaffPosition.Disabled)
+                continue
             list.add(i)
         }
         val arrayAdapter = ArrayAdapter(requireContext(),R.layout.dropdown_item,list)

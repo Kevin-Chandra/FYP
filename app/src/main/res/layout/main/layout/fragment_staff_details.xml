@@ -31,15 +31,15 @@
             android:layout_marginTop="24dp"
             android:elevation="10dp"
             app:cardCornerRadius="100dp"
+            android:backgroundTint="@color/borderlessButtonBackgroundColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fragment_name_tv">
-
             <ImageView
                 android:id="@+id/profile_iv"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
-                tools:src="@tools:sample/avatars" />
+                android:src="@drawable/ic_profile_placeholder_24" />
         </androidx.cardview.widget.CardView>
 
         <TextView
@@ -283,8 +283,9 @@
         <com.google.android.material.button.MaterialButton
             android:id="@id/accept_chip"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="150dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             android:text="ACCEPT"
             android:textColor="@color/green"
@@ -300,9 +301,10 @@
         <com.google.android.material.button.MaterialButton
             android:id="@id/reject_chip"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="150dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:layout_marginEnd="8dp"
             android:text="REJECT"
             android:textColor="@color/red"
             android:textSize="15sp"

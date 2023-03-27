@@ -40,58 +40,66 @@ class AuthRepository @Inject constructor(
         user: Account,
         result: (Response<String>) -> Unit,
     ) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                if (it.isSuccessful){
-                    user.id = it.result.user?.uid?:""
-                    updateProfile(user,image){ state ->
-                        when (state){
-                            is Response.Success ->{
-                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_SIGNUP))
-                            }
-                            else -> {
+        try{
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener {
+                    if (it.isSuccessful){
+//                        user.id =
+                        updateProfile(user.copy(id = it.result.user?.uid?:""),image){ state ->
+                            when (state){
+                                is Response.Success ->{
+                                    result.invoke(Response.Success(Constants.AuthResult.SUCCESS_SIGNUP))
+                                }
+                                else -> {
 
+                                }
                             }
                         }
-                    }
-                } else {
-                    try {
-                        throw it.exception ?: Exception("Invalid authentication")
-                    } catch (e: FirebaseAuthWeakPasswordException) {
-                        result.invoke(Response.Error(Exception("Authentication failed, Password should be at least 6 characters")))
-                    } catch (e: FirebaseAuthInvalidCredentialsException) {
-                        result.invoke(Response.Error(Exception("Authentication failed, Invalid email entered")))
-                    } catch (e: FirebaseAuthUserCollisionException) {
-                        result.invoke(Response.Error(Exception("Authentication failed, Email already registered.")))
-                    } catch (e: Exception) {
-                        result.invoke(Response.Error(e))
+                    } else {
+                        try {
+                            throw it.exception ?: Exception("Invalid authentication")
+                        } catch (e: FirebaseAuthWeakPasswordException) {
+                            result.invoke(Response.Error(Exception("Authentication failed, Password should be at least 6 characters")))
+                        } catch (e: FirebaseAuthInvalidCredentialsException) {
+                            result.invoke(Response.Error(Exception("Authentication failed, Invalid email entered")))
+                        } catch (e: FirebaseAuthUserCollisionException) {
+                            result.invoke(Response.Error(Exception("Authentication failed, Email already registered.")))
+                        } catch (e: Exception) {
+                            result.invoke(Response.Error(e))
+                        }
                     }
                 }
-            }
-            .addOnFailureListener{
-                result.invoke(Response.Error(it))
-            }
+        } catch (e: Exception){
+            if (e is IllegalArgumentException)
+                result.invoke(Response.Error(IllegalArgumentException("Email/Password is blank")))
+            else
+                result.invoke(Response.Error(e))
+        }
     }
 
     fun updatePassword(oldPass: String, newPass: String, result: (Response<String>) -> Unit){
         val user = auth.currentUser!!
         val credential = EmailAuthProvider.getCredential(user.email!!,oldPass)
-        user.reauthenticate(credential)
-            .addOnCompleteListener{
-                if (it.isSuccessful){
-                    user.updatePassword(newPass)
-                        .addOnCompleteListener { update ->
-                        if (update.isSuccessful)
-                            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE_PASSWORD))
-                        else
-                            result.invoke(Response.Error(Exception("Password Not Updated")))
+        try{
+            user.reauthenticate(credential)
+                .addOnCompleteListener{
+                    if (it.isSuccessful){
+                        user.updatePassword(newPass)
+                            .addOnCompleteListener { update ->
+                            if (update.isSuccessful)
+                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE_PASSWORD))
+                            else
+                                result.invoke(Response.Error(Exception("Password Not Updated")))
+                        }
+                    } else {
+                        result.invoke(Response.Error(Exception("Failed to authenticate user!")))
                     }
-                } else {
-                    result.invoke(Response.Error(Exception("Failed to authenticate user!")))
+                }.addOnFailureListener {
+                    result.invoke(Response.Error(it))
                 }
-            }.addOnFailureListener {
-                result.invoke(Response.Error(it))
-            }
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
+        }
     }
 
 //    fun updateEmail(oldEmail : String, newEmail: String, password: String, result: (Response<String>) -> Unit){
@@ -133,7 +141,7 @@ class AuthRepository @Inject constructor(
                     user,
                     SetOptions.merge())
                     .await()
-                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_FIELD_UPDATE))
             } catch (e: Exception) {
                 result.invoke(Response.Error(e))
             }
@@ -144,7 +152,7 @@ class AuthRepository @Inject constructor(
             val document = userCollectionRef.document(userId)
             try {
                 document.update(field,data).await()
-                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_FIELD_UPDATE))
             } catch (e: Exception) {
                 result.invoke(Response.Error(e))
             }
@@ -174,26 +182,24 @@ class AuthRepository @Inject constructor(
                                 if (profileImage != null) {
                                     launch {
                                         updateUserJob.join()
-                                    }
-                                    launch {
-                                        updateUserField(
-                                            newAccount.id,
-                                            FireStoreDocumentField.PROFILE_URI,
-                                            a?.await()?.first,
-                                            result
-                                        )
-                                    }
-                                    launch {
-                                        updateUserField(
-                                            newAccount.id,
-                                            FireStoreDocumentField.PROFILE_IMAGE_PATH,
-                                            a?.await()?.second,
-                                            result
-                                        )
+                                        launch {
+                                            updateUserField(
+                                                newAccount.id,
+                                                FireStoreDocumentField.PROFILE_URI,
+                                                a?.await()?.first,
+                                                result
+                                            )
+                                        }
+                                        launch {
+                                            updateUserField(
+                                                newAccount.id,
+                                                FireStoreDocumentField.PROFILE_IMAGE_PATH,
+                                                a?.await()?.second,
+                                                result
+                                            )
+                                        }
                                     }
                                 }
-                            } else {
-                                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
                             }
                         }
 
@@ -224,13 +230,17 @@ class AuthRepository @Inject constructor(
                     }
                 }
                 .addOnFailureListener {
-                    if (it is FirebaseAuthInvalidCredentialsException)
-                        result.invoke(Response.Error(Exception("Email/Password is invalid")))
-                    else
-                        result.invoke(Response.Error(it))
+                    when (it){
+                        is FirebaseAuthInvalidCredentialsException -> result.invoke(Response.Error(Exception("Email/Password is invalid")))
+                        is FirebaseAuthInvalidUserException -> result.invoke(Response.Error(Exception("No user found!")))
+                        else -> result.invoke(Response.Error(it))
+                    }
                 }
-        }catch (e: Exception) {
-            result.invoke(Response.Error(e))
+        } catch (e: Exception){
+            if (e is IllegalArgumentException)
+                result.invoke(Response.Error(IllegalArgumentException("Email/Password is blank")))
+            else
+                result.invoke(Response.Error(e))
         }
     }
 
@@ -240,17 +250,21 @@ class AuthRepository @Inject constructor(
     }
 
     fun forgotPassword(email: String, result: (Response<String>) -> Unit) {
-        auth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    result.invoke(Response.Success(Constants.AuthResult.SUCCESS_EMAIL_SENT))
-
-                } else {
-                    task.exception?.let { Response.Error(it) }?.let { result.invoke(it) }
+        try {
+            auth.sendPasswordResetEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        result.invoke(Response.Success(Constants.AuthResult.SUCCESS_EMAIL_SENT))
+                    }
+                }.addOnFailureListener {
+                    result.invoke(Response.Error(Exception("Invalid Email!")))
                 }
-            }.addOnFailureListener {
-                result.invoke(Response.Error(Exception("Authentication failed, Check email")))
-            }
+        } catch (e: Exception) {
+            if (e is IllegalArgumentException)
+                result.invoke(Response.Error(IllegalArgumentException("Email is blank")))
+            else
+                result.invoke(Response.Error(e))
+        }
     }
 
     suspend fun getSession() : Account? {

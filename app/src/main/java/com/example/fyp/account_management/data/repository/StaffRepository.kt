@@ -127,66 +127,80 @@ class StaffRepository @Inject constructor(
         }
     }
 //
-    fun updateProfile(newAccount: Account, profileImage: Uri? = null, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
-        if (auth.currentUser == null) {
-            result.invoke(Response.Error(java.lang.Exception("User Not Available")))
-            return@launch
-        }
-        var temp : Pair<String,String>? = null
-        if (profileImage != null){
-                async {
-                    uploadImage(profileImage){
-                        when (it){
-                            is Response.Success -> {
-                                temp = it.data
-                            }
-                            is Response.Error -> {
-                                result.invoke(Response.Error(it.exception))
-                            }
-                            else -> {}
-                        }
-                    }
-                }.await()
-            if (temp == null)
-                return@launch
-        }
-        auth.currentUser?.let {user->
-            try{
-                val profileUpdate = UserProfileChangeRequest.Builder()
-                    .setDisplayName(newAccount.first_name + newAccount.last_name)
-                    .build()
-                user.updateProfile(profileUpdate)
-                    .addOnCompleteListener { it ->
-                        if (it.isSuccessful) {
-                            if (temp != null){
-                                newAccount.profileUri = temp?.first
-                                newAccount.profileImagePath = temp?.second
-                            }
-                            updateUserInfo(newAccount, result)
-                            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
-                        }
-                    }
+//    fun updateProfile(newAccount: Account, profileImage: Uri? = null, result: (Response<String>) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
+//        if (auth.currentUser == null) {
+//            result.invoke(Response.Error(java.lang.Exception("User Not Available")))
+//            return@launch
+//        }
+//        var a: Deferred<Pair<String, String>?>? = null
+//        val parentJob = CoroutineScope(Dispatchers.IO).launch {
+//            if (profileImage != null) {
+//                a = async { uploadImage(profileImage, result) }
+//            }
+//            val updateUserJob = launch {
+//                updateUserInfo(newAccount, result)
+//            }
+//            auth.currentUser?.let { user ->
+//                try {
+//                    val profileUpdate = UserProfileChangeRequest.Builder()
+//                        .setDisplayName(newAccount.first_name + newAccount.last_name)
+//                        .build()
+//                    user.updateProfile(profileUpdate)
+//                        .addOnCompleteListener { it ->
+//                            if (it.isSuccessful) {
+//                                if (profileImage != null) {
+//                                    launch {
+//                                        updateUserJob.join()
+//                                        launch {
+//                                            updateUserField(
+//                                                newAccount.id,
+//                                                FireStoreDocumentField.PROFILE_URI,
+//                                                a?.await()?.first,
+//                                                result
+//                                            )
+//                                        }
+//                                        launch {
+//                                            updateUserField(
+//                                                newAccount.id,
+//                                                FireStoreDocumentField.PROFILE_IMAGE_PATH,
+//                                                a?.await()?.second,
+//                                                result
+//                                            )
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                } catch (e: Exception) {
+//                    result.invoke(Response.Error(e))
+//                }
+//            }
+//        }
+//        parentJob.invokeOnCompletion {
+//            if (it != null) {
+//                result.invoke(Response.Error(Exception(it.message)))
+//                return@invokeOnCompletion
+//            }
+//            println("Finished")
+//            result.invoke(Response.Success(Constants.AuthResult.SUCCESS_UPDATE))
+//        }
+//    }
 
-            } catch (e: Exception) {
-                result.invoke(Response.Error(e))
-            }
-        }
-    }
-
-    private suspend fun uploadImage(image: Uri, result: (Response<Pair<String,String>>) -> Unit) {
-        val key = auth.currentUser?.uid
-        val path = FirebaseStorageReference.PROfILE_IMAGE_REFERENCE + key
-        try {
-            val uri = imageRef.child(path).putFile(image)
-                .await()
-                .storage
-                .downloadUrl
-                .await()
-            result.invoke(Response.Success(Pair(uri.toString(),path)))
-        } catch (e:java.lang.Exception){
-            result.invoke(Response.Error(e))
-        }
-    }
+//    private suspend fun uploadImage(image: Uri, result: (Response<Pair<String,String>>) -> Unit) {
+//        val key = auth.currentUser?.uid
+//        val path = FirebaseStorageReference.PROfILE_IMAGE_REFERENCE + key
+//        try {
+//            val uri = imageRef.child(path).putFile(image)
+//                .await()
+//                .storage
+//                .downloadUrl
+//                .await()
+//            result.invoke(Response.Success(Pair(uri.toString(),path)))
+//        } catch (e:java.lang.Exception){
+//            result.invoke(Response.Error(e))
+//        }
+//    }
 
 //    private fun initializeSetting(){
 //        adminSettings.add(mapOf(FireStoreDocumentField.ID to "Setting"))

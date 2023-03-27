@@ -5,15 +5,15 @@ import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
 data class Account(
-        var id: String = "",
+        val id: String = "",
         val first_name: String = "",
         val last_name: String = "",
         val phone: String = "",
         val email: String = "",
         val address: String = "",
         val birthday: Date? = null,
-        var profileImagePath : String? = null,
-        var profileUri : String? = null,
+        val profileImagePath : String? = null,
+        val profileUri : String? = null,
         val accountType: AccountType = AccountType.Customer,
         @ServerTimestamp
         val dateCreated: Date? = null,
@@ -22,11 +22,10 @@ data class Account(
 )
 
 enum class AccountType (val accessLevel: Int){
-        Customer(0),
+        Customer(100),
         Admin(1),
         Manager(2),
-        KitchenStaff(3),
-        Staff(4)
+        Staff(3)
 }
 enum class StaffPosition{
         Disabled,

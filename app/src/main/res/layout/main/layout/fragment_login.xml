@@ -99,10 +99,10 @@
                 android:id="@+id/login_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Login"
+                android:text="LOGIN"
                 android:textAllCaps="false"
-                android:textColor="@color/black"
-                app:backgroundTint="@color/white" />
+                android:textColor="@color/borderlessButtonColor"
+                app:backgroundTint="@color/borderlessButtonBackgroundColor" />
 
             <ProgressBar
                 android:id="@+id/login_progress"
@@ -112,7 +112,7 @@
                 android:layout_centerInParent="true"
                 android:layout_marginTop="16dp"
                 android:elevation="10dp"
-                android:indeterminateTint="@color/black"
+                android:indeterminateTint="@color/borderlessButtonColor"
                 android:visibility="gone"
                 tools:visibility="invisible" />
         </RelativeLayout>
