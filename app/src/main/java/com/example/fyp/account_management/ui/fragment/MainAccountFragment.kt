@@ -95,6 +95,8 @@ class MainAccountFragment : Fragment() {
             findNavController().navigate(MainAccountFragmentDirections.actionMainAccountFragmentToManageStaffFragment())
         }
         binding.editAccountBtn.setOnClickListener {
+            if (user == null)
+                return@setOnClickListener
             when (user!!.accountType){
                 AccountType.Customer -> findNavController().navigate(MainAccountFragmentDirections.actionMainAccountFragmentToEditAccountFragment())
                 else -> findNavController().navigate(MainAccountFragmentDirections.actionMainAccountFragmentToEditAccountFragment())
