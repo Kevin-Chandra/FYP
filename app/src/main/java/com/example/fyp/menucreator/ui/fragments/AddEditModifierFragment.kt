@@ -341,6 +341,7 @@ class AddEditModifierFragment : Fragment() {
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
+                        it.e?.printStackTrace()
                         binding.saveButton.isFocusable = true
                         binding.saveButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
