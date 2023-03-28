@@ -270,7 +270,7 @@ class AddEditFoodFragment : Fragment() {
     private fun addModifierRow(id: String) {
         selectedItems.add(id)
         val index = binding.modifiersLinearLayout.childCount
-        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier, binding.modifiersLinearLayout)
+        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier, binding.modifiersLinearLayout,false)
         inflater.findViewById<TextView>(R.id.modifier_name_textView).text = viewModel.getModifier(id)?.name
         inflater.findViewById<ImageButton>(R.id.remove_button).setOnClickListener {
             selectedItems.remove(id)

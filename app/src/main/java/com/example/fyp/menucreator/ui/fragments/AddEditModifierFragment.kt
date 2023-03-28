@@ -202,7 +202,7 @@ class AddEditModifierFragment : Fragment() {
         findNavController().navigate(AddEditModifierFragmentDirections.actionAddEditModifierFragmentToFirstFragment())
 
     private fun addModifierItemRow(modifierId: String?, isEdit:Boolean = false) {
-        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier_item, binding.modifierItemLayout)
+        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier_item, binding.modifierItemLayout,false)
         val item = modifierId?.let { viewModel.getModifierItem(it) }
         if (modifierId != null && item != null) {
             inflater.findViewById<EditText>(R.id.row_modifier_item_id)
