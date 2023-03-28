@@ -95,8 +95,10 @@ class MainAccountFragment : Fragment() {
             findNavController().navigate(MainAccountFragmentDirections.actionMainAccountFragmentToManageStaffFragment())
         }
         binding.editAccountBtn.setOnClickListener {
-            if (user == null)
+            if (user == null) {
+                errorToast("User not loaded")
                 return@setOnClickListener
+            }
             when (user!!.accountType){
                 AccountType.Customer -> findNavController().navigate(MainAccountFragmentDirections.actionMainAccountFragmentToEditAccountFragment())
                 else -> findNavController().navigate(MainAccountFragmentDirections.actionMainAccountFragmentToEditAccountFragment())
