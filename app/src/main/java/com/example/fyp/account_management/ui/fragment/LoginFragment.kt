@@ -21,6 +21,7 @@ import com.example.fyp.databinding.FragmentFirstBinding
 import com.example.fyp.databinding.FragmentLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
@@ -64,7 +65,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun observeLogin() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeLogin() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.loginState.collect() {
                 when (it) {

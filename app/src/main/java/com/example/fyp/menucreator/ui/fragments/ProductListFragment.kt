@@ -15,6 +15,7 @@ import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.ui.viewmodel.FoodListingViewModel
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProductListFragment : Fragment() {
@@ -43,7 +44,7 @@ class ProductListFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted{
+        viewLifecycleOwner.lifecycleScope.launch{
             viewModel.foods.collect() {
                 when (it) {
                     is UiState.Success -> {foodAdapter.submitList(it.data.toMutableList())

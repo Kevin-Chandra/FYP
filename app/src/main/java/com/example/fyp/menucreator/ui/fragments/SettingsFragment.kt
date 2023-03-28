@@ -80,7 +80,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun observeAdd() = viewLifecycleOwner.lifecycleScope.launchWhenStarted{
+    private fun observeAdd() = viewLifecycleOwner.lifecycleScope.launch{
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.addState.collect() {
                 when (it) {
@@ -109,7 +109,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun observeDelete() = viewLifecycleOwner.lifecycleScope.launchWhenStarted{
+    private fun observeDelete() = viewLifecycleOwner.lifecycleScope.launch{
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.deleteState.collect() {
                 when (it) {

@@ -29,6 +29,7 @@ import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentMainAccountBinding
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -115,7 +116,7 @@ class MainAccountFragment : Fragment() {
         }
     }
 
-    private fun observeDelete() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeDelete() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             authViewModel.deleteAccountState.collect() {
                 when (it) {

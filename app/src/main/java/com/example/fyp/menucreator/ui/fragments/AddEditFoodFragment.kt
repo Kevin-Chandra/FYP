@@ -155,7 +155,7 @@ class AddEditFoodFragment : Fragment() {
             }
 //        }
     }
-    private fun loadCategory() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun loadCategory() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             catViewModel.categories.collect() {
                 when (it) {
@@ -270,7 +270,7 @@ class AddEditFoodFragment : Fragment() {
     private fun addModifierRow(id: String) {
         selectedItems.add(id)
         val index = binding.modifiersLinearLayout.childCount
-        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier, null)
+        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier, binding.modifiersLinearLayout)
         inflater.findViewById<TextView>(R.id.modifier_name_textView).text = viewModel.getModifier(id)?.name
         inflater.findViewById<ImageButton>(R.id.remove_button).setOnClickListener {
             selectedItems.remove(id)
@@ -381,7 +381,7 @@ class AddEditFoodFragment : Fragment() {
         findNavController().navigate(AddEditFoodFragmentDirections.actionAddEditFoodFragmentToFirstFragment())
 
 
-    private fun observeAddFood() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeAddFood() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.addFoodResponse.collect() {
                 when (it) {
@@ -412,7 +412,7 @@ class AddEditFoodFragment : Fragment() {
 
 
 
-    private fun observeUpdateFood() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeUpdateFood() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.updateFoodResponse.collect() {
                 when (it) {

@@ -109,7 +109,6 @@ class SecondFragment : Fragment() {
         viewModel.deleteProduct(productId!!)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun loadData(){
         //Base layout is fragment_second constraint layout
         if (viewModel.type == ProductType.FoodAndBeverage) {
@@ -126,7 +125,6 @@ class SecondFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun loadModifierData() {
         //add modifier_view_component to the base layout
         if (modifierBinding.root.parent == null)
@@ -146,7 +144,6 @@ class SecondFragment : Fragment() {
         modifierBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.modifier.date.toString()}"
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun loadFoodData(){
 
         foodBinding.apply {
@@ -239,7 +236,7 @@ class SecondFragment : Fragment() {
             .show()
     }
 
-    private fun foodObserver() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun foodObserver() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.foodLoaded.collect() {
                 when (it) {
@@ -266,7 +263,7 @@ class SecondFragment : Fragment() {
         }
     }
 
-    private fun modifierObserver() = viewLifecycleOwner.lifecycleScope.launchWhenStarted{
+    private fun modifierObserver() = viewLifecycleOwner.lifecycleScope.launch{
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.modifierLoaded.collect() {
                 when (it) {
@@ -293,7 +290,7 @@ class SecondFragment : Fragment() {
         }
     }
 
-    private fun observeFoodDeletion() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeFoodDeletion() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.deleteResponse.collect() {
                 when (it) {

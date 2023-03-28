@@ -25,6 +25,7 @@ import com.example.fyp.account_management.util.Response
 import com.example.fyp.account_management.util.StaffRegistrationEvent
 import com.example.fyp.databinding.FragmentRegisterStaffBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -128,7 +129,7 @@ class RegisterStaffFragment : Fragment() {
         binding.birthdayEditText.text = "Birthday : ${sdf.format(cal.time)}"
     }
 
-    private fun observeRegistration() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeRegistration() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.registerResponse.collect() {
                 when (it) {
@@ -152,7 +153,7 @@ class RegisterStaffFragment : Fragment() {
         }
     }
 
-    private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.registerState.collect() {
                 if (it.tokenError != null){

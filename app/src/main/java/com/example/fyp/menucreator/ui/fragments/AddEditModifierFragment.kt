@@ -202,7 +202,7 @@ class AddEditModifierFragment : Fragment() {
         findNavController().navigate(AddEditModifierFragmentDirections.actionAddEditModifierFragmentToFirstFragment())
 
     private fun addModifierItemRow(modifierId: String?, isEdit:Boolean = false) {
-        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier_item, null)
+        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier_item, binding.modifierItemLayout)
         val item = modifierId?.let { viewModel.getModifierItem(it) }
         if (modifierId != null && item != null) {
             inflater.findViewById<EditText>(R.id.row_modifier_item_id)
@@ -251,7 +251,7 @@ class AddEditModifierFragment : Fragment() {
             .show()
     }
 
-    private fun observeLoadModifier() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeLoadModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
             viewModel.loadResponse.collect() { it ->
                 when (it) {
@@ -272,7 +272,7 @@ class AddEditModifierFragment : Fragment() {
         }
     }
 
-    private fun observeAddModifier() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeAddModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.addResponse.collect() { it ->
                 when (it) {
@@ -300,7 +300,7 @@ class AddEditModifierFragment : Fragment() {
         }
     }
 
-    private fun observeAddItemFinishModifier() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeAddItemFinishModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.addItemFinishResponse.collect() { it ->
                 when (it) {
@@ -330,7 +330,7 @@ class AddEditModifierFragment : Fragment() {
         }
     }
 
-    private fun observeEditModifier() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeEditModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.editResponse.collect() { it ->
                 when (it) {
@@ -354,7 +354,7 @@ class AddEditModifierFragment : Fragment() {
     }
 
     //main update observer
-    private fun observeEditFinishModifier() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeEditFinishModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.editFinishResponse.collect() { it ->
                 when (it) {
@@ -383,7 +383,7 @@ class AddEditModifierFragment : Fragment() {
         }
     }
 
-    private fun observeUpdateModifierItem() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeUpdateModifierItem() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.editItemResponse.collect() { it ->
                 when (it) {

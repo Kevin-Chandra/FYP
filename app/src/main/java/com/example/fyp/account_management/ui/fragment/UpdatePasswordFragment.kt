@@ -21,6 +21,7 @@ import com.example.fyp.databinding.FragmentEditAccountBinding
 import com.example.fyp.databinding.FragmentMainAccountBinding
 import com.example.fyp.databinding.FragmentUpdatePasswordBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.checkerframework.checker.units.qual.Length
 
 @AndroidEntryPoint
@@ -56,7 +57,7 @@ class UpdatePasswordFragment : Fragment() {
         }
     }
 
-    private fun observeChangePass() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeChangePass() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.changePassState.collect() {
                 when (it) {

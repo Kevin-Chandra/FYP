@@ -20,6 +20,7 @@ import com.example.fyp.databinding.FragmentForgotPasswordBinding
 import com.example.fyp.databinding.FragmentLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
@@ -50,7 +51,7 @@ class ForgotPasswordFragment : Fragment() {
 
     }
 
-    private fun observeReset() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeReset() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.resetState.collect() {
                 when (it) {

@@ -30,6 +30,7 @@ import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.theme.overlay.MaterialThemeOverlay
 import com.google.firebase.database.collection.LLRBNode
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -67,7 +68,6 @@ class UserRegisterFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeRegistration()
@@ -131,7 +131,7 @@ class UserRegisterFragment : Fragment() {
         binding.birthdayEditText.text = "Birthday : ${sdf.format(cal.time)}"
     }
 
-    private fun observeRegistration() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeRegistration() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.registerResponse.collect() {
                 when (it) {
@@ -157,7 +157,7 @@ class UserRegisterFragment : Fragment() {
         }
     }
 
-    private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.registerState.collect() {
                 if (it.emailError != null){

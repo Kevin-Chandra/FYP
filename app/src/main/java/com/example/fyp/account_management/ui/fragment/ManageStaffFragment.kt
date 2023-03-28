@@ -35,6 +35,7 @@ import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
@@ -72,18 +73,20 @@ class ManageStaffFragment : Fragment() {
             findNavController().navigate(ManageStaffFragmentDirections.actionManageStaffFragmentToStaffDetailsFragment())
             })
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted{
-            staffViewModel.pendingAccounts.collect() {
-                when (it) {
-                    is Response.Success -> {
-                        pendingStaffAdapter.submitList(it.data.toMutableList())
+        viewLifecycleOwner.lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                staffViewModel.pendingAccounts.collect() {
+                    when (it) {
+                        is Response.Success -> {
+                            pendingStaffAdapter.submitList(it.data.toMutableList())
 //                        binding.progressBar.visibility = View.GONE
-                    }
-                    is Response.Error ->{
+                        }
+                        is Response.Error -> {
 //                        println(it.e)
-                    }
-                    is Response.Loading ->{
+                        }
+                        is Response.Loading -> {
 //                        binding.progressBar.visibility = View.VISIBLE
+                        }
                     }
                 }
             }
@@ -105,7 +108,7 @@ class ManageStaffFragment : Fragment() {
             .joinToString("")
     }
 
-    private fun observeSetToken() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeSetToken() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.setTokenResponse.collect() {
                 when (it) {
@@ -133,7 +136,7 @@ class ManageStaffFragment : Fragment() {
         }
     }
 
-    private fun observeGetToken() = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+    private fun observeGetToken() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.getTokenResponse.collect() {
                 when (it) {
