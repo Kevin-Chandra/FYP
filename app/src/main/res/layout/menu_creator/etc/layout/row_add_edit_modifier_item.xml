@@ -102,6 +102,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             app:icon="@drawable/ic_close"
+            app:iconTint="@color/borderlessButtonBackgroundColor"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
