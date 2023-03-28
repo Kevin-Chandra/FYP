@@ -22,6 +22,7 @@ import com.example.fyp.databinding.FragmentAddEditModifierBinding
 import com.example.fyp.menucreator.ui.viewmodel.AddEditModifierViewModel
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
@@ -214,7 +215,7 @@ class AddEditModifierFragment : Fragment() {
             if(isEdit)
                 inflater.findViewById<EditText>(R.id.row_modifier_item_id).isFocusable = false
         }
-        inflater.findViewById<ImageButton>(R.id.remove_button).setOnClickListener {
+        inflater.findViewById<MaterialButton>(R.id.remove_button).setOnClickListener {
             viewModel.deleteModifierItem(inflater.findViewById<EditText>(R.id.row_modifier_item_id).text.toString())
             binding.modifierItemLayout.removeView(inflater)
         }

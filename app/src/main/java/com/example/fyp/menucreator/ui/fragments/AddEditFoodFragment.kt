@@ -34,6 +34,7 @@ import com.example.fyp.menucreator.ui.viewmodel.AddEditFoodViewModel
 import com.example.fyp.menucreator.ui.viewmodel.FoodCategoryViewModel
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -135,6 +136,11 @@ class AddEditFoodFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        setDropdown()
+    }
+
     private fun setImage(uri: Uri){
         binding.imageView.setImageURI(uri)
     }
@@ -161,18 +167,22 @@ class AddEditFoodFragment : Fragment() {
                 when (it) {
                     is UiState.Success -> {
                         categoryList = it.data.toList()
-                        categoryString.clear()
-                        for (i in categoryList) {
-                            categoryString.add(i.name)
-                        }
-                        arrayAdapter = ArrayAdapter(requireContext(),R.layout.dropdown_item,categoryString)
-                        binding.categoryEt.setAdapter(arrayAdapter)
+                        setDropdown()
                     }
                     is UiState.Failure -> println(it.e)
                     is UiState.Loading -> {}
                 }
             }
         }
+    }
+
+    private fun setDropdown(){
+        categoryString.clear()
+        for (i in categoryList) {
+            categoryString.add(i.name)
+        }
+        arrayAdapter = ArrayAdapter(requireContext(),R.layout.dropdown_item,categoryString)
+        binding.categoryEt.setAdapter(arrayAdapter)
     }
 
 
@@ -204,7 +214,6 @@ class AddEditFoodFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(this,callback)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun editFood(foodId: String?) {
         if (foodId.isNullOrEmpty()) errorDialog("FoodId invalid")
         else{
@@ -272,7 +281,7 @@ class AddEditFoodFragment : Fragment() {
         val index = binding.modifiersLinearLayout.childCount
         val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier, binding.modifiersLinearLayout,false)
         inflater.findViewById<TextView>(R.id.modifier_name_textView).text = viewModel.getModifier(id)?.name
-        inflater.findViewById<ImageButton>(R.id.remove_button).setOnClickListener {
+        inflater.findViewById<MaterialButton>(R.id.remove_button).setOnClickListener {
             selectedItems.remove(id)
             binding.modifiersLinearLayout.removeView(inflater)
             checkedItems[modifierList.indexOf(id)] = false
@@ -371,7 +380,7 @@ class AddEditFoodFragment : Fragment() {
         binding.addModifierButton.isEnabled  = boolean
         for (i in 0  until binding.modifiersLinearLayout.childCount){
             val child: View = binding.modifiersLinearLayout.getChildAt(i)
-            child.findViewById<ImageButton>(R.id.remove_button).isEnabled = boolean
+            child.findViewById<MaterialButton>(R.id.remove_button).isEnabled = boolean
             child.isEnabled = boolean
         }
         binding.modifiersLinearLayout.isEnabled = boolean
