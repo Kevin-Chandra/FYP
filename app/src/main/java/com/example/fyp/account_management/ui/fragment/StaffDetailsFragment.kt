@@ -17,6 +17,7 @@ import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.ui.view_model.AuthViewModel
 import com.example.fyp.account_management.ui.view_model.StaffViewModel
+import com.example.fyp.account_management.util.Constants
 import com.example.fyp.databinding.FragmentRegisterStaffBinding
 import com.example.fyp.databinding.FragmentStaffDetailsBinding
 import com.example.fyp.menucreator.ui.fragments.AddEditFoodFragmentArgs
@@ -36,6 +37,8 @@ class StaffDetailsFragment : Fragment() {
 
     private var staffPosition : StaffPosition? = null
 
+    private lateinit var command : String
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -47,13 +50,50 @@ class StaffDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        arguments?.let {
+            command = StaffDetailsFragmentArgs.fromBundle(it).command
+        }
+
         val list = mutableListOf<StaffPosition>()
         for (i in StaffPosition.values()){
-            if (i == StaffPosition.Pending || i == StaffPosition.Disabled)
+            if (command == Constants.Command.ADD &&
+                (i == StaffPosition.Pending || i == StaffPosition.Disabled))
                 continue
             list.add(i)
         }
         val arrayAdapter = ArrayAdapter(requireContext(),R.layout.dropdown_item,list)
+
+        if (command == Constants.Command.EDIT){
+            binding.apply {
+                acceptChip.visibility = View.GONE
+                rejectChip.visibility = View.GONE
+                applyChip.visibility = View.VISIBLE
+
+                categoryEt.setText(viewModel.user.staffPosition?.name)
+
+                applyChip.setOnClickListener {
+                    if (staffPosition == null){
+                        errorToast("Please select staff position")
+                        return@setOnClickListener
+                    }
+                    viewModel.acceptPendingStaff(viewModel.user,staffPosition?: StaffPosition.Regular)
+                    navigateBack()
+                }
+            }
+        } else {
+            binding.acceptChip.setOnClickListener {
+                if (staffPosition == null){
+                    errorToast("Please select staff position")
+                    return@setOnClickListener
+                }
+                viewModel.acceptPendingStaff(viewModel.user,staffPosition?: StaffPosition.Regular)
+                navigateBack()
+            }
+            binding.rejectChip.setOnClickListener {
+                viewModel.rejectPendingStaff(viewModel.user)
+                navigateBack()
+            }
+        }
 
         binding.apply {
             nameTv.text = viewModel.user.first_name + " " + viewModel.user.last_name
@@ -72,18 +112,7 @@ class StaffDetailsFragment : Fragment() {
             categoryEt.setOnItemClickListener{ adapter, _, position, _ ->
                 staffPosition = adapter.getItemAtPosition(position) as StaffPosition
             }
-            acceptChip.setOnClickListener {
-                if (staffPosition == null){
-                    errorToast("Please select staff position")
-                    return@setOnClickListener
-                }
-                viewModel.acceptPendingStaff(viewModel.user,staffPosition?: StaffPosition.Regular)
-                navigateBack()
-            }
-            rejectChip.setOnClickListener {
-                viewModel.rejectPendingStaff(viewModel.user)
-                navigateBack()
-            }
+
         }
     }
 

@@ -22,12 +22,14 @@ import javax.inject.Inject
 class StaffViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val getPendingStaffUseCase: GetPendingStaffUseCase,
+    private val getStaffListUseCase: GetStaffListUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val validateNameUseCase: ValidateNameUseCase,
     private val validatePhoneUseCase: ValidatePhoneUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val getTokenUseCase: GetRegisterStaffTokenUseCase,
-    private val processPendingStaffUseCase: ProcessPendingStaffUseCase
+    private val processPendingStaffUseCase: ProcessPendingStaffUseCase,
+    private val getSessionUseCase: GetSessionUseCase
     ) : ViewModel(){
 
     // TODO RECHECK ALL register staff
@@ -35,10 +37,15 @@ class StaffViewModel @Inject constructor(
     private var _user: Account? = null
     val user get() = _user!!
 
+    private var approvingUser: Account? = null
+
     private var token: String = ""
 
     private val _pendingAccounts = MutableStateFlow<Response<List<Account>>>(Response.Loading)
     val pendingAccounts = _pendingAccounts.asStateFlow()
+
+    private val _staffAccounts = MutableStateFlow<Response<List<Account>>>(Response.Loading)
+    val staffAccounts = _staffAccounts.asStateFlow()
 
     private val _loadingState = MutableStateFlow<Response<Boolean>>(Response.Loading)
     val loadingState = _loadingState.asStateFlow()
@@ -56,8 +63,14 @@ class StaffViewModel @Inject constructor(
     val processPendingResponse = _processPendingResponse.asStateFlow()
 
     init {
+        getSession()
         getPendingStaff()
+        getStaffList()
         getToken()
+    }
+
+    private fun getSession() = viewModelScope.launch{
+        approvingUser = getSessionUseCase()
     }
 
     fun onEvent(event: StaffRegistrationEvent) {
@@ -217,7 +230,7 @@ class StaffViewModel @Inject constructor(
         }
     }
 
-    fun getPendingStaff() = getPendingStaffUseCase.invoke {
+    private fun getPendingStaff() = getPendingStaffUseCase.invoke {
         viewModelScope.launch {
             it.collect {
                 _pendingAccounts.value = it
@@ -225,23 +238,43 @@ class StaffViewModel @Inject constructor(
         }
     }
 
+    private fun getStaffList() = getStaffListUseCase.invoke {
+        viewModelScope.launch {
+            it.collect {
+                _staffAccounts.value = it
+            }
+        }
+    }
+
     fun acceptPendingStaff(account: Account) = viewModelScope.launch{
         _processPendingResponse.value = Response.Loading
-        processPendingStaffUseCase.invoke(account,StaffPosition.Regular){
+        if (approvingUser == null){
+            _processPendingResponse.value = Response.Error(Exception("Approving Account Uninitialized!"))
+            return@launch
+        }
+        processPendingStaffUseCase.invoke(account,StaffPosition.Regular,approvingUser!!){
             _processPendingResponse.value = it
         }
     }
 
     fun acceptPendingStaff(account: Account, position: StaffPosition) = viewModelScope.launch{
         _processPendingResponse.value = Response.Loading
-        processPendingStaffUseCase.invoke(account,position){
+        if (approvingUser == null){
+            _processPendingResponse.value = Response.Error(Exception("Approving Account Uninitialized!"))
+            return@launch
+        }
+        processPendingStaffUseCase.invoke(account,position,approvingUser!!){
             _processPendingResponse.value = it
         }
     }
 
     fun rejectPendingStaff(account: Account) = viewModelScope.launch{
         _processPendingResponse.value = Response.Loading
-        processPendingStaffUseCase.invoke(account,StaffPosition.Disabled){
+        if (approvingUser == null){
+            _processPendingResponse.value = Response.Error(Exception("Approving Account Uninitialized!"))
+            return@launch
+        }
+        processPendingStaffUseCase.invoke(account,StaffPosition.Disabled,approvingUser!!){
             _processPendingResponse.value = it
         }
     }
@@ -250,8 +283,6 @@ class StaffViewModel @Inject constructor(
         _user = account
     }
 
-    fun getAccount(accountId: String){
 
-    }
 
 }

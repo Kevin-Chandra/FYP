@@ -246,6 +246,24 @@ class StaffRepository @Inject constructor(
             }
     }
 
+    fun getStaffList(result: (Flow<Response<List<Account>>>) -> Unit) = CoroutineScope(Dispatchers.IO).launch{
+        userCollectionRef
+            .whereEqualTo(FireStoreDocumentField.ACCOUNT_TYPE,AccountType.Staff)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    result.invoke(flowOf(Response.Error(e)))
+                    return@addSnapshotListener
+                }
+
+                val successResponse = run{
+                    val accounts = snapshot?.toObjects<Account>()
+                    Response.Success(accounts?: emptyList())
+                }
+
+                result.invoke(flowOf(successResponse))
+            }
+    }
+
 //
 //    private fun deleteImage(path: String, result: (Response<String>) -> Unit){
 //        imageRef.child(path)

@@ -41,5 +41,10 @@
         android:id="@+id/staffDetailsFragment"
         android:name="com.example.fyp.account_management.ui.fragment.StaffDetailsFragment"
         android:label="fragment_staff_details"
-        tools:layout="@layout/fragment_staff_details" />
+        tools:layout="@layout/fragment_staff_details" >
+        <argument
+            android:name="command"
+            app:argType="string"
+            android:defaultValue="add" />
+    </fragment>
 </navigation>

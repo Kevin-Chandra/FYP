@@ -23,7 +23,9 @@ import com.example.fyp.R
 import com.example.fyp.account_management.AuthActivity
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType
+import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.ui.adapter.PendingStaffAdapter
+import com.example.fyp.account_management.ui.adapter.StaffListAdapter
 import com.example.fyp.account_management.ui.view_model.AdminViewModel
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.ui.view_model.StaffViewModel
@@ -32,6 +34,7 @@ import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentMainAccountBinding
 import com.example.fyp.databinding.FragmentManageStaffBinding
 import com.example.fyp.menucreator.util.UiState
+import com.google.android.material.chip.Chip
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,8 +73,13 @@ class ManageStaffFragment : Fragment() {
             staffViewModel.rejectPendingStaff(it)
           },{
             staffViewModel.loadStaff(it)
-            findNavController().navigate(ManageStaffFragmentDirections.actionManageStaffFragmentToStaffDetailsFragment())
+            findNavController().navigate(ManageStaffFragmentDirections.actionManageStaffFragmentToStaffDetailsFragment(Constants.Command.ADD))
             })
+
+        val staffListAdapter = StaffListAdapter{
+            staffViewModel.loadStaff(it)
+            findNavController().navigate(ManageStaffFragmentDirections.actionManageStaffFragmentToStaffDetailsFragment(Constants.Command.EDIT))
+        }
 
         viewLifecycleOwner.lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -79,6 +87,10 @@ class ManageStaffFragment : Fragment() {
                     when (it) {
                         is Response.Success -> {
                             pendingStaffAdapter.submitList(it.data.toMutableList())
+                            if (it.data.isEmpty())
+                                showEmptyPendingText(true)
+                            else
+                                showEmptyPendingText(false)
 //                        binding.progressBar.visibility = View.GONE
                         }
                         is Response.Error -> {
@@ -92,7 +104,41 @@ class ManageStaffFragment : Fragment() {
             }
         }
 
+        viewLifecycleOwner.lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                staffViewModel.staffAccounts.collect() { it ->
+                    when (it) {
+                        is Response.Success -> {
+                            staffListAdapter.submitList(it.data.toMutableList().sortedBy { it1 -> it1.staffPosition })
+                            if (it.data.isEmpty()){
+                                showEmptyStaffText(true)
+                            } else {
+                                showEmptyStaffText(false)
+                            }
+//                        binding.progressBar.visibility = View.GONE
+                        }
+                        is Response.Error -> {
+//                        println(it.e)
+                        }
+                        is Response.Loading -> {
+//                        binding.progressBar.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+        }
+
+        binding.filterCg.setOnCheckedStateChangeListener { group, checkedIds ->
+            var text : String? = null
+            checkedIds.forEach{
+                text = group.findViewById<Chip>(it).text.toString()
+            }
+            println(text)
+            staffListAdapter.filter.filter(text)
+        }
+
         binding.pendingStaffRv.adapter = pendingStaffAdapter
+        binding.staffListRv.adapter = staffListAdapter
 
         onFinishEditTextView(binding.tokenEt,binding.tokenEtl,{
             binding.tokenEt.setText(generateRandomToken(10))
@@ -100,6 +146,50 @@ class ManageStaffFragment : Fragment() {
             viewModel.setToken(binding.tokenEt.text.toString())
         })
     }
+
+    private fun showEmptyPendingText(boolean: Boolean) {
+        binding.apply {
+            if (boolean == true){
+                pendingStaffRv.visibility = View.GONE
+                emptyPendingTv.visibility = View.VISIBLE
+            }
+            else {
+                pendingStaffRv.visibility = View.VISIBLE
+                emptyPendingTv.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun showEmptyStaffText(boolean: Boolean) {
+        binding.apply {
+            if (boolean == true){
+                staffListRv.visibility = View.GONE
+                emptyStaffTv.visibility = View.VISIBLE
+            }
+            else {
+                staffListRv.visibility = View.VISIBLE
+                emptyStaffTv.visibility = View.GONE
+            }
+        }
+    }
+
+//    private fun registerFilterChanged() {
+//        val ids = binding.filterCg.checkedChipIds
+//
+//        val titles = mutableListOf<CharSequence>()
+//
+//        ids.forEach { id ->
+//            titles.add(chips_group.findViewById<Chip>(id).text)
+//        }
+//
+//        val text = if (titles.isNotEmpty()) {
+//            titles.joinToString(", ")
+//        } else {
+//            "No Choice"
+//        }
+//
+//        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+//    }
 
     private fun generateRandomToken(length: Int): String{
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
