@@ -38,8 +38,7 @@ import java.util.*
 @AndroidEntryPoint
 class EditAccountFragment : Fragment() {
 
-    private var _binding: FragmentEditAccountBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentEditAccountBinding
 
     private var cal: Calendar = Calendar.getInstance()
     private val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
@@ -66,9 +65,14 @@ class EditAccountFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentEditAccountBinding.inflate(inflater, container, false)
-        return binding.root
+    ): View {
+        return if (this::binding.isInitialized)
+            binding.root
+        else{
+            binding = FragmentEditAccountBinding.inflate(layoutInflater)
+            binding.root
+        }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,6 +86,8 @@ class EditAccountFragment : Fragment() {
         observeUpdate()
         observeRegistrationState()
         setUpDatePicker()
+
+//        binding.lastNameEt.setText(viewModel.registerState.value.lname)
 
         binding.editImgBtn.setOnClickListener {
             getContent.launch("image/*")
@@ -236,19 +242,19 @@ class EditAccountFragment : Fragment() {
 
     private fun loadData() {
         binding.apply {
-            firstNameEt.setText(viewModel.user.first_name)
-            lastNameEt.setText(viewModel.user.last_name)
-            phoneEt.setText(viewModel.user.phone)
-            addressEt.setText(viewModel.user.address)
+            firstNameEt.setText(viewModel.registerState.value.fname)
+            lastNameEt.setText(viewModel.registerState.value.lname)
+            phoneEt.setText(viewModel.registerState.value.phone)
+            addressEt.setText(viewModel.registerState.value.address)
             birthdayEt.setText(
-                if (viewModel.user.birthday != null)
-                    sdf.format(((viewModel.user.birthday) as Date).time)
+                if (viewModel.registerState.value.birthday != null)
+                    sdf.format(((viewModel.registerState.value.birthday) as Date).time)
                 else
                     null
             )
-            if (viewModel.user.profileUri != null){
+            if (viewModel.registerState.value.image != null){
                 Glide.with(requireContext())
-                    .load(viewModel.user.profileUri?.toUri())
+                    .load(viewModel.registerState.value.image)
                     .centerCrop()
                     .override(binding.profileImgImageView.width,binding.profileImgImageView.height)
                     .into(binding.profileImgImageView)

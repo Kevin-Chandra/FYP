@@ -1,6 +1,7 @@
 package com.example.fyp.account_management.ui.view_model
 
 import androidx.core.net.toUri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.*
@@ -34,6 +35,7 @@ class AuthViewModel @Inject constructor(
     private val validatePhoneUseCase: ValidatePhoneUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val getSessionUseCase: GetSessionUseCase,
+//    savedStateHandle: SavedStateHandle
     ) : ViewModel(){
 
     private var command: String = Constants.Command.ADD
@@ -201,25 +203,16 @@ class AuthViewModel @Inject constructor(
     }
 
     fun getSession() = viewModelScope.launch{
-        reset()
-
-        _user = getSessionUseCase()
-//        type = user.accountType
-//
-//        when (_user?.accountType){
-//            AccountType.Customer -> customer = _user as CustomerAccount
-//            AccountType.Admin -> admin = _user as AdminAccount
-//            AccountType.Staff -> staff = _user as StaffAccount
-//            AccountType.Manager -> manager = _user as ManagerAccount
-//            else -> customer = _user as CustomerAccount
-//        }
-
-        if (_user != null) {
-            loadToRegisterState()
-            command = Constants.Command.EDIT
-            _loadingState.value = Response.Success(true)
-        } else {
-            _loadingState.value = Response.Error(Exception("User Not Found"))
+        if (_user == null) {
+            reset()
+            _user = getSessionUseCase()
+            if (_user != null) {
+                loadToRegisterState()
+                command = Constants.Command.EDIT
+                _loadingState.value = Response.Success(true)
+            } else {
+                _loadingState.value = Response.Error(Exception("User Not Found"))
+            }
         }
     }
 
@@ -228,7 +221,7 @@ class AuthViewModel @Inject constructor(
         onEvent(RegistrationEvent.PhoneChanged(user.phone))
         onEvent(RegistrationEvent.FirstNameChanged(user.first_name))
         onEvent(RegistrationEvent.LastNameChanged(user.last_name))
-//        user.profileUri?.let { RegistrationEvent.ImageChanged(it.toUri()) }?.let { onEvent(it) }
+        user.profileUri?.toUri()?.let { RegistrationEvent.ImageChanged(it) }?.let { onEvent(it) }
         user.birthday?.let { RegistrationEvent.BirthdayChanged(it) }?.let { onEvent(it) }
     }
 

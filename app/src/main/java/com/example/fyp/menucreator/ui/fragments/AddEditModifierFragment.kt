@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
@@ -109,9 +110,7 @@ class AddEditModifierFragment : Fragment() {
                             saveModifier()
                         }
                         .setNegativeButton("Exit") { _, _ ->
-                            val action =
-                                AddEditModifierFragmentDirections.actionAddEditModifierFragmentToFirstFragment()
-                            findNavController().navigate(action)
+                            findNavController().navigateUp()
                         }
                         .setNeutralButton("Cancel") { dialog, _ ->
                             dialog.dismiss()
@@ -199,8 +198,7 @@ class AddEditModifierFragment : Fragment() {
         }
     }
 
-    private fun navigateBack() =
-        findNavController().navigate(AddEditModifierFragmentDirections.actionAddEditModifierFragmentToFirstFragment())
+    private fun navigateBack() = findNavController().navigateUp()
 
     private fun addModifierItemRow(modifierId: String?, isEdit:Boolean = false) {
         val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier_item, binding.modifierItemLayout,false)
@@ -236,7 +234,7 @@ class AddEditModifierFragment : Fragment() {
     }
 
     private fun successToast(msg: String) {
-        view?.let { Snackbar.make(it, msg, Snackbar.LENGTH_SHORT).show() }
+        Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
     }
 
     private fun errorDialog(msg: String) {
@@ -296,7 +294,6 @@ class AddEditModifierFragment : Fragment() {
                         binding.saveButton.isEnabled = true
                     }
                 }
-
             }
         }
     }

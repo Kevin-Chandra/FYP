@@ -200,8 +200,7 @@ class AddEditFoodFragment : Fragment() {
                         }
                         .setNegativeButton("Exit"){
                                 _, _ ->
-                            val action = AddEditFoodFragmentDirections.actionAddEditFoodFragmentToFirstFragment()
-                            findNavController().navigate(action)
+                            findNavController().navigateUp()
                         }
                         .setNeutralButton("Cancel"){
                                 dialog,_ -> dialog.dismiss()
@@ -386,8 +385,7 @@ class AddEditFoodFragment : Fragment() {
         binding.modifiersLinearLayout.isEnabled = boolean
     }
 
-    private fun navigateBack() =
-        findNavController().navigate(AddEditFoodFragmentDirections.actionAddEditFoodFragmentToFirstFragment())
+    private fun navigateBack() = findNavController().navigateUp()
 
 
     private fun observeAddFood() = viewLifecycleOwner.lifecycleScope.launch {
