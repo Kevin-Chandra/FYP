@@ -187,6 +187,7 @@ class EditAccountFragment : Fragment() {
                     }
                     is Response.Error -> {
                         callback.isEnabled = false
+                        it.exception.printStackTrace()
                         binding.progressBar.visibility = View.GONE
                         it.exception.message?.let { it1 -> errorToast(it1) }
                     }

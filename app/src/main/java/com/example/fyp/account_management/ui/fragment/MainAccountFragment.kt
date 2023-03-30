@@ -54,6 +54,8 @@ class MainAccountFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         observeDelete()
 
+        setShimmer(true)
+
         authViewModel.getSession {
             user = it
             binding.accountNameTv.text = user?.first_name + " " +  user?.last_name
@@ -70,6 +72,7 @@ class MainAccountFragment : Fragment() {
             } else {
                 binding.registerStaffBtn.visibility = View.GONE
             }
+            setShimmer(false)
         }
 
         binding.deleteBtn.setOnClickListener {
@@ -117,6 +120,18 @@ class MainAccountFragment : Fragment() {
                 activity?.finish()
                 Toast.makeText(requireContext(),"Logged Out!" , Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun setShimmer(boolean: Boolean){
+        if (boolean) {
+            binding.shimmerName.startShimmer()
+            binding.shimmerName.visibility = View.VISIBLE
+            binding.accountNameTv.visibility = View.INVISIBLE
+        } else {
+            binding.shimmerName.stopShimmer()
+            binding.shimmerName.visibility = View.GONE
+            binding.accountNameTv.visibility = View.VISIBLE
         }
     }
 

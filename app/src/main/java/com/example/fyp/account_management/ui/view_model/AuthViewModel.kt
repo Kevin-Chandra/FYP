@@ -174,7 +174,8 @@ class AuthViewModel @Inject constructor(
             birthday = registerState.value.birthday,
         )
 
-        editAccountUseCase(newAccount, registerState.value.image) {
+        val img = if (registerState.value.image.toString() == user.profileUri) null else registerState.value.image
+        editAccountUseCase(newAccount, img) {
             _updateResponse.value = it
         }
     }

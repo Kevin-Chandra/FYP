@@ -35,13 +35,14 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        authViewModel.getSession {
-            println("acc $it")
-            if (it != null){
-                binding.shimmerHello.stopShimmer()
-                binding.shimmerHello.visibility = View.GONE
-                binding.helloTv.text = "Hello, ${it.first_name}"
-            }
+        getSession()
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.helloTv.visibility = View.INVISIBLE
+            binding.shimmerHello.startShimmer()
+            binding.shimmerHello.visibility = View.VISIBLE
+            getSession()
+            binding.swipeRefreshLayout.isRefreshing = false
         }
 
         binding.accountBtn.setOnClickListener {
@@ -54,5 +55,14 @@ class MainFragment : Fragment() {
         }
 
 
+    }
+
+    private fun getSession() = authViewModel.getSession {
+        if (it != null){
+            binding.shimmerHello.stopShimmer()
+            binding.shimmerHello.visibility = View.GONE
+            binding.helloTv.visibility = View.VISIBLE
+            binding.helloTv.text = "Hello, ${it.first_name}"
+        }
     }
 }
