@@ -28,8 +28,9 @@
         android:layout_marginEnd="16dp"
         android:text="Edit Account"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider8" />
+        app:layout_constraintTop_toBottomOf="@+id/account_status_chip" />
 
     <Button
         android:id="@+id/change_password_btn"
@@ -118,7 +119,8 @@
         app:layout_constraintEnd_toEndOf="@+id/account_name_tv"
         app:layout_constraintStart_toStartOf="@+id/account_name_tv"
         app:layout_constraintTop_toTopOf="@+id/account_name_tv"
-        app:shimmer_auto_start="true">
+        app:shimmer_auto_start="true"
+        tools:visibility="gone">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -158,11 +160,10 @@
                 app:layout_constraintBottom_toBottomOf="@+id/img_ph"
                 app:layout_constraintEnd_toEndOf="@+id/account_name_ph"
                 app:layout_constraintStart_toEndOf="@+id/img_ph"
-                app:layout_constraintTop_toBottomOf="@+id/account_name_ph" />
+                app:layout_constraintTop_toBottomOf="@+id/account_name_ph"
+                tools:visibility="gone" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
 
 
     </com.facebook.shimmer.ShimmerFrameLayout>
@@ -186,7 +187,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/imageView2"
         app:layout_constraintTop_toTopOf="@+id/imageView2"
-        tools:text="Name Name Nam" />
+        tools:text="Name Name Name" />
 
     <com.google.android.material.chip.Chip
         android:id="@+id/account_type_tv"
@@ -204,6 +205,28 @@
         app:layout_constraintTop_toBottomOf="@+id/account_name_tv"
         tools:text="Type Type Type"
         tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/account_status_chip"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:drawablePadding="8dp"
+        android:padding="8dp"
+        android:maxLines="1"
+        android:background="@drawable/oval_button"
+        android:backgroundTint="#C1B0FD"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider8"
+        tools:text="Type Type"
+        tools:visibility="visible"
+        app:drawableStartCompat="@drawable/ic_info" />
 
     <View
         android:id="@+id/divider8"
