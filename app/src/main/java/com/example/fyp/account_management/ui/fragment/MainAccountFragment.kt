@@ -59,6 +59,8 @@ class MainAccountFragment : Fragment() {
         authViewModel.getSession {
             user = it
             binding.accountNameTv.text = user?.first_name + " " +  user?.last_name
+            binding.accountNameTv.setSelected(true)
+
             if (user?.profileUri != null){
                 Glide.with(requireContext())
                     .load(user?.profileUri)
@@ -72,6 +74,9 @@ class MainAccountFragment : Fragment() {
             } else {
                 binding.registerStaffBtn.visibility = View.GONE
             }
+
+            binding.accountTypeTv.text = user?.accountType?.name + " Account"
+
             setShimmer(false)
         }
 
@@ -128,10 +133,14 @@ class MainAccountFragment : Fragment() {
             binding.shimmerName.startShimmer()
             binding.shimmerName.visibility = View.VISIBLE
             binding.accountNameTv.visibility = View.INVISIBLE
+            binding.accountTypeTv.visibility = View.INVISIBLE
+            binding.imageView2.visibility = View.INVISIBLE
         } else {
             binding.shimmerName.stopShimmer()
             binding.shimmerName.visibility = View.GONE
             binding.accountNameTv.visibility = View.VISIBLE
+            binding.accountTypeTv.visibility = View.VISIBLE
+            binding.imageView2.visibility = View.VISIBLE
         }
     }
 
