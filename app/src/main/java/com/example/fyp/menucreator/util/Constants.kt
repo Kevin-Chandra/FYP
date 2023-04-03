@@ -19,6 +19,8 @@ object FireStoreDocumentField{
     const val STAFF_STATUS = "staffPosition"
     const val PROFILE_IMAGE_PATH = "profileImagePath"
     const val PROFILE_URI = "profileUri"
+    const val FOOD_IMAGE_PATH = "imagePath"
+    const val FOOD_IMAGE_URI = "imageUri"
     const val SETTINGS = "Settings"
 }
 

@@ -199,14 +199,7 @@ class FoodModifierDetailViewModel @Inject constructor(
         }
     }
 
-    fun reset(){
-        _productId = null
-        _type = null
-        _food = null
-        _modifier = null
-    }
-
-    fun removeModifierFromFoodAndUpdate(list: ArrayList<String>) = viewModelScope.launch{
+    fun removeModifierFromFoodAndUpdate(list: List<String>) = viewModelScope.launch{
         val newFood = food.copy(modifierList = list)
         foodRepository.updateFood(newFood.productId,newFood)
     }

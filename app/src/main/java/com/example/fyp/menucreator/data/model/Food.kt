@@ -17,10 +17,10 @@ data class Food(
     val imagePath: String? = null,
     val imageUri: String? = null,
     val allTimeSales: Int = -1,
-    val modifierList: ArrayList<String> = ArrayList(),
+    val modifierList: List<String> = listOf(),
     val lastUpdated: Date = Date(),
     @ServerTimestamp
     @Exclude
     val createdAt: Date? = null,
-    var availability : Boolean? = true
+    val availability : Boolean? = true
 ) : Product(productId, ProductType.FoodAndBeverage)

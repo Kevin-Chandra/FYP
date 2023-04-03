@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -36,20 +37,11 @@ class SecondFragment : Fragment() {
     private var _binding: FragmentSecondBinding? = null
     private val binding get() = _binding!!
 
-//    private val viewModel =
-
-//    private lateinit var productId:String
-//    private val menu = ProductDatabase
-
-//    private var _productId : String? = null
     private var productId: String? = null
     private var type: ProductType? = null
 
-//    private var _food: Food? = null
-//    private val food : Food get() = _food?: viewModel.getFood(productId)!!
-
-    private var _modifier:Modifier? = null
-    private val modifier get() = _modifier!!
+//    private var _modifier:Modifier? = null
+//    private val modifier get() = _modifier!!
 
     private val viewModel : FoodModifierDetailViewModel by viewModels()
 
@@ -91,6 +83,12 @@ class SecondFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            loadData()
+            binding.swipeRefreshLayout.isRefreshing = false
+        }
 
         binding.deleteFab.setOnClickListener{
             deleteDialog()
@@ -158,9 +156,9 @@ class SecondFragment : Fragment() {
 
     private fun loadFoodData(){
 
-        foodBinding.apply {
-            shimmerImage.startShimmer()
-        }
+//        foodBinding.apply {
+//            shimmerImage.startShimmer()
+//        }
         //add food_view_component layout to the base layout
         if (foodBinding.root.parent == null)
             binding.baseLayout.addView(foodBinding.root)
@@ -174,11 +172,12 @@ class SecondFragment : Fragment() {
         } else {
             foodBinding.imageView.setImageResource(R.drawable.ic_image)
         }
+        foodBinding.modifiersContainerLayout.removeAllViews()
         if (viewModel.food.modifiable &&
             viewModel.food.modifierList.isNotEmpty() &&
             foodBinding.modifiersContainerLayout.childCount < viewModel.food.modifierList.size) {
 
-            val list = viewModel.food.modifierList
+            val list = viewModel.food.modifierList as MutableList
             val iterator = list.iterator()
             var toUpdate = false
             while (iterator.hasNext()) {
@@ -209,7 +208,7 @@ class SecondFragment : Fragment() {
 
     }
 
-    private fun updateFood(list: ArrayList<String>) {
+    private fun updateFood(list: List<String>) {
         viewModel.removeModifierFromFoodAndUpdate(list)
     }
 
@@ -231,6 +230,7 @@ class SecondFragment : Fragment() {
     private fun loadImage() = lifecycleScope.launch(Dispatchers.Main){
         Glide.with(requireContext())
             .load(viewModel.food.imageUri)
+            .centerCrop()
             .into(foodBinding.imageView)
         foodBinding.shimmerImage.stopShimmer()
         foodBinding.shimmerImage.visibility = View.GONE

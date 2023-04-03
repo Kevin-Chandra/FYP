@@ -13,19 +13,20 @@ import java.util.UUID
 class ProductImageRepository {
     private val imageStorageRef = FirebaseStorage.getInstance().reference
 
-    suspend fun uploadImage(imageUri: Uri, result: (UiState<Pair<String,String>>) -> Unit){
-        val key = UUID.randomUUID().toString()
-        val path = FirebaseStorageReference.PRODUCT_IMAGE_REFERENCE + key
+    suspend fun uploadImage(foodId: String, imageUri: Uri, result: (UiState<Pair<String,String>>) -> Unit) : Pair<String,String>?{
+        val path = FirebaseStorageReference.PRODUCT_IMAGE_REFERENCE + foodId
 
-        try {
+        return try {
             val uri = imageStorageRef.child(path).putFile(imageUri)
                 .await()
                 .storage
                 .downloadUrl
                 .await()
             result.invoke(UiState.Success(Pair(uri.toString(),path)))
+            Pair(uri.toString(),path)
         } catch (e:java.lang.Exception){
             result.invoke(UiState.Failure(e))
+            null
         }
     }
 

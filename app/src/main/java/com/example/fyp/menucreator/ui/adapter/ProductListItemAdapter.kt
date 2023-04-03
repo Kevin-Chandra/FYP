@@ -33,6 +33,7 @@ class ProductListItemAdapter(
         fun bind(food: Food){
             binding.productIdTextView.text = food.productId
             binding.productNameTextView.text = food.name
+            binding.productNameTextView.isSelected = true
             binding.productDescriptionEditText.text = food.description
             binding.chip.text = food.category
             val myOptions = RequestOptions()

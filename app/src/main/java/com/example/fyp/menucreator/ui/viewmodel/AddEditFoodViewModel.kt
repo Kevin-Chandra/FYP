@@ -5,34 +5,35 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.menucreator.data.model.Food
-import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.data.model.Modifier
-import com.example.fyp.menucreator.data.repository.FoodRepository
+import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.ModifierRepository
-import com.example.fyp.menucreator.data.repository.ProductImageRepository
-import com.example.fyp.menucreator.domain.DeleteImageUseCase
-import com.example.fyp.menucreator.domain.GetImageUseCase
-import com.example.fyp.menucreator.domain.UploadImageUseCase
+import com.example.fyp.menucreator.domain.*
+import com.example.fyp.menucreator.domain.food.AddFoodUseCase
+import com.example.fyp.menucreator.domain.food.GetFoodUseCase
+import com.example.fyp.menucreator.domain.food.UpdateFoodUseCase
+import com.example.fyp.menucreator.util.AddEditFoodEvent
+import com.example.fyp.menucreator.util.AddEditFoodState
 import com.example.fyp.menucreator.util.UiState
-import com.google.firebase.storage.StorageReference
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.lang.Exception
 import java.util.*
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 
 // This view model assist in view food details, add new food, edit food. Two fragments is under
 // this view model which is AddEditFoodFragment and SecondFragment
 @HiltViewModel
 class AddEditFoodViewModel @Inject constructor(
-    private val foodRepository: FoodRepository,
+    private val addFoodUseCase: AddFoodUseCase,
+    private val editFoodUseCase: UpdateFoodUseCase,
+    private val getFoodUseCase: GetFoodUseCase,
+    private val validateProductIdUseCase: ValidateProductIdUseCase,
+    private val validateProductNameUseCase: ValidateProductNameUseCase,
+    private val validateProductPriceUseCase: ValidateProductPriceUseCase,
+    private val validateProductCategoryUseCase: ValidateProductCategoryUseCase,
     private val modifierRepository: ModifierRepository,
-    private val uploadImageUseCase: UploadImageUseCase,
-    private val deleteImageUseCase: DeleteImageUseCase
 ) : ViewModel() {
 
     private var productId: String? = null
@@ -40,20 +41,8 @@ class AddEditFoodViewModel @Inject constructor(
     val food: Food
         get() = _food!!
 
-    private val _foods = MutableStateFlow<UiState<List<Food>>>(UiState.Loading)
-    val foods = _foods.asStateFlow()
-
-    private var _foodMap: MutableMap<String, Food> = mutableMapOf()
-    val foodMap: Map<String, Food> get() = _foodMap
-
     private val _modifiers = MutableStateFlow<UiState<Map<String, Modifier>>>(UiState.Loading)
     val modifiers = _modifiers.asStateFlow()
-
-    private val _imageState = MutableStateFlow<UiState<Pair<String,String>>>(UiState.Success(Pair("","")))
-    val imageState = _imageState.asStateFlow()
-
-    private val _loadImageState = MutableStateFlow<UiState<Uri?>>(UiState.Success(null))
-    val loadImageState = _loadImageState.asStateFlow()
 
     private var _modifierMap: MutableMap<String, Modifier> = mutableMapOf()
     val modifierMap: Map<String, Modifier> get() = _modifierMap
@@ -61,40 +50,77 @@ class AddEditFoodViewModel @Inject constructor(
     private val _foodLoaded = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
     val foodLoaded = _foodLoaded.asStateFlow()
 
-    private val _updateFoodResponse = MutableSharedFlow<UiState<Boolean>>()
-    val updateFoodResponse = _updateFoodResponse.asSharedFlow()
+    //-----------------------------------------------------
 
-    private val _addFoodResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
-    val addFoodResponse = _addFoodResponse.asStateFlow()
+    private val _addEditFoodState = MutableStateFlow(AddEditFoodState())
+    val addEditFoodState = _addEditFoodState.asStateFlow()
+
+    private val _addEditFoodResponse = MutableStateFlow<UiState<String>>(UiState.Success(""))
+    val addEditFoodResponse = _addEditFoodResponse.asStateFlow()
 
     init {
         getModifierList()
-        getFoodList()
         loadModifierMap()
-        loadFoodMap()
     }
+
     fun initialize(id: String) {
         _foodLoaded.value = UiState.Loading
         productId = id
-        populate()
+        if (_food == null){
+            loadFood()
+        } else {
+            _foodLoaded.value = UiState.Success(true)
+        }
+
     }
 
-    private fun populate() {
-        if (_foodMap.isNotEmpty()) {
-            _food = foodMap[productId]
-//            getImage()
-            _foodLoaded.value = UiState.Success(true)
+    private fun loadFood() = viewModelScope.launch{
+        getFoodUseCase.invoke(productId!!){
+            when(it){
+                is UiState.Success -> {
+                    _food = it.data
+                    loadState()
+                    _foodLoaded.value = UiState.Success(true)
+                }
+                is UiState.Failure -> {
+                    _foodLoaded.value = UiState.Failure(it.e)
+                }
+                is UiState.Loading -> {}
+            }
         }
     }
 
-//    private fun getImage(thisFood: Food)  = viewModelScope.launch{
-//        _loadImageState.value = UiState.Loading
-////        getImageUseCase(food.image)
-//        food.image?.let { _loadImageState.value = UiState.Success(getImageUseCase(it)) }
-//    }
+    fun onEvent(event: AddEditFoodEvent) {
 
-    private fun insertFood(food: Food){
-        _addFoodResponse.value = foodRepository.addFood(food)
+        when(event) {
+            is AddEditFoodEvent.DescriptionChanged -> {
+                _addEditFoodState.value = _addEditFoodState.value.copy(description = event.description)
+            }
+            is AddEditFoodEvent.FoodCategoryChanged -> {
+                _addEditFoodState.value = _addEditFoodState.value.copy(foodCategory = event.category)
+            }
+            is AddEditFoodEvent.ImageChanged -> {
+                _addEditFoodState.value = _addEditFoodState.value.copy(image = event.image)
+            }
+            is AddEditFoodEvent.ModifiableChanged -> {
+                _addEditFoodState.value = _addEditFoodState.value.copy(isModifiable = event.isModifiable)
+            }
+            is AddEditFoodEvent.ModifierChanged -> {
+                _addEditFoodState.value = _addEditFoodState.value.copy(modifierList = event.modifierList)
+            }
+            is AddEditFoodEvent.NameChanged -> {
+                _addEditFoodState.value = _addEditFoodState.value.copy(name = event.name)
+            }
+            is AddEditFoodEvent.PriceChanged -> {
+                _addEditFoodState.value = _addEditFoodState.value.copy(price = event.price)
+            }
+            is AddEditFoodEvent.ProductIdChanged -> {
+                _addEditFoodState.value = _addEditFoodState.value.copy(productId = event.id)
+            }
+            is AddEditFoodEvent.Save -> {
+                submit(event.isEdit)
+            }
+        }
     }
 
     private fun getFood(
@@ -106,7 +132,7 @@ class AddEditFoodViewModel @Inject constructor(
         isModifiable: Boolean,
         imageUri: String?,
         imagePath: String?,
-        modifierList: ArrayList<String>,
+        modifierList: List<String>?,
         createdDate: Date = Date()
     ): Food {
         return Food(
@@ -119,129 +145,97 @@ class AddEditFoodViewModel @Inject constructor(
             imagePath = imagePath,
             imageUri = imageUri,
             allTimeSales = 0,
-            modifierList = modifierList,
+            modifierList = modifierList?: listOf(),
             lastUpdated = Date(),
             createdAt = createdDate
         )
     }
 
-    fun addNewFood(
-        productId: String,
-        name: String,
-        price: String,
-        description: String,
-        category: String,
-        isModifiable: Boolean,
-        image: Uri?,
-        modifierList: ArrayList<String>,
-        isImageChanged: Boolean
-    )  = viewModelScope.launch (Dispatchers.IO) {
-        _addFoodResponse.value = isEntryValid(productId, name, price,category, false)
-        if (addFoodResponse.value is UiState.Success) {
-            println(image.toString())
-            if (isImageChanged) {
-                if (image != null){
-                    val result = async {uploadImage(image)}.await()
-                    insertFood(getFood(productId, name, price, description,category, isModifiable,result.first,result.second, modifierList))
-                } else {
-                    insertFood(getFood(productId, name, price, description,category, isModifiable,null,null, modifierList))
-                }
-            } else {
-                insertFood(getFood(productId, name, price, description,category, isModifiable,null,null, modifierList))
-            }
+    fun submit(edit: Boolean) = viewModelScope.launch{
+        _addEditFoodResponse.value = UiState.Loading
+
+        var idResult = ProductValidationResult(successful = true)
+        if (!edit){
+            idResult = validateProductIdUseCase(addEditFoodState.value.productId, ProductType.FoodAndBeverage)
+        }
+        val nameResult = validateProductNameUseCase(addEditFoodState.value.name)
+        val priceResult = validateProductPriceUseCase(addEditFoodState.value.price)
+        val categoryResult = validateProductCategoryUseCase(addEditFoodState.value.foodCategory)
+
+        val hasError = listOf(
+            idResult,
+            nameResult,
+            priceResult,
+            categoryResult
+        ).any{ !it.successful }
+
+        if (hasError){
+            _addEditFoodState.value = _addEditFoodState.value.copy(
+                productIdError = idResult.errorMessage,
+                nameError = nameResult.errorMessage,
+                priceError = priceResult.errorMessage,
+                foodCategoryError = categoryResult.errorMessage,
+            )
+            _addEditFoodResponse.value = UiState.Failure(Exception("Field(s) error"))
+            return@launch
+
+        } else {
+            _addEditFoodState.value = _addEditFoodState.value.copy(
+                productIdError = null,
+                nameError = null,
+                priceError = null,
+                foodCategoryError = null,
+            )
+        }
+
+        if (edit)
+            updateFood()
+        else
+            addFood()
+    }
+
+    private suspend fun addFood() {
+        val modifierList = if (addEditFoodState.value.isModifiable) addEditFoodState.value.modifierList else null
+        addFoodUseCase.invoke(
+            getFood(
+                addEditFoodState.value.productId,
+                addEditFoodState.value.name,
+                addEditFoodState.value.price,
+                addEditFoodState.value.description?:"",
+                addEditFoodState.value.foodCategory,
+                addEditFoodState.value.isModifiable,
+                null,
+                null,
+                modifierList,
+                Date(),
+            ),
+            addEditFoodState.value.image
+        ){
+            _addEditFoodResponse.value = it
         }
     }
 
-    fun updateFood(
-        productId: String,
-        name: String,
-        price: String,
-        description: String,
-        category: String,
-        image: Uri?,
-        isModifiable: Boolean,
-        modifierList: ArrayList<String>,
-        isImageChanged: Boolean
-    ) = viewModelScope.launch(Dispatchers.IO) {
-        _updateFoodResponse.emit(UiState.Loading)
-        val response = isEntryValid(productId, name, price,category, true)
-        _updateFoodResponse.emit(response)
-        println("Im stuck1")
-        if (response is UiState.Success){
-            if (isImageChanged){
-                if (image != null){
-                    launch { food.imagePath?.let { deleteImage(it) } }
-                    val result = async {uploadImage(image)}.await()
-                    println("Im stuck")
-                    updateFood(getFood(productId, name, price, description,category, isModifiable,result.first,result.second, modifierList,food.createdAt?:Date()),productId)
-                    println("passed")
-                } else{
-                    updateFood(getFood(productId, name, price, description,category, isModifiable,null,null, modifierList,food.createdAt?:Date()),productId)
-                }
-            } else {
-                println("bypass")
-                updateFood(getFood(productId, name, price, description,category, isModifiable,food.imageUri,food.imagePath, modifierList,food.createdAt?:Date()),productId)
-            }
+    private suspend fun updateFood(){
+        val modifierList = if (addEditFoodState.value.isModifiable) addEditFoodState.value.modifierList else null
+        editFoodUseCase.invoke(
+            getFood(
+                addEditFoodState.value.productId,
+                addEditFoodState.value.name,
+                addEditFoodState.value.price,
+                addEditFoodState.value.description?:"",
+                addEditFoodState.value.foodCategory,
+                addEditFoodState.value.isModifiable,
+                food.imageUri,
+                food.imagePath,
+                modifierList,
+                food.createdAt?: Date(),
+            ),
+            if (addEditFoodState.value.image.toString() == food.imageUri) null else addEditFoodState.value.image
+        ){
+            _addEditFoodResponse.value = it
         }
     }
 
-    private fun updateFood(food: Food, id: String) = viewModelScope.launch(Dispatchers.IO) {
-        _updateFoodResponse.emit(foodRepository.updateFood(id, food))
-    }
-
-    private suspend fun uploadImage(uri: Uri) : Pair<String,String>{
-        var a = Pair("","")
-        uploadImageUseCase(uri){
-            when (it){
-                is UiState.Success -> {
-                    _imageState.value = UiState.Success(it.data)
-                    a = Pair(it.data.first,it.data.second)
-                }
-                is UiState.Failure -> {
-                    _imageState.value = UiState.Failure(it.e)
-                }
-                else ->{}
-            }
-        }
-        return a
-    }
-
-    fun deleteImage(path: String){
-        deleteImageUseCase(path){
-        }
-    }
-
-    private suspend fun isEntryValid(productId: String, name: String, price: String,category: String, edit: Boolean): UiState<Boolean> {
-        return try {
-            if (!edit) {
-                if (productId.isBlank())
-                    throw Exception("Product ID is blank!")
-                if (checkFoodId(productId))
-                    throw Exception("Product ID already exist!")
-            }
-            if (name.isBlank())
-                throw Exception("Name is blank!")
-            if (price.isBlank())
-                throw Exception("Price is blank!")
-            if (price.toDouble() < 0.0)
-                throw Exception("Price cannot be negative!")
-            if (category.isBlank())
-                throw Exception("Category not selected!")
-            UiState.Success(false)
-        } catch (e: Exception) {
-            if (e is CancellationException)
-                throw e
-            else {
-                println("Invalid!! ${e.message}")
-                UiState.Failure(e)
-            }
-        }
-    }
-
-    private suspend fun checkFoodId(id: String) =
-        withContext(Dispatchers.IO) {
-            async { foodRepository.checkFoodId(id) }.await()
-        }
 
     fun getModifier(id: String): Modifier? {
         return modifierMap[id]
@@ -266,35 +260,16 @@ class AddEditFoodViewModel @Inject constructor(
             _modifiers.value = result
         }
     }
-    //retrieve from firestore
-    private fun getFoodList() = viewModelScope.launch{
-        _foods.value = UiState.Loading
-        foodRepository.subscribeFoodUpdates().collect { result ->
-            _foods.value = result
-        }
+
+
+    private fun loadState(){
+        onEvent(AddEditFoodEvent.ProductIdChanged(food.productId))
+        onEvent(AddEditFoodEvent.NameChanged(food.name))
+        onEvent(AddEditFoodEvent.PriceChanged(food.price.toString()))
+        onEvent(AddEditFoodEvent.DescriptionChanged(food.description))
+        onEvent(AddEditFoodEvent.FoodCategoryChanged(food.category))
+        onEvent(AddEditFoodEvent.ModifiableChanged(food.modifiable))
+        onEvent(AddEditFoodEvent.ModifierChanged(food.modifierList))
+        food.imageUri?.toUri()?.let { AddEditFoodEvent.ImageChanged(it) }?.let { onEvent(it) }
     }
-
-    private fun loadFoodMap() = viewModelScope.launch {
-        foods.collect() {
-            when (it) {
-                is UiState.Success -> {
-                    for (food in it.data){
-                        _foodMap[food.productId] = food
-                    }
-                    populate()
-                    println("food Loaded in vm $_foodMap")
-                }
-                is UiState.Failure -> println(it.e)
-                is UiState.Loading -> println("Loading in vm")
-            }
-        }
-    }
-
-
-    fun reset() {
-        productId = null
-        _food = null
-    }
-
-
 }

@@ -2,26 +2,21 @@ package com.example.fyp.menucreator.ui.fragments
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
-import android.widget.ImageButton
-import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.net.toUri
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.findFragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -32,11 +27,13 @@ import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.menucreator.ui.viewmodel.AddEditFoodViewModel
 import com.example.fyp.menucreator.ui.viewmodel.FoodCategoryViewModel
+import com.example.fyp.menucreator.util.AddEditFoodEvent
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -48,7 +45,7 @@ class AddEditFoodFragment : Fragment() {
     private var _binding: FragmentAddEditFoodBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel : AddEditFoodViewModel by activityViewModels()
+    private val viewModel : AddEditFoodViewModel by viewModels()
     private val catViewModel  by activityViewModels<FoodCategoryViewModel>()
 
     private lateinit var checkedItems : BooleanArray
@@ -74,6 +71,7 @@ class AddEditFoodFragment : Fragment() {
     private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
         if (it != null) {
             imageUri = it
+            viewModel.onEvent(AddEditFoodEvent.ImageChanged(it))
             setImage(it)
         }
     }
@@ -91,16 +89,14 @@ class AddEditFoodFragment : Fragment() {
         return binding.root
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        observeFoodUpdate()
+        observeError()
         //checked items -> boolean array to track which elements is ticked
 
         arguments?.let {
             command = AddEditFoodFragmentArgs.fromBundle(it).command
-            viewModel.reset()
             resetField()
             if (command.contentEquals(NavigationCommand.ADD)){
                 addNewFood()
@@ -111,34 +107,46 @@ class AddEditFoodFragment : Fragment() {
             }
         }
 
-
-
-        binding.setImageBtn.setOnClickListener {
-            imageChanged = true
-            getContent.launch("image/*")
-        }
-
-        binding.deleteImgBtn.setOnClickListener {
-            binding.imageView.setImageResource(R.drawable.ic_image)
-        }
-
-        binding.addModifierButton.setOnClickListener{
-            handleAddModifier()
-        }
-        binding.resetButton.setOnClickListener {
-            resetField()
-        }
-        binding.saveButton.setOnClickListener {
-            handleSaveOnClick()
-        }
-        binding.modifierSwitch.setOnClickListener {
-            modifierLayoutEnabler(binding.modifierSwitch.isChecked)
+        binding.apply {
+            productIdEditText.doAfterTextChanged {
+                viewModel.onEvent(AddEditFoodEvent.ProductIdChanged(productIdEditText.text.toString()))
+            }
+            productNameEditText.doAfterTextChanged {
+                viewModel.onEvent(AddEditFoodEvent.NameChanged(productNameEditText.text.toString()))
+            }
+            productPriceEditText.doAfterTextChanged {
+                viewModel.onEvent(AddEditFoodEvent.PriceChanged(productPriceEditText.text.toString()))
+            }
+            productDescriptionEditText.doAfterTextChanged {
+                viewModel.onEvent(AddEditFoodEvent.DescriptionChanged(productDescriptionEditText.text.toString()))
+            }
+            categoryEt.doAfterTextChanged {
+                viewModel.onEvent(AddEditFoodEvent.FoodCategoryChanged(categoryEt.text.toString()))
+            }
+            modifierSwitch.setOnClickListener {
+                modifierLayoutEnabler(modifierSwitch.isChecked)
+                viewModel.onEvent(AddEditFoodEvent.ModifiableChanged(modifierSwitch.isChecked))
+            }
+            saveButton.setOnClickListener {
+                handleSaveClicked()
+            }
+            setImageBtn.setOnClickListener {
+                getContent.launch("image/*")
+            }
+            resetButton.setOnClickListener {
+                resetField()
+            }
+            deleteImgBtn.setOnClickListener {
+                binding.imageView.setImageResource(R.drawable.ic_image)
+            }
+            addModifierButton.setOnClickListener{
+                handleAddModifier()
+            }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        setDropdown()
+    private fun handleSaveClicked() {
+        viewModel.onEvent(AddEditFoodEvent.Save(command == NavigationCommand.EDIT))
     }
 
     private fun setImage(uri: Uri){
@@ -146,20 +154,19 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun loadModifier() = lifecycleScope.launch {
-//        repeatOnLifecycle(Lifecycle.State.STARTED) {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.modifiers.collect() {
                 when (it) {
                     is UiState.Success -> {
                         modifierList = it.data.keys.toTypedArray()
                         checkedItems = BooleanArray(modifierList.size)
                         allowReset = true
-                        println("Modifier Loaded")
                     }
                     is UiState.Failure -> println(it.e)
                     is UiState.Loading -> allowReset = false
                 }
             }
-//        }
+        }
     }
     private fun loadCategory() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -196,7 +203,7 @@ class AddEditFoodFragment : Fragment() {
                         .setTitle("Save Data?")
                         .setMessage("Do you want to save the current food info?")
                         .setPositiveButton("Save"){
-                            _,_ -> handleSaveOnClick()
+                            _,_ -> handleSaveClicked()
                         }
                         .setNegativeButton("Exit"){
                                 _, _ ->
@@ -216,30 +223,40 @@ class AddEditFoodFragment : Fragment() {
     private fun editFood(foodId: String?) {
         if (foodId.isNullOrEmpty()) errorDialog("FoodId invalid")
         else{
-            println("editFood block")
             viewModel.initialize(foodId)
             binding.productIdEditText.focusable = View.NOT_FOCUSABLE
+            binding.productIdEditText.isEnabled = false
             observeLoadFood()
         }
     }
 
     private fun loadData() {
         try {
+            if (viewModel.addEditFoodState.value.image != null){
+                Glide.with(requireContext())
+                    .load(viewModel.addEditFoodState.value.image)
+                    .centerCrop()
+                    .into(binding.imageView)
+            } else {
+                binding.imageView.setImageResource(R.drawable.ic_image)
+            }
             binding.apply {
-                productIdEditText.setText(viewModel.food.productId)
-                productNameEditText.setText(viewModel.food.name)
-                productPriceEditText.setText(viewModel.food.price.toString())
-                productDescriptionEditText.setText(viewModel.food.description)
-                categoryEt.setText(viewModel.food.category)
-                modifierSwitch.isChecked = viewModel.food.modifiable
+                productIdEditText.setText(viewModel.addEditFoodState.value.productId)
+                productNameEditText.setText(viewModel.addEditFoodState.value.name)
+                productPriceEditText.setText(viewModel.addEditFoodState.value.price)
+                productDescriptionEditText.setText(viewModel.addEditFoodState.value.description)
+                categoryEt.setText(viewModel.addEditFoodState.value.foodCategory,false)
+                modifierSwitch.isChecked = viewModel.addEditFoodState.value.isModifiable
+                modifierLayoutEnabler(modifierSwitch.isChecked)
+            }
+            if (!viewModel.addEditFoodState.value.modifierList.isNullOrEmpty() && viewModel.addEditFoodState.value.isModifiable) {
+                selectedItems.clear()
+                selectedItems.addAll(viewModel.addEditFoodState.value.modifierList!!)
+                for (i in viewModel.addEditFoodState.value.modifierList!!)
+                    if (binding.modifiersLinearLayout.childCount < viewModel.addEditFoodState.value.modifierList!!.size)
+                        addModifierRow(i)
             }
 
-
-            modifierLayoutEnabler(viewModel.food.modifiable)
-            if (viewModel.food.modifierList.isNotEmpty() && viewModel.food.modifiable)
-                for (i in viewModel.food.modifierList)
-                    if (binding.modifiersLinearLayout.childCount < viewModel.food.modifierList.size)
-                        addModifierRow(i)
         } catch (e: Exception){
             e.message?.let { errorDialog(it) }
         }
@@ -247,6 +264,7 @@ class AddEditFoodFragment : Fragment() {
 
     private fun addNewFood(){
         binding.productIdEditText.focusable = View.FOCUSABLE
+        binding.productIdEditText.isEnabled = true
         modifierLayoutEnabler(false)
     }
 
@@ -277,11 +295,13 @@ class AddEditFoodFragment : Fragment() {
 
     private fun addModifierRow(id: String) {
         selectedItems.add(id)
+        viewModel.onEvent(AddEditFoodEvent.ModifierChanged(selectedItems.toList()))
         val index = binding.modifiersLinearLayout.childCount
         val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier, binding.modifiersLinearLayout,false)
         inflater.findViewById<TextView>(R.id.modifier_name_textView).text = viewModel.getModifier(id)?.name
         inflater.findViewById<MaterialButton>(R.id.remove_button).setOnClickListener {
             selectedItems.remove(id)
+            viewModel.onEvent(AddEditFoodEvent.ModifierChanged(selectedItems.toList()))
             binding.modifiersLinearLayout.removeView(inflater)
             checkedItems[modifierList.indexOf(id)] = false
         }
@@ -300,6 +320,7 @@ class AddEditFoodFragment : Fragment() {
         binding.productDescriptionEditText.text = null
         binding.modifierSwitch.isChecked = false
         binding.modifiersLinearLayout.removeAllViews()
+        modifierLayoutEnabler(false)
         reset()
     }
 
@@ -312,55 +333,12 @@ class AddEditFoodFragment : Fragment() {
         }
     }
 
-    private fun handleSaveOnClick(){
-        try {
-            val modifierList = arrayListOf<String>()
-            if (binding.modifierSwitch.isChecked) {
-                for (i in selectedItems)
-                    modifierList.add(i)
-            }
-
-            if (command.contentEquals(NavigationCommand.ADD)) {
-                if (!isAddFoodObserved){
-                    isAddFoodObserved = !isAddFoodObserved
-                    observeAddFood()
-                }
-                viewModel.addNewFood(
-                    binding.productIdEditText.text.toString(),
-                    binding.productNameEditText.text.toString(),
-                    binding.productPriceEditText.text.toString(),
-                    binding.productDescriptionEditText.text.toString(),
-                    binding.categoryEt.text.toString(),
-                    binding.modifierSwitch.isChecked,
-                    imageUri,
-                    modifierList,
-                    imageChanged
-                )
-            } else {
-                if (!isUpdateFoodObserved){
-                    isUpdateFoodObserved = !isUpdateFoodObserved
-                    observeUpdateFood()
-                }
-                viewModel.updateFood(
-                    binding.productIdEditText.text.toString(),
-                    binding.productNameEditText.text.toString(),
-                    binding.productPriceEditText.text.toString(),
-                    binding.productDescriptionEditText.text.toString(),
-                    binding.categoryEt.text.toString(),
-                    imageUri,
-                    binding.modifierSwitch.isChecked,
-                    modifierList,
-                    imageChanged
-                )
-//                successToast("Edited food saved")
-            }
-
-        } catch (e:Exception){
-            e.message?.let { errorDialog(it) }
-        }
-    }
     private fun successToast(msg: String){
         Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
+    }
+
+    private fun errorToast(msg: String){
+        Toast.makeText(requireContext(),msg,Toast.LENGTH_LONG).show()
     }
 
     private fun errorDialog(msg: String){
@@ -377,6 +355,7 @@ class AddEditFoodFragment : Fragment() {
 
     private fun modifierLayoutEnabler(boolean: Boolean){
         binding.addModifierButton.isEnabled  = boolean
+        binding.modifiersLinearLayout.visibility = if (boolean) View.VISIBLE else View.GONE
         for (i in 0  until binding.modifiersLinearLayout.childCount){
             val child: View = binding.modifiersLinearLayout.getChildAt(i)
             child.findViewById<MaterialButton>(R.id.remove_button).isEnabled = boolean
@@ -388,9 +367,10 @@ class AddEditFoodFragment : Fragment() {
     private fun navigateBack() = findNavController().navigateUp()
 
 
-    private fun observeAddFood() = viewLifecycleOwner.lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addFoodResponse.collect() {
+    private fun observeFoodUpdate() =  viewLifecycleOwner.lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.CREATED) {
+            viewModel.addEditFoodResponse.collect() {
+                println(it)
                 when (it) {
                     is UiState.Loading -> {
                         binding.saveButton.isEnabled = false
@@ -401,15 +381,15 @@ class AddEditFoodFragment : Fragment() {
                         binding.saveButton.isEnabled = true
                         binding.resetButton.isEnabled = true
                         binding.progressBar2.visibility = View.GONE
-                        it.e?.message?.let { it1 -> errorDialog(it1) }
+                        it.e?.message?.let { it1 -> errorToast(it1) }
                     }
                     is UiState.Success -> {
-                        if (it.data){
+                        if (it.data == "Add Food Success" || it.data == "Update Food Success"){
                             binding.saveButton.isEnabled = true
                             binding.resetButton.isEnabled = true
                             binding.progressBar2.visibility = View.GONE
                             navigateBack()
-                            successToast("Food Added successfully")
+                            successToast(it.data)
                         }
                     }
                 }
@@ -419,31 +399,28 @@ class AddEditFoodFragment : Fragment() {
 
 
 
-    private fun observeUpdateFood() = viewLifecycleOwner.lifecycleScope.launch {
+    private fun observeError() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.updateFoodResponse.collect() {
-                when (it) {
-                    is UiState.Loading -> {
-                        binding.progressBar2.visibility = View.VISIBLE
-                        binding.saveButton.isEnabled = false
-                        binding.resetButton.isEnabled = false
-                    }
-                    is UiState.Failure -> {
-                        println("Update food response encountered error")
-                        binding.progressBar2.visibility = View.GONE
-                        binding.saveButton.isEnabled = true
-                        binding.resetButton.isEnabled = true
-                        it.e?.message?.let { it1 -> errorDialog(it1) }
-                    }
-                    is UiState.Success -> {
-                        if (it.data){
-                            binding.saveButton.isEnabled = true
-                            binding.resetButton.isEnabled = true
-                            binding.progressBar2.visibility = View.GONE
-                            navigateBack()
-                            successToast("Update food successful!")
-                        }
-                    }
+            viewModel.addEditFoodState.collect() {
+                if (it.nameError != null){
+                    binding.productName.error = it.nameError
+                } else {
+                    binding.productName.error = null
+                }
+                if (it.productIdError != null){
+                    binding.productId.error = it.productIdError
+                } else {
+                    binding.productId.error = null
+                }
+                if (it.priceError != null){
+                    binding.productPrice.error = it.priceError
+                } else {
+                    binding.productPrice.error = null
+                }
+                if (it.foodCategoryError != null){
+                    binding.categoryEtl.error = it.foodCategoryError
+                } else {
+                    binding.categoryEtl.error = null
                 }
             }
         }
@@ -452,7 +429,6 @@ class AddEditFoodFragment : Fragment() {
     private fun observeLoadFood() = viewLifecycleOwner.lifecycleScope.launch{
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.foodLoaded.collect() {
-                println(it)
                 when (it) {
                     is UiState.Loading -> {
                         binding.progressBar2.visibility = View.VISIBLE
@@ -462,24 +438,13 @@ class AddEditFoodFragment : Fragment() {
                     }
                     is UiState.Success -> {
                         binding.progressBar2.visibility = View.GONE
-                        launch {loadData()}
-                        loadImage()
+                        loadData()
                     }
                 }
             }
         }
     }
 
-    private fun loadImage() = lifecycleScope.launch{
-        if (viewModel.food.imageUri != null){
-            Glide.with(requireContext())
-                .load(viewModel.food.imageUri?.toUri())
-                .into(binding.imageView)
-        } else {
-            binding.imageView.setImageResource(R.drawable.ic_image)
-        }
-
-    }
 
     override fun onStop() {
         super.onStop()

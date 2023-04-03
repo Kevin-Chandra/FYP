@@ -8,7 +8,7 @@ import javax.inject.Inject
 class UploadImageUseCase @Inject constructor(
     private val imageRepo: ProductImageRepository
 ) {
-    suspend operator fun invoke(uri: Uri,result: (UiState<Pair<String,String>>) -> Unit){
-        imageRepo.uploadImage(uri,result)
+    suspend operator fun invoke(id: String, uri: Uri,result: (UiState<Pair<String,String>>) -> Unit): Pair<String,String>? {
+        return imageRepo.uploadImage(id, uri,result)
     }
 }
