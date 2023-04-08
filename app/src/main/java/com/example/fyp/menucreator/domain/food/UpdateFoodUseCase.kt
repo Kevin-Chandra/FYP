@@ -2,9 +2,9 @@ package com.example.fyp.menucreator.domain.food
 
 import android.net.Uri
 import com.example.fyp.menucreator.data.model.Food
+import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.data.repository.ProductImageRepository
-import com.example.fyp.menucreator.domain.UploadImageUseCase
+import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import com.example.fyp.menucreator.util.UiState
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -19,7 +19,7 @@ class UpdateFoodUseCase @Inject constructor(
                 var imgPath: Deferred<Pair<String, String>?>? = null
                 if (image != null) {
                     imgPath = async {
-                        uploadImageUseCase(food.productId,image) {
+                        uploadImageUseCase(ProductType.FoodAndBeverage, food.productId,image) {
                             when (it) {
                                 is UiState.Failure -> {
                                     throw it.e!!

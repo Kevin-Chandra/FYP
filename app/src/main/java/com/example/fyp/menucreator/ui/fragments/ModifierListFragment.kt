@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.menucreator.ui.adapter.ModifierListItemAdapter
@@ -14,15 +15,16 @@ import com.example.fyp.menucreator.data.repository.ModifierItemRepository
 import com.example.fyp.menucreator.data.repository.ModifierRepository
 import com.example.fyp.menucreator.ui.viewmodel.ModifierListingViewModel
 import com.example.fyp.menucreator.util.UiState
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class ModifierListFragment : Fragment() {
 
     private var _binding: FragmentModifierListBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel = ModifierListingViewModel(ModifierRepository(), ModifierItemRepository())
+    private val viewModel by activityViewModels<ModifierListingViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,7 +51,7 @@ class ModifierListFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch{
             viewModel.modifiers.collect() {
                 when (it) {
-                    is UiState.Success -> {modifierAdapter.submitList(it.data.values.toMutableList())
+                    is UiState.Success -> {modifierAdapter.submitList(it.data.toMutableList())
                                             binding.progressBar.visibility = View.GONE}
                     is UiState.Failure -> println(it.e)
                     is UiState.Loading -> binding.progressBar.visibility = View.VISIBLE

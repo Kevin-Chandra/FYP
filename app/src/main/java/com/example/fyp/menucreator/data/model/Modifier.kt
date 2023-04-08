@@ -1,5 +1,6 @@
 package com.example.fyp.menucreator.data.model
 
+import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 import kotlin.collections.ArrayList
@@ -9,7 +10,11 @@ data class Modifier(
     override val name : String = "",
     val multipleChoice : Boolean = false,
     val required : Boolean = false,
-    val modifierItemList : ArrayList<String> = arrayListOf(),
+    val modifierItemList : List<String> = listOf(),
+    val imagePath: String? = null,
+    val imageUri: String? = null,
     @ServerTimestamp
-    val date: Date = Date()
+    @Exclude
+    val createdAt: Date? = null,
+    val lastUpdated: Date = Date(),
     ) : Product(productId, ProductType.Modifier)

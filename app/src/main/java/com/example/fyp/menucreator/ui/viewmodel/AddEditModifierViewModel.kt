@@ -1,15 +1,31 @@
 package com.example.fyp.menucreator.ui.viewmodel
 
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fyp.account_management.domain.use_case.ValidateNameUseCase
+import com.example.fyp.account_management.domain.use_case.ValidationResult
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
+import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.ModifierItemRepository
 import com.example.fyp.menucreator.data.repository.ModifierRepository
-import com.example.fyp.menucreator.util.UiState
+import com.example.fyp.menucreator.domain.ProductValidationResult
+import com.example.fyp.menucreator.domain.modifier.AddModifierUseCase
+import com.example.fyp.menucreator.domain.modifier.GetModifierUseCase
+import com.example.fyp.menucreator.domain.modifier.UpdateModifierUseCase
+import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemListUseCase
+import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateDuplicateIdUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateProductIdUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateProductNameUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateProductPriceUseCase
+import com.example.fyp.menucreator.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.lang.Exception
+import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.collections.Map
@@ -22,93 +38,209 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class AddEditModifierViewModel @Inject constructor(
-    private val modifierRepository: ModifierRepository,
-    private val modifierItemRepository: ModifierItemRepository
+    private val addModifierUseCase: AddModifierUseCase,
+    private val getModifierUseCase: GetModifierUseCase,
+    private val getModifierItemListUseCase: GetModifierItemListUseCase,
+    private val updateModifierUseCase: UpdateModifierUseCase,
+    private val validateProductNameUseCase: ValidateProductNameUseCase,
+    private val validateProductIdUseCase: ValidateProductIdUseCase,
+    private val validateProductPriceUseCase: ValidateProductPriceUseCase,
+    private val validateDuplicateIdUseCase: ValidateDuplicateIdUseCase,
 ) : ViewModel() {
 
     private var _productId: String? = null
-    val productId get() = _productId
+    val productId get() = _productId!!
 
     private var _modifier: Modifier? = null
     val modifier get() = _modifier!!
 
-    var itemCount = 0
-        private set
-
-    var count = 0
-        private set
-
-    var load = 0
-        private set
-
-    private val _modifiers = MutableStateFlow<UiState<Map<String, Modifier>>>(UiState.Loading)
-    val modifiers = _modifiers.asStateFlow()
-
-    private var _modifierMap: Map<String, Modifier>? = null
-    private val modifierMap by lazy { _modifierMap!! }
-
-    private val _items = MutableStateFlow<UiState<Map<String, ModifierItem>>>(UiState.Loading)
-    val items = _items.asStateFlow()
-
-    private var _modifierItemMap: Map<String, ModifierItem>? = null
-    private val modifierItemMap by lazy { _modifierItemMap!! }
-
-    private val _modifierLoaded = MutableSharedFlow<UiState<Int>>()
-    val modifierLoaded = _modifierLoaded.asSharedFlow()
-
-    private val _loadResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
+    private val _loadResponse = MutableStateFlow<UiState<String>>(UiState.Loading)
     val loadResponse = _loadResponse.asStateFlow()
 
-    private val _addResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
-    val addResponse = _addResponse.asStateFlow()
+    private val items = MutableStateFlow<UiState<List<ModifierItem>>>(UiState.Loading)
 
-    private val _editResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
-    val editResponse = _editResponse.asStateFlow()
+    private val loadModifier = MutableStateFlow<UiState<Modifier?>>(UiState.Loading)
 
-    private val _editItemResponse = MutableStateFlow<UiState<Int>>(UiState.Loading)
-    val editItemResponse = _editItemResponse.asStateFlow()
+    private val _modifierItemMap = mutableMapOf<String, ModifierItem>()
+    val modifierItemMap = _modifierItemMap
 
-    private val _addItemResponse = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
-    val addItemResponse = _addItemResponse.asStateFlow()
+    private val _addEditModifierState = MutableStateFlow(AddEditModifierState())
+    val addEditModifierState = _addEditModifierState.asStateFlow()
 
-    private val _addItemFinishResponse = MutableStateFlow<UiState<Int>>(UiState.Success(count))
-    val addItemFinishResponse = _addItemFinishResponse.asStateFlow()
-
-    private val _editFinishResponse = MutableSharedFlow<UiState<Boolean>>()
-    val editFinishResponse = _editFinishResponse.asSharedFlow()
-
-    private val deleteCache = arrayListOf<String>()
-
-    private var isLoadedObserved = false
-
-    private val itemMap = mutableMapOf<String, ModifierItem>()
-
-    init {
-        getModifierList()
-        getModifierItemList()
-        observeGet()
-    }
+    private val _addEditModifierResponse = MutableStateFlow<UiState<String>>(UiState.Success(""))
+    val addEditModifierResponse = _addEditModifierResponse.asStateFlow()
 
     fun initialize(id: String) {
-        if (!isLoadedObserved) {
-            isLoadedObserved = !isLoadedObserved
-            observeLoaded()
-        }
+        _loadResponse.value = UiState.Loading
         _productId = id
+        if (_modifier == null)
+            load()
+        else
+            _loadResponse.value = UiState.Success("Modifier Loaded")
+    }
+    fun onEvent(event: AddEditModifierEvent) {
+        println(event)
+        when(event) {
+            is AddEditModifierEvent.ImageChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(image = event.image)
+            }
+            is AddEditModifierEvent.ItemListChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(itemList = event.items)
+            }
+            is AddEditModifierEvent.MultipleChoiceChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(isMultipleChoice = event.multipleChoice)
+            }
+            is AddEditModifierEvent.NameChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(name = event.name)
+            }
+            is AddEditModifierEvent.ProductIdChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(productId = event.id)
+            }
+            is AddEditModifierEvent.RequiredChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(isRequired = event.required)
+            }
+            is AddEditModifierEvent.Save -> {
+                submit(event.isEdit)
+            }
+            is AddEditModifierEvent.ItemErrorListChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(itemErrorList = event.itemErrors)
+            }
+        }
     }
 
-    private fun populate() {
-        _modifier = modifierMap[productId]
+    private fun submit(isEdit: Boolean) = viewModelScope.launch{
+        _addEditModifierResponse.value = UiState.Loading
+        var idResult = ProductValidationResult(successful = true)
+        if (!isEdit){
+            idResult = validateProductIdUseCase(addEditModifierState.value.productId, ProductType.Modifier)
+        }
+        val nameResult = validateProductNameUseCase(addEditModifierState.value.name)
+        val validationResultList = mutableListOf(idResult,nameResult)
+
+        val errorList = mutableListOf<Triple<String?,String?,String?>?>()
+
+        for (i in addEditModifierState.value.itemList){
+            var idRes = ProductValidationResult(successful = true)
+            if (!isEdit){
+                idRes = validateProductIdUseCase(i.first.first,ProductType.ModifierItem)
+            }
+            val nameRes = validateProductNameUseCase(i.second)
+            val priceRes = validateProductPriceUseCase(i.third)
+            validationResultList.add(idRes)
+            validationResultList.add(nameRes)
+            validationResultList.add(priceRes)
+
+            errorList.add(
+                if (listOf(idRes,nameRes,priceRes).any{!it.successful}) {
+                    Triple(
+                        if (idRes.successful) null else idRes.errorMessage,
+                        if (nameRes.successful) null else nameRes.errorMessage,
+                        if (priceRes.successful) null else priceRes.errorMessage
+                    )
+                } else {
+                    null
+                }
+            )
+        }
+
+        if (addEditModifierState.value.itemList.isEmpty()){
+            _addEditModifierResponse.value = UiState.Failure(IllegalArgumentException("Modifier items is empty!"))
+            return@launch
+        }
+
+        val duplicateIdResult = validateDuplicateIdUseCase(addEditModifierState.value.itemList.map { it.first.first }.toList())
+        validationResultList.add(duplicateIdResult)
+
+        if (addEditModifierState.value.isMultipleChoice && addEditModifierState.value.itemList.size < 2){
+            _addEditModifierResponse.value = UiState.Failure(IllegalArgumentException("Modifier items must be at least 2 for multiple choice!"))
+            return@launch
+        }
+
+        _addEditModifierState.value = _addEditModifierState.value.copy(
+            itemErrorList = errorList
+        )
+
+
+        if (validationResultList.any { !it.successful }){
+            _addEditModifierState.value = _addEditModifierState.value.copy(
+                productIdError = idResult.errorMessage,
+                nameError = nameResult.errorMessage
+            )
+            if (!duplicateIdResult.successful) {
+                _addEditModifierResponse.value = UiState.Failure(IllegalArgumentException("Duplicate Modifier Item Id!"))
+                return@launch
+            } else {
+                _addEditModifierResponse.value = UiState.Failure(IllegalArgumentException("Field(s) error!"))
+            }
+            return@launch
+        } else {
+            _addEditModifierState.value.copy(
+                productIdError = null,
+                nameError = null
+            )
+        }
+
+        if (isEdit){
+            updateModifier()
+        } else {
+            addModifier()
+        }
+
     }
+
+    private fun addModifier() = viewModelScope.launch(Dispatchers.IO){
+        val itemStringList = mutableListOf<String>()
+        val itemList = mutableListOf<ModifierItem>()
+        for (i in addEditModifierState.value.itemList){
+            itemList.add(getModifierItem(i.second,i.second,i.third))
+            itemStringList.add(i.second)
+        }
+
+        val modifier = getModifier(
+            addEditModifierState.value.productId,
+            addEditModifierState.value.name,
+            addEditModifierState.value.isMultipleChoice,
+            addEditModifierState.value.isRequired,
+            itemStringList.toList()
+        )
+
+        addModifierUseCase.invoke(modifier,itemList,addEditModifierState.value.image){
+            _addEditModifierResponse.value = it
+        }
+    }
+
+    private fun updateModifier() = viewModelScope.launch(Dispatchers.IO){
+        val itemStringList = mutableListOf<String>()
+        val itemList = mutableListOf<ModifierItem>()
+        for (i in addEditModifierState.value.itemList){
+            itemList.add(getModifierItem(i.second,i.second,i.third))
+            itemStringList.add(i.second)
+        }
+
+        val newModifier = modifier.copy(
+            productId = addEditModifierState.value.productId,
+            name = addEditModifierState.value.name,
+            multipleChoice = addEditModifierState.value.isMultipleChoice,
+            required = addEditModifierState.value.isRequired,
+            modifierItemList = itemStringList.toList(),
+            lastUpdated = Date()
+        )
+
+        updateModifierUseCase.invoke(newModifier,itemList,addEditModifierState.value.image){
+            _addEditModifierResponse.value = it
+        }
+    }
+
+
 
     private fun getModifier(
         productId: String,
         name: String,
         isMultipleChoice: Boolean,
         isRequired: Boolean,
-        itemList: ArrayList<String>,
+        itemList: List<String>
     ): Modifier {
-        return Modifier(productId, name, isMultipleChoice, isRequired, itemList)
+        return Modifier(productId, name, isMultipleChoice, isRequired, itemList,null,null,null,Date())
     }
 
     private fun getModifierItem(
@@ -119,245 +251,57 @@ class AddEditModifierViewModel @Inject constructor(
         return ModifierItem(productId, name, price.toDoubleOrNull() ?: -1.0)
     }
 
-    //Insert modifier sequence
-    // addItems -> addNewModifier ->  InsertItems -> insertModifier
+    private fun load() = viewModelScope.launch{
+        getModifierUseCase(productId) {
+            loadModifier.value = it
+        }
+        getModifierItemListUseCase.invoke {
+            it.onEach { state ->
+                items.value = state
+            }.launchIn(viewModelScope)
+        }
 
-    private fun insertModifier(modifier: Modifier) {
-        _addResponse.value = modifierRepository.addModifier(modifier)
-    }
-
-    private fun insertModifierItem(item: ModifierItem) {
-        _addItemResponse.value = modifierItemRepository.addModifierItem(item)
-    }
-
-    private suspend fun updateModifier(modifier: Modifier) {
-        println("item to upload : ${modifier.name}")
-        _editFinishResponse.emit(modifierRepository.updateModifier(modifier.productId, modifier))
-    }
-
-    private suspend fun updateModifierItem(item: ModifierItem) {
-        println("item to upload : ${item.name}")
-        _editFinishResponse.emit(modifierItemRepository.updateModifierItem(item.productId,item))
-    }
-
-    private suspend fun deleteModifierItemInRepo(id: String){
-        modifierItemRepository.deleteModifierItem(id)
-    }
-
-    fun addNewModifier(
-        id: String,
-        name: String,
-        isMultipleChoice: Boolean,
-        isRequired: Boolean,
-        isEdit: Boolean
-    ) = viewModelScope.launch(Dispatchers.IO) {
-        val response = if (isEdit) _editResponse else _addResponse
-        response.value = UiState.Loading
-        response.value = isModifierEntryValid(id, name, isMultipleChoice, isEdit)
-        if (response.value is UiState.Success) {
-            println("everything success waiting to upload")
-            val getModifier =
-                getModifier(id, name, isMultipleChoice, isRequired, ArrayList(itemMap.keys))
-            for (i in deleteCache){
-                println("$i to be deleted")
-                launch(Dispatchers.IO){
-                    deleteModifierItemInRepo(i)
+        combine(loadModifier,items){ modifier,items ->
+            if (modifier is UiState.Success){
+                _modifier = modifier.data
+            }
+            if (items is UiState.Success){
+                for (i in items.data){
+                    _modifierItemMap[i.productId] = i
                 }
             }
-            if (isEdit){
-                launch(Dispatchers.IO){
-                    for (i in itemMap){
-                        launch(Dispatchers.IO) {
-                            updateModifierItem(i.value)
-                        }
-                    }
-                }
-                updateModifier(getModifier)
-            } else {
-                launch(Dispatchers.IO) {
-                    for (i in itemMap)
-                        launch(Dispatchers.IO) {
-                            insertModifierItem(i.value)
-                        }
-                }
-                insertModifier(getModifier)
+            if (modifier is UiState.Success && items is UiState.Success){
+                loadToState()
+                _loadResponse.value = UiState.Success("Load Success")
             }
+        }.stateIn(viewModelScope)
+    }
+
+    private fun getItem(id: String,isEdit: Boolean) : Triple<Pair<String,Boolean>,String,String>{
+        val item = modifierItemMap[id]
+        return Triple(
+            Pair (item?.productId?:"",isEdit),
+            item?.name?:"",
+            item?.price?.toString()?:""
+        )
+    }
+
+    private fun loadToState() {
+        onEvent(AddEditModifierEvent.ProductIdChanged(modifier.productId))
+        onEvent(AddEditModifierEvent.NameChanged(modifier.name))
+        onEvent(AddEditModifierEvent.RequiredChanged(modifier.required))
+        onEvent(AddEditModifierEvent.MultipleChoiceChanged(modifier.multipleChoice))
+        onEvent(AddEditModifierEvent.ImageChanged(modifier.imageUri?.toUri()))
+        val list = mutableListOf<Triple<Pair<String,Boolean>,String,String>>()
+        for (i in modifier.modifierItemList){
+            list.add(getItem(i,true))
         }
+        onEvent(AddEditModifierEvent.ItemListChanged(list))
     }
 
 
-    fun addItems(id: String, name: String, price: String, result: (Boolean)->Unit) = viewModelScope.launch {
-        _addItemFinishResponse.value = UiState.Loading
-        _addItemResponse.value = UiState.Loading
-        _addItemResponse.value = isModifierItemEntryValid(id, name, price)
-        if (addItemResponse.value is UiState.Success) {
-            if (itemMap[id] == null) {
-                itemMap[id] = getModifierItem(id, name, price)
-                _addItemFinishResponse.update {
-                    UiState.Success(count)
-                }
-                result.invoke(true)
-            } else {
-                _addItemResponse.value = UiState.Failure(Exception("Item ID [$id] already exist!"))
-                result.invoke(false)
-            }
-        } else if (addItemResponse.value is UiState.Failure) {
-            _addItemFinishResponse.value = UiState.Failure((addItemResponse.value as UiState.Failure).e)
-            result.invoke(false)
-        }
-    }
-
-    private suspend fun isModifierEntryValid(
-        productId: String,
-        name: String,
-        multipleChoice: Boolean,
-        isEdit: Boolean
-    ): UiState<Boolean> {
-        return try {
-            if (!isEdit) {
-                if (productId.isBlank())
-                    throw Exception("Modifier ID is blank!")
-                if (checkModifierId(productId))
-                    throw Exception("Modifier ID already exist!")
-            }
-            if (name.isBlank())
-                throw Exception("Name is blank!")
-            if (itemMap.isEmpty())
-                throw Exception("Modifier Item must not be empty!")
-            if (multipleChoice && itemMap.size < 2)
-                throw Exception("Modifier Item must be minimum of 2 for multiple choice")
-            UiState.Success(true)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            UiState.Failure(e)
-        }
-    }
-
-    private fun incrementCount() {
-        count++
-        println("count = $count")
-    }
-
-    private suspend fun isModifierItemEntryValid(
-        productId: String,
-        name: String,
-        price: String,
-        isEdit: Boolean = false,
-    ): UiState<Boolean> {
-        return try {
-            if (!isEdit){
-                if (productId.isBlank())
-                    throw Exception("Item ID is blank!")
-                if (checkModifierItemId(productId))
-                    throw Exception("[$productId] Item ID already exist!")
-            }
-            if (name.isBlank())
-                throw Exception("[$productId] Name is blank!")
-            if (price.isBlank())
-                throw Exception("[$productId] Price is blank!")
-            if (price.toDouble() < 0.0)
-                throw Exception("[$productId] Price cannot be negative!")
-            incrementCount()
-            UiState.Success(false)
-        } catch (e: Exception) {
-            if (e is CancellationException)
-                throw e
-            else {
-//                deleteCache.add(productId)
-                UiState.Failure(e)
-            }
-        }
-    }
-
-    private suspend fun checkModifierId(id: String) =
-        withContext(Dispatchers.IO) {
-            async { modifierRepository.checkModifierId(id) }.await()
-        }
-
-    private suspend fun checkModifierItemId(id: String) =
-        withContext(Dispatchers.IO) {
-            async { modifierItemRepository.checkModifierId(id) }.await()
-        }
-
-
-    fun createNewItemList() {
-        count = 0
-        itemCount = 0
-        itemMap.clear()
-    }
-
-    fun clearDeleteCache(){
-        deleteCache.clear()
-    }
-
-    fun getModifierItem(id: String): ModifierItem? {
-        return modifierItemMap[id]
-    }
-
-    private fun observeGet() {
-        _loadResponse.value = UiState.Loading
-        modifiers.onEach {
-            if (it is UiState.Success) {
-                _modifierMap = it.data
-                println("modifierMap load finish")
-                load = if (load < 2) load.inc() else 2
-                _modifierLoaded.emit(UiState.Success(load))
-            }
-        }.launchIn(viewModelScope)
-
-        items.onEach {
-            if (it is UiState.Success) {
-                _modifierItemMap = it.data
-                println("modifierItemMap load finish")
-                load = if (load < 2) load.inc() else 2
-                _modifierLoaded.emit(UiState.Success(load))
-            }
-        }.launchIn(viewModelScope)
-
-    }
-    private fun observeLoaded() =
-        modifierLoaded.onEach {
-            if (it is UiState.Success && it.data >= 2) {
-                populate()
-                _loadResponse.value = UiState.Success(true)
-            }
-        }.launchIn(viewModelScope)
-
-    private fun getModifierList() = viewModelScope.launch{
-        _modifiers.value = UiState.Loading
-        modifierRepository.subscribeModifierUpdates().collect { result ->
-            _modifiers.value = result
-        }
-    }
-    private fun getModifierItemList() = viewModelScope.launch{
-        _items.value = UiState.Loading
-        modifierItemRepository.subscribeModifierItemUpdates().collect { result ->
-            _items.value = result
-        }
-    }
-
-    fun deleteModifierItem(id: String) {
-        if (id != ""){
-            itemMap.remove(id)
-            deleteCache.add(id)
-        }
-    }
-
-    fun updateItem(id: String, name: String, price: String, isEdit: Boolean) = viewModelScope.launch{
-        _editItemResponse.value = UiState.Loading
-        _editResponse.value = isModifierItemEntryValid(id,name, price,isEdit)
-        if (_editResponse.value is UiState.Success){
-            if (itemMap[id] == null) {
-                itemMap[id] = getModifierItem(id, name, price)
-                itemCount += 1
-                _editItemResponse.update {
-                    UiState.Success(itemCount)
-                }
-            } else {
-                _editItemResponse.value = UiState.Failure(Exception("Item ID [$id] already exist!"))
-            }
-        }
+    fun reset() {
+        _addEditModifierState.value = AddEditModifierState()
     }
 
 

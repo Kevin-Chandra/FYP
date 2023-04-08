@@ -2,6 +2,11 @@ package com.example.fyp.menucreator.di
 
 import com.example.fyp.menucreator.data.repository.*
 import com.example.fyp.menucreator.domain.*
+import com.example.fyp.menucreator.domain.foodCategory.AddFoodCategoryUseCase
+import com.example.fyp.menucreator.domain.foodCategory.DeleteFoodCategoryUseCase
+import com.example.fyp.menucreator.domain.foodCategory.GetFoodCategoryUseCase
+import com.example.fyp.menucreator.domain.foodCategory.UpdateFoodCategoryUseCase
+import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,25 +43,25 @@ object AppModule  {
 
     @Provides
     @Singleton
-    fun provideAddCategoryUseCase(repo : MenuSettingsRepository): AddFoodCategoryUseCase{
+    fun provideAddCategoryUseCase(repo : MenuSettingsRepository): AddFoodCategoryUseCase {
         return AddFoodCategoryUseCase(repo)
     }
 
     @Provides
     @Singleton
-    fun provideUpdateCategoryUseCase(repo : MenuSettingsRepository): UpdateFoodCategoryUseCase{
+    fun provideUpdateCategoryUseCase(repo : MenuSettingsRepository): UpdateFoodCategoryUseCase {
         return UpdateFoodCategoryUseCase(repo)
     }
 
     @Provides
     @Singleton
-    fun provideDeleteCategoryUseCase(repo : MenuSettingsRepository): DeleteFoodCategoryUseCase{
+    fun provideDeleteCategoryUseCase(repo : MenuSettingsRepository): DeleteFoodCategoryUseCase {
         return DeleteFoodCategoryUseCase(repo)
     }
 
     @Provides
     @Singleton
-    fun provideCategoryUseCase(repo : MenuSettingsRepository): GetFoodCategoryUseCase{
+    fun provideCategoryUseCase(repo : MenuSettingsRepository): GetFoodCategoryUseCase {
         return GetFoodCategoryUseCase(repo)
     }
 
@@ -68,7 +73,7 @@ object AppModule  {
 
     @Provides
     @Singleton
-    fun provideUploadImageUseCase(repo : ProductImageRepository): UploadImageUseCase{
+    fun provideUploadImageUseCase(repo : ProductImageRepository): UploadImageUseCase {
         return UploadImageUseCase(repo)
     }
 }

@@ -1,6 +1,6 @@
-package com.example.fyp.menucreator.domain
+package com.example.fyp.menucreator.domain.validation
 
-import javax.inject.Inject
+import com.example.fyp.menucreator.domain.ProductValidationResult
 
 
 class ValidateProductNameUseCase{

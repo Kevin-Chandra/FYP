@@ -55,9 +55,6 @@ class AddEditFoodFragment : Fragment() {
     private var categoryList: List<FoodCategory> = listOf()
     private var categoryString: MutableList<String> = mutableListOf()
 
-    private var isAddFoodObserved = false
-    private var isUpdateFoodObserved = false
-
     private lateinit var command: String
 
     private var arrayAdapter: ArrayAdapter<String>? = null
@@ -65,8 +62,6 @@ class AddEditFoodFragment : Fragment() {
     private var allowReset = false
 
     private var imageUri : Uri? = null
-
-    private var imageChanged = false
 
     private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
         if (it != null) {
@@ -83,7 +78,6 @@ class AddEditFoodFragment : Fragment() {
         (activity as MenuCreatorActivity).apply{
             supportActionBar?.setDisplayHomeAsUpEnabled(false)
         }
-        imageChanged = false
         loadModifier()
         loadCategory()
         return binding.root
@@ -154,16 +148,20 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun loadModifier() = lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
+        repeatOnLifecycle(Lifecycle.State.CREATED) {
             viewModel.modifiers.collect() {
                 when (it) {
                     is UiState.Success -> {
-                        modifierList = it.data.keys.toTypedArray()
+                        modifierList = viewModel.modifierMap.keys.toTypedArray()
                         checkedItems = BooleanArray(modifierList.size)
                         allowReset = true
                     }
-                    is UiState.Failure -> println(it.e)
-                    is UiState.Loading -> allowReset = false
+                    is UiState.Failure -> {
+                        println(it.e)
+                    }
+                    is UiState.Loading ->{
+                        allowReset = false
+                    }
                 }
             }
         }
@@ -235,10 +233,11 @@ class AddEditFoodFragment : Fragment() {
             if (viewModel.addEditFoodState.value.image != null){
                 Glide.with(requireContext())
                     .load(viewModel.addEditFoodState.value.image)
+                    .placeholder(R.mipmap.ic_launcher)
                     .centerCrop()
                     .into(binding.imageView)
             } else {
-                binding.imageView.setImageResource(R.drawable.ic_image)
+                binding.imageView.setImageResource(R.mipmap.ic_launcher)
             }
             binding.apply {
                 productIdEditText.setText(viewModel.addEditFoodState.value.productId)
@@ -265,7 +264,8 @@ class AddEditFoodFragment : Fragment() {
     private fun addNewFood(){
         binding.productIdEditText.focusable = View.FOCUSABLE
         binding.productIdEditText.isEnabled = true
-        modifierLayoutEnabler(false)
+//        modifierLayoutEnabler(false)
+        loadData()
     }
 
     private fun handleAddModifier() {
@@ -437,8 +437,8 @@ class AddEditFoodFragment : Fragment() {
                         binding.progressBar2.visibility = View.GONE
                     }
                     is UiState.Success -> {
-                        binding.progressBar2.visibility = View.GONE
                         loadData()
+                        binding.progressBar2.visibility = View.GONE
                     }
                 }
             }

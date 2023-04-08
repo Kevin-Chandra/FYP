@@ -3,6 +3,7 @@ package com.example.fyp.menucreator.data.repository
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
+import com.example.fyp.menucreator.util.MenuCreatorResponse
 import com.example.fyp.menucreator.util.UiState
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
@@ -79,34 +80,16 @@ class FoodRepository(
         }
     }
 
-    suspend fun deleteFood(id: String,result: (UiState<Boolean>) -> Unit){
+    suspend fun deleteFood(id: String,result: (UiState<String>) -> Unit){
         try {
             val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
                 .get()
                 .await()
             for (doc in query.documents)
                 foodCollectionRef.document(doc.id).delete().await()
-            result.invoke(UiState.Success(true))
+            result.invoke(UiState.Success(MenuCreatorResponse.FOOD_DELETED))
         } catch (e : Exception){
             result.invoke(UiState.Failure(e))
-        }
-    }
-
-    suspend fun updateFood(id: String,food: Food) : UiState<Boolean>{
-        val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
-            .get()
-            .await()
-        return try {
-            if (query.documents.isEmpty())
-                throw Exception("Product Id not found!")
-            for (doc in query.documents)
-                foodCollectionRef.document(doc.id).set(
-                    food,
-                    SetOptions.merge()
-                )
-            UiState.Success(true)
-        } catch (e: Exception){
-            UiState.Failure(e)
         }
     }
 
@@ -133,8 +116,8 @@ class FoodRepository(
             return
         try {
             val imageMap = mapOf(
-                FireStoreDocumentField.FOOD_IMAGE_PATH to image.second,
-                FireStoreDocumentField.FOOD_IMAGE_URI to image.first
+                FireStoreDocumentField.PRODUCT_IMAGE_PATH to image.second,
+                FireStoreDocumentField.PRODUCT_IMAGE_URI to image.first
             )
             val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID, foodId)
                 .get()
@@ -143,7 +126,7 @@ class FoodRepository(
                 throw Exception("Product Id not found!")
             for (doc in query.documents){
                 foodCollectionRef.document(doc.id)
-                    .update(imageMap)
+                    .update(imageMap).await()
             }
             result.invoke(UiState.Success("Success Image Field Update"))
         } catch (e: Exception){

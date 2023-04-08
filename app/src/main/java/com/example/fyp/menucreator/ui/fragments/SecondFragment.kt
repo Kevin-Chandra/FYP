@@ -1,16 +1,15 @@
 package com.example.fyp.menucreator.ui.fragments
 
 import android.app.AlertDialog
-import android.content.Context
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
-import androidx.annotation.RequiresApi
-import androidx.core.view.children
+import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -20,16 +19,19 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.databinding.*
+import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ProductType
+import com.example.fyp.menucreator.ui.viewmodel.FoodListingViewModel
 import com.example.fyp.menucreator.ui.viewmodel.FoodModifierDetailViewModel
+import com.example.fyp.menucreator.ui.viewmodel.ModifierListingViewModel
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
-private const val TAG = "Second Fragment"
 
 @AndroidEntryPoint
 class SecondFragment : Fragment() {
@@ -37,13 +39,9 @@ class SecondFragment : Fragment() {
     private var _binding: FragmentSecondBinding? = null
     private val binding get() = _binding!!
 
-    private var productId: String? = null
-    private var type: ProductType? = null
-
-//    private var _modifier:Modifier? = null
-//    private val modifier get() = _modifier!!
-
     private val viewModel : FoodModifierDetailViewModel by viewModels()
+    private val foodListViewModel : FoodListingViewModel by activityViewModels()
+    private val modifierListViewModel : ModifierListingViewModel by activityViewModels()
 
     private var _foodBinding: FoodViewComponentBinding? = null
     private val foodBinding get() = _foodBinding!!
@@ -54,7 +52,14 @@ class SecondFragment : Fragment() {
     private var _detailedModifierBinding: ModifierDetailedRowComponentBinding? = null
     private val detailedModifierBinding get() = _detailedModifierBinding!!
 
+    private var productId: String? = null
+    private var type: ProductType? = null
+
     private var action : NavDirections? = null
+
+    private var isObservingLoadData = true
+
+    private var allowRefresh = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,17 +67,14 @@ class SecondFragment : Fragment() {
     ): View {
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
         arguments?.let {
-
             productId = SecondFragmentArgs.fromBundle(it).productId
             type = SecondFragmentArgs.fromBundle(it).type
             viewModel.initialize(SecondFragmentArgs.fromBundle(it).productId,SecondFragmentArgs.fromBundle(it).type)
         }
 
         if (viewModel.type == ProductType.FoodAndBeverage) {
-            foodObserver()
             _foodBinding = FoodViewComponentBinding.inflate(inflater,container,false)
         } else {
-            modifierObserver()
             //inflate detailed view container
             _detailedModifierBinding = ModifierDetailedRowComponentBinding.inflate(inflater,container,false)
         }
@@ -84,10 +86,14 @@ class SecondFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        observeDeletion()
+        productObserver()
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            loadData()
-            binding.swipeRefreshLayout.isRefreshing = false
+            if (allowRefresh)
+                loadData()
+            else
+                binding.swipeRefreshLayout.isRefreshing = false
         }
 
         binding.deleteFab.setOnClickListener{
@@ -99,7 +105,7 @@ class SecondFragment : Fragment() {
     }
 
     private fun deleteDialog(){
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Delete Product")
             .setMessage("Are you sure deleting this product?")
             .setPositiveButton("Delete") { _, _ ->
@@ -108,18 +114,19 @@ class SecondFragment : Fragment() {
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
             }
-            .setCancelable(false)
+            .setCancelable(true)
             .create()
             .show()
     }
 
     private fun navigateBack() = findNavController().navigateUp()
     private fun deleteProduct() {
-        observeFoodDeletion()
+        isObservingLoadData = false
         viewModel.deleteProduct(productId!!)
     }
 
     private fun loadData(){
+        binding.swipeRefreshLayout.isRefreshing = true
         //Base layout is fragment_second constraint layout
         if (viewModel.type == ProductType.FoodAndBeverage) {
             action = SecondFragmentDirections.actionSecondFragmentToAddEditFoodFragment(
@@ -133,9 +140,13 @@ class SecondFragment : Fragment() {
                 viewModel.productId)
             loadModifierData()
         }
+        binding.swipeRefreshLayout.isRefreshing = false
     }
 
     private fun loadModifierData() {
+        productId?:return
+        val modifier = modifierListViewModel.getModifier(productId!!) ?: return
+
         //add modifier_view_component to the base layout
         if (modifierBinding.root.parent == null)
             binding.baseLayout.addView(modifierBinding.root)
@@ -145,71 +156,87 @@ class SecondFragment : Fragment() {
         modifierBinding.modifierDetailedViewContainer.addView(_detailedModifierBinding?.root)
 
         detailedModifierBinding.apply {
-            println(viewModel.modifier.multipleChoice)
-            multipleChoiceValueTv.text = if (viewModel.modifier.multipleChoice) "Yes" else "No"
-            requiredValueTv.text = if (viewModel.modifier.required) "Yes" else "No"
+            modifier.imageUri?.let{
+                Glide.with(requireContext())
+                    .load(it.toUri())
+                    .centerCrop()
+                    .into(detailedModifierBinding.modifierIv)
+            }
+            multipleChoiceValueTv.text = if (modifier.multipleChoice) "Yes" else "No"
+            requiredValueTv.text = if (modifier.required) "Yes" else "No"
         }
-        loadModifierItem(viewModel.modifier)
+        loadModifierItem(modifier)
 
-        modifierBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.modifier.date.toString()}"
+        modifierBinding.lastUpdatedTextView.text = "Last Updated ${modifier.lastUpdated.toString()}"
     }
 
     private fun loadFoodData(){
+        productId?: return
+        val food = foodListViewModel.getFood(productId!!) ?: return
 
-//        foodBinding.apply {
-//            shimmerImage.startShimmer()
-//        }
         //add food_view_component layout to the base layout
         if (foodBinding.root.parent == null)
             binding.baseLayout.addView(foodBinding.root)
-        foodBinding.productNameTextView.text = viewModel.food.name
-        foodBinding.descriptionTextview.text = viewModel.food.description
-        foodBinding.categoryValueTv.text = viewModel.food.category
-        foodBinding.priceTextview.text = viewModel.food.price.toString()
-        foodBinding.lastUpdatedTextView.text = "Last Updated ${viewModel.food.lastUpdated.toString()}"
-        if (viewModel.food.imageUri != null){
-            loadImage()
+        foodBinding.productNameTextView.text = food.name
+        foodBinding.descriptionTextview.text = food.description
+        foodBinding.categoryValueTv.text = food.category
+        foodBinding.priceTextview.text = food.price.toString()
+        foodBinding.lastUpdatedTextView.text = "Last Updated ${food.lastUpdated.toString()}"
+        if (food.imageUri != null){
+            loadImage(food.imageUri.toUri())
         } else {
-            foodBinding.imageView.setImageResource(R.drawable.ic_image)
+            foodBinding.imageView.setImageResource(R.mipmap.ic_launcher)
         }
         foodBinding.modifiersContainerLayout.removeAllViews()
-        if (viewModel.food.modifiable &&
-            viewModel.food.modifierList.isNotEmpty() &&
-            foodBinding.modifiersContainerLayout.childCount < viewModel.food.modifierList.size) {
+        if (food.modifiable &&
+            food.modifierList.isNotEmpty() &&
+            foodBinding.modifiersContainerLayout.childCount < food.modifierList.size) {
 
-            val list = viewModel.food.modifierList as MutableList
+            val list = food.modifierList as MutableList
             val iterator = list.iterator()
-            var toUpdate = false
+//            var toUpdate = false
             while (iterator.hasNext()) {
                 val id = iterator.next()
-                val modifier = viewModel.getModifier(id)
+                val modifier = modifierListViewModel.getModifier(id)
                 if (modifier != null) {
                     val eachModifierBinding = ModifierViewComponentBinding.inflate(
                         layoutInflater,
                         foodBinding.root,
                         false
                     )
-
                     //add each modifier view to modifier container layout
                     foodBinding.modifiersContainerLayout.addView(eachModifierBinding.root)
                     loadModifierItem(modifier, eachModifierBinding)
                 } else {
-                    errorDialog("[$id] is not available. Removing from food modifier list ")
-                    iterator.remove()
-                    toUpdate = true
+                    errorModifierDialog("[$id] is not available. Do you want to remove from food modifier list?",id,food)
                 }
-            }
-            if (toUpdate){
-                updateFood(list)
             }
 
         }
 
-
     }
 
-    private fun updateFood(list: List<String>) {
-        viewModel.removeModifierFromFoodAndUpdate(list)
+    //true if the id is to be removed
+    private fun errorModifierDialog(msg: String,id:String,food:Food){
+        val list = food.modifierList as MutableList
+        AlertDialog.Builder(context)
+            .setTitle("Exception occured")
+            .setMessage("Modifier Unavailable\nReason: $msg")
+            .setCancelable(false)
+            .setPositiveButton("Remove") {dialog, _ ->
+                list.remove(id)
+                updateFoodModifierList(food, list)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Don't remove"){dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun updateFoodModifierList(food: Food, list: List<String>) {
+        viewModel.removeModifierFromFoodAndUpdate(food,list)
     }
 
     //Only call this function after initializing modifier binding
@@ -219,7 +246,7 @@ class SecondFragment : Fragment() {
             if (containerBinding.modifierItemContainerLayout.childCount < modifier.modifierItemList.size) {
                 val itemBinding =
                     RowModifierItemBinding.inflate(layoutInflater, modifierBinding.root, false)
-                val item = viewModel.getModifierItem(itemCode)
+                val item = modifierListViewModel.getModifierItem(itemCode)
                 itemBinding.modifierItemNameTextview.text = item?.name
                 itemBinding.modifierItemPriceTextview.text = item?.price.toString()
                 containerBinding.modifierItemContainerLayout.addView(itemBinding.root)
@@ -227,13 +254,11 @@ class SecondFragment : Fragment() {
         }
     }
 
-    private fun loadImage() = lifecycleScope.launch(Dispatchers.Main){
+    private fun loadImage(uri: Uri) = lifecycleScope.launch(Dispatchers.Main){
         Glide.with(requireContext())
-            .load(viewModel.food.imageUri)
+            .load(uri)
             .centerCrop()
             .into(foodBinding.imageView)
-        foodBinding.shimmerImage.stopShimmer()
-        foodBinding.shimmerImage.visibility = View.GONE
     }
 
     private fun errorDialog(msg: String){
@@ -248,88 +273,53 @@ class SecondFragment : Fragment() {
             .show()
     }
 
-    private fun foodObserver() = viewLifecycleOwner.lifecycleScope.launch {
+    private fun productObserver() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.foodLoaded.collect() {
-                when (it) {
-                    is UiState.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Failure -> {
-//                    binding.progressBar.hide()
-//                    it.e?.message?.let { it1 -> errorDialog(it1) }
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        loadData()
-//                    it.data.first?.let { it1 -> successToast(it1.name + it.data.second) }
-//                    binding.progressBar.hide()
-//                    objNote = state.data.first
-//                    isMakeEnableUI(false)
-//                    binding.done.hide()
-//                    binding.delete.show()
-//                    binding.edit.show()
-                    }
-                }
-            }
+            combine(
+                foodListViewModel.foods,
+                modifierListViewModel.modifiers,
+                modifierListViewModel.modifierItems
+            ) { foods, modifiers, items ->
+                if (isObservingLoadData && foods is UiState.Success && modifiers is UiState.Success && items is UiState.Success)
+                    loadData()
+            }.stateIn(viewLifecycleOwner.lifecycleScope)
         }
     }
 
-    private fun modifierObserver() = viewLifecycleOwner.lifecycleScope.launch{
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.modifierLoaded.collect() {
-                when (it) {
-                    is UiState.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Failure -> {
-//                    binding.progressBar.hide()
-//                    it.e?.message?.let { it1 -> errorDialog(it1) }
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        loadData()
-//                    it.data.first?.let { it1 -> successToast(it1.name + it.data.second) }
-//                    binding.progressBar.hide()
-//                    objNote = state.data.first
-//                    isMakeEnableUI(false)
-//                    binding.done.hide()
-//                    binding.delete.show()
-//                    binding.edit.show()
-                    }
-                }
-            }
-        }
-    }
-
-    private fun observeFoodDeletion() = viewLifecycleOwner.lifecycleScope.launch {
+    private fun observeDeletion() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.deleteResponse.collect() {
                 when (it) {
                     is UiState.Loading -> {
+                        binding.deleteFab.isEnabled = false
+                        binding.editFab.isEnabled = false
+                        allowRefresh = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-//                    binding.progressBar.hide()
-//                    it.e?.message?.let { it1 -> errorDialog(it1) }
+                        binding.deleteFab.isEnabled = true
+                        binding.editFab.isEnabled = true
+                        allowRefresh = true
+                        binding.progressBar.visibility = View.GONE
+                        it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
                         if (it.data){
+                            binding.deleteFab.isEnabled = true
+                            binding.editFab.isEnabled = true
+                            allowRefresh = true
                             binding.progressBar.visibility = View.GONE
-                            println("Product deleted successfully")
+                            successToast("Product deleted successfully")
                             navigateBack()
                         }
-//                    it.data.first?.let { it1 -> successToast(it1.name + it.data.second) }
-//                    binding.progressBar.hide()
-//                    objNote = state.data.first
-//                    isMakeEnableUI(false)
-//                    binding.done.hide()
-//                    binding.delete.show()
-//                    binding.edit.show()
                     }
                 }
             }
         }
+    }
+
+    private fun successToast(msg: String){
+        Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

@@ -2,15 +2,13 @@ package com.example.fyp.menucreator.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.FoodCategory
-import com.example.fyp.menucreator.domain.AddFoodCategoryUseCase
-import com.example.fyp.menucreator.domain.DeleteFoodCategoryUseCase
-import com.example.fyp.menucreator.domain.GetFoodCategoryUseCase
-import com.example.fyp.menucreator.domain.UpdateFoodCategoryUseCase
+import com.example.fyp.menucreator.domain.foodCategory.AddFoodCategoryUseCase
+import com.example.fyp.menucreator.domain.foodCategory.DeleteFoodCategoryUseCase
+import com.example.fyp.menucreator.domain.foodCategory.GetFoodCategoryUseCase
+import com.example.fyp.menucreator.domain.foodCategory.UpdateFoodCategoryUseCase
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow

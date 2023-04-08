@@ -2,25 +2,35 @@ package com.example.fyp.menucreator.domain.food
 
 import android.net.Uri
 import com.example.fyp.menucreator.data.model.Food
+import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.data.repository.ProductImageRepository
-import com.example.fyp.menucreator.domain.UploadImageUseCase
-import com.example.fyp.menucreator.util.FireStoreDocumentField
+import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import com.example.fyp.menucreator.util.UiState
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
 class AddFoodUseCase @Inject constructor(
     private val foodRepo: FoodRepository,
-    private val uploadImageUseCase: UploadImageUseCase
+    private val uploadImageUseCase: UploadImageUseCase,
+    private val deleteFoodUseCase: DeleteFoodUseCase
 ) {
     suspend operator fun invoke(food: Food, image: Uri?, result:(UiState<String>) -> Unit){
-         val parentJob = CoroutineScope(Dispatchers.IO).launch {
+        val exceptionHandler = CoroutineExceptionHandler { context, throwable ->
+            result.invoke(UiState.Failure(throwable as Exception))
+            context.cancelChildren()
+            val deletionJob = CoroutineScope(Dispatchers.IO).launch {
+                deleteFoodUseCase(food.productId){}
+            }
+            deletionJob.invokeOnCompletion {
+                result.invoke(UiState.Success("Deleted failed data"))
+            }
+        }
+         val parentJob = CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
             try {
                 var imgPath: Deferred<Pair<String, String>?>? = null
                 if (image != null) {
                     imgPath = async {
-                        uploadImageUseCase(food.productId,image) {
+                        uploadImageUseCase(ProductType.FoodAndBeverage, food.productId, image) {
                             when (it) {
                                 is UiState.Failure -> {
                                     throw it.e!!
@@ -31,19 +41,18 @@ class AddFoodUseCase @Inject constructor(
                     }
                 }
                 val foodJob = launch {
-                    foodRepo.addFood(food){
+                    ensureActive()
+                    foodRepo.addFood(food) {
                         when (it) {
                             is UiState.Failure -> {
                                 throw it.e!!
                             }
-                            else ->{
-                                result.invoke(it)
-                            }
+                            else -> {}
                         }
                     }
                 }
                 launch {
-                    println("imageJob")
+                    ensureActive()
                     if (image != null) {
                         foodJob.join()
                         foodRepo.updateImageField(food.productId, imgPath?.await()) {
@@ -52,20 +61,25 @@ class AddFoodUseCase @Inject constructor(
                                     throw it.e!!
                                 }
                                 else -> {
-                                    println("finish img field")
-//                                        result.invoke(it)
                                 }
                             }
                         }
                     }
                 }
-            } catch (e: java.lang.Exception){
+            } catch (e: Exception){
+                if (e is CancellationException){
+                    throw CancellationException()
+                }
                 result.invoke(UiState.Failure(e))
                 return@launch
             }
         }
         parentJob.invokeOnCompletion {
-            println("Completed all")
-            result.invoke(UiState.Success("Add Food Success")) }
+            if (it != null) {
+                result.invoke(UiState.Failure(it as Exception))
+            } else {
+                result.invoke(UiState.Success("Add Food Success"))
+            }
+        }
     }
 }

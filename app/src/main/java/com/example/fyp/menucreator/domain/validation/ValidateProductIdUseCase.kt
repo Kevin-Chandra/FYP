@@ -1,10 +1,11 @@
-package com.example.fyp.menucreator.domain
+package com.example.fyp.menucreator.domain.validation
 
 import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.model.ProductType.*
 import com.example.fyp.menucreator.data.repository.FoodRepository
 import com.example.fyp.menucreator.data.repository.ModifierItemRepository
 import com.example.fyp.menucreator.data.repository.ModifierRepository
+import com.example.fyp.menucreator.domain.ProductValidationResult
 import javax.inject.Inject
 
 class ValidateProductIdUseCase @Inject constructor(
@@ -13,7 +14,7 @@ class ValidateProductIdUseCase @Inject constructor(
     private val modifierItemRepository: ModifierItemRepository
 ) {
 
-    suspend operator fun invoke(id: String, productType: ProductType) : ProductValidationResult{
+    suspend operator fun invoke(id: String, productType: ProductType) : ProductValidationResult {
         if (id.isBlank()){
             return ProductValidationResult(
                 errorMessage = "Product ID is blank",
@@ -42,9 +43,9 @@ class ValidateProductIdUseCase @Inject constructor(
                     )
             }
             ModifierItem -> {
-                if (modifierItemRepository.checkModifierId(id))
+                if (modifierItemRepository.checkModifierItemId(id))
                     return ProductValidationResult(
-                        errorMessage = "Item ID already exist!",
+                        errorMessage = "Item ID [$id] already exist!",
                         successful = false
                     )
             }

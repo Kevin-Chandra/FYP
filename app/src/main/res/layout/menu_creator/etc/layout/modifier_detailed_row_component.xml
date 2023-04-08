@@ -1,11 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="8dp"
+        app:cardCornerRadius="100dp"
+        app:cardElevation="10dp">
+
+        <ImageView
+            android:id="@+id/modifier_iv"
+            android:src="@mipmap/ic_launcher"
+            android:layout_width="150dp"
+            android:layout_height="150dp" />
+    </androidx.cardview.widget.CardView>
 
     <View
         android:id="@+id/divider5"
@@ -18,22 +34,22 @@
 
     <TextView
         android:id="@+id/required_name_tv"
-        android:text="Required"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Required"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider5" />
 
     <TextView
         android:id="@+id/required_value_tv"
-        tools:text="Yes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/required_name_tv" />
+        app:layout_constraintTop_toBottomOf="@+id/required_name_tv"
+        tools:text="Yes" />
 
     <View
         android:id="@+id/divider6"
@@ -48,22 +64,22 @@
 
     <TextView
         android:id="@+id/multiple_choice_name_tv"
-        android:text="Multiple Choice"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Multiple Choice"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider6" />
 
     <TextView
         android:id="@+id/multiple_choice_value_tv"
-        tools:text="Yes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/multiple_choice_name_tv" />
+        app:layout_constraintTop_toBottomOf="@+id/multiple_choice_name_tv"
+        tools:text="Yes" />
 
     <View
         android:id="@+id/divider7"

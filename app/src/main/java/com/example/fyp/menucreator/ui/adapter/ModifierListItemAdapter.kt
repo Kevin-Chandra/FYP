@@ -3,9 +3,12 @@ package com.example.fyp.menucreator.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.fyp.R
 import com.example.fyp.databinding.RowProductItemBinding
 import com.example.fyp.menucreator.data.model.Modifier
 
@@ -30,6 +33,13 @@ class ModifierListItemAdapter(
             binding.productNameTextView.text = modifier.name
             binding.chip.visibility = View.GONE
             binding.root.setOnClickListener{ onItemClicked.invoke(modifier)}
+
+            if (modifier.imagePath != null){
+                Glide.with(binding.imageView)
+                    .load(modifier.imageUri?.toUri())
+                    .centerCrop()
+                    .into(binding.imageView)
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.example.fyp.menucreator.ui.fragments
 
 import android.app.AlertDialog
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,21 +11,27 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.core.view.get
+import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doBeforeTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.databinding.FragmentAddEditModifierBinding
+import com.example.fyp.menucreator.ui.adapter.ModifierItemAddEditAdapter
 import com.example.fyp.menucreator.ui.viewmodel.AddEditModifierViewModel
-import com.example.fyp.menucreator.util.NavigationCommand
-import com.example.fyp.menucreator.util.UiState
+import com.example.fyp.menucreator.util.*
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -37,11 +44,22 @@ class AddEditModifierFragment : Fragment() {
 
     private val viewModel: AddEditModifierViewModel by viewModels()
 
-    private var isAddObserved = false
-    private var isEditObserved = false
-    private var isEditItemObserved = false
-
     private lateinit var command: String
+
+    private lateinit var adapter: ModifierItemAddEditAdapter
+
+    private var list : MutableList<Triple<Pair<String,Boolean>,String,String>> = mutableListOf()
+    private var errorlist : MutableList<Triple<String?,String?,String?>?> = mutableListOf()
+
+    private var imageUri : Uri? = null
+
+    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
+        if (it != null) {
+            imageUri = it
+            viewModel.onEvent(AddEditModifierEvent.ImageChanged(it))
+            setImage(it)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,10 +72,11 @@ class AddEditModifierFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observeAddEditModifier()
+        observeError()
+
         arguments?.let {
             command = AddEditModifierFragmentArgs.fromBundle(it).command
-            resetField()
-            viewModel.clearDeleteCache()
             if (command.contentEquals(NavigationCommand.ADD)) {
                 addNewModifier()
             } else if (command.contentEquals(NavigationCommand.EDIT)) {
@@ -68,11 +87,56 @@ class AddEditModifierFragment : Fragment() {
             }
         }
 
+
+        adapter = ModifierItemAddEditAdapter(
+            onItemRemoveClicked = { _, pos ->
+                val viewHolder = binding.itemRv.findViewHolderForAdapterPosition(pos)
+                viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_id_etl)?.isErrorEnabled = false
+                viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_name_etl)?.isErrorEnabled = false
+                viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_price_etl)?.isErrorEnabled = false
+                list.removeAt(pos)
+                errorlist.removeAt(pos)
+                viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
+                viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
+                binding.itemRv.adapter?.notifyItemRemoved(pos)
+            },
+            onIdChanged = { id , pos ->
+                list[pos] = list[pos].copy(first = Pair(id,false))
+                viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
+            },
+            onNameChanged = { name , pos ->
+                list[pos] = list[pos].copy(second = name)
+                viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
+            },
+            onPriceChanged = { price , pos ->
+                list[pos] = list[pos].copy(third = price)
+                viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
+            }
+        )
+        if (command.contentEquals(NavigationCommand.ADD))
+            adapter.submitList(list)
+        binding.itemRv.adapter = adapter
+
+        binding.modifierIdEditText.doAfterTextChanged {
+            viewModel.onEvent(AddEditModifierEvent.ProductIdChanged(binding.modifierIdEditText.text.toString()))
+        }
+        binding.modifierNameEditText.doAfterTextChanged {
+            viewModel.onEvent(AddEditModifierEvent.NameChanged(binding.modifierNameEditText.text.toString()))
+        }
+        binding.isRequiredSwitch.setOnClickListener {
+            viewModel.onEvent(AddEditModifierEvent.RequiredChanged(binding.isRequiredSwitch.isChecked))
+        }
+        binding.isMultipleChoiceSwitch.setOnClickListener {
+            viewModel.onEvent(AddEditModifierEvent.MultipleChoiceChanged(binding.isMultipleChoiceSwitch.isChecked))
+        }
         binding.addModifierItemButton.setOnClickListener {
-            addModifierItemRow(null)
+            addItemRow()
+        }
+        binding.editImgBtn.setOnClickListener {
+            getContent.launch("image/*")
         }
         binding.saveButton.setOnClickListener {
-            saveModifier()
+            viewModel.onEvent(AddEditModifierEvent.Save(command.contentEquals(NavigationCommand.EDIT)))
         }
         binding.resetButton.setOnClickListener {
             resetField()
@@ -80,21 +144,28 @@ class AddEditModifierFragment : Fragment() {
     }
     private fun addNewModifier() {
         binding.modifierTitleTextView.text = "Add New Modifier"
+        loadData()
     }
     private fun editModifier() {
+        println("edit mod")
         binding.modifierTitleTextView.text = "Edit Modifier"
+        binding.modifierIdEditText.isEnabled = false
         observeLoadModifier()
     }
 
     private fun loadData() {
-        binding.modifierTitleTextView.text = "Edit Modifier"
-        binding.modifierIdEditText.setText(viewModel.modifier.productId)
-        binding.modifierNameEditText.setText(viewModel.modifier.name)
-        binding.isRequiredSwitch.isChecked = viewModel.modifier.required
-        binding.isMultipleChoiceSwitch.isChecked = viewModel.modifier.multipleChoice
-        for (i in viewModel.modifier.modifierItemList) {
-            if (viewModel.modifier.modifierItemList.size > binding.modifierItemLayout.childCount-1 )
-                addModifierItemRow(i,true)
+        println("load data")
+        binding.modifierIdEditText.setText(viewModel.addEditModifierState.value.productId)
+        binding.modifierNameEditText.setText(viewModel.addEditModifierState.value.name)
+        binding.isRequiredSwitch.isChecked = viewModel.addEditModifierState.value.isRequired
+        binding.isMultipleChoiceSwitch.isChecked = viewModel.addEditModifierState.value.isMultipleChoice
+        list = viewModel.addEditModifierState.value.itemList.toMutableList()
+        println("list $list")
+        viewModel.addEditModifierState.value.image?.let {
+            Glide.with(requireContext())
+                .load(it)
+                .centerCrop()
+                .into(binding.modifierIv)
         }
     }
 
@@ -107,7 +178,7 @@ class AddEditModifierFragment : Fragment() {
                         .setTitle("Save Data?")
                         .setMessage("Do you want to save the current modifier info?")
                         .setPositiveButton("Save") { _, _ ->
-                            saveModifier()
+                            viewModel.onEvent(AddEditModifierEvent.Save(command.contentEquals(NavigationCommand.EDIT)))
                         }
                         .setNegativeButton("Exit") { _, _ ->
                             findNavController().navigateUp()
@@ -123,102 +194,15 @@ class AddEditModifierFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
-    private fun saveModifier() {
-        viewModel.createNewItemList()
-        try{
-            if (binding.modifierItemLayout.childCount == 1) {
-                throw (Exception("No Modifier Item Found"))
-            }
-            if (command.contentEquals(NavigationCommand.EDIT)) {
-                if (!isEditObserved){
-                    isEditObserved = !isEditObserved
-                    observeEditModifier()
-                }
-                updateModifier()
-            } else {
-                addModifier()
-            }
-        } catch (e:Exception){
-            e.message?.let { errorDialog(it) }
-        }
-    }
-    private fun addModifier(){
-        if (command == NavigationCommand.ADD){
-            var check = true
-            for (index in 0 until binding.modifierItemLayout.childCount - 1) {
-                if (!check)
-                    break
-                val view = binding.modifierItemLayout[index]
-                val id = view.findViewById<EditText>(R.id.row_modifier_item_id).text.toString()
-                val name = view.findViewById<EditText>(R.id.modifier_item_name).text.toString()
-                val price = view.findViewById<EditText>(R.id.modifier_item_price).text.toString()
-                viewModel.addItems(id, name, price){
-                    check = it
-                }
-            }
-            if (!isAddObserved){
-                isAddObserved = !isAddObserved
-                observeAddModifier()
-//                observeAddItemModifier()
-                observeAddItemFinishModifier()
-            }
-        }
-    }
-
-    private fun updateModifier() {
-        //check Item is valid, if valid add to ItemMap in VM
-        if (command == NavigationCommand.EDIT){
-            if (!isEditItemObserved){
-                isEditItemObserved = !isEditItemObserved
-                observeUpdateModifierItem()
-                observeEditFinishModifier()
-            }
-            for (index in 0 until binding.modifierItemLayout.childCount - 1) {
-                val view = binding.modifierItemLayout[index]
-                val idView = view.findViewById<EditText>(R.id.row_modifier_item_id)
-                val id = idView.text.toString()
-                val name = view.findViewById<EditText>(R.id.modifier_item_name).text.toString()
-                val price = view.findViewById<EditText>(R.id.modifier_item_price).text.toString()
-                val isEdit = !idView.isFocusable
-                viewModel.updateItem(id, name, price, isEdit)
-            }
-        }
-
-    }
-
-    private fun addModifierToVm() {
-        binding.apply {
-            viewModel.addNewModifier(
-                modifierIdEditText.text.toString(),
-                modifierNameEditText.text.toString(),
-                isMultipleChoiceSwitch.isChecked,
-                isRequiredSwitch.isChecked,
-                command == NavigationCommand.EDIT
-            )
-        }
+    private fun addItemRow(data: Triple<Pair<String,Boolean>,String,String> = Triple(Pair("",false),"","")){
+        list.add(data)
+        errorlist.add(null)
+        adapter.notifyItemInserted(list.size-1)
+        viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
+        viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
     }
 
     private fun navigateBack() = findNavController().navigateUp()
-
-    private fun addModifierItemRow(modifierId: String?, isEdit:Boolean = false) {
-        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier_item, binding.modifierItemLayout,false)
-        val item = modifierId?.let { viewModel.getModifierItem(it) }
-        if (modifierId != null && item != null) {
-            inflater.findViewById<EditText>(R.id.row_modifier_item_id)
-                .setText(item.productId)
-            inflater.findViewById<EditText>(R.id.modifier_item_name)
-                .setText(item.name)
-            inflater.findViewById<EditText>(R.id.modifier_item_price)
-                .setText(item.price.toString())
-            if(isEdit)
-                inflater.findViewById<EditText>(R.id.row_modifier_item_id).isFocusable = false
-        }
-        inflater.findViewById<MaterialButton>(R.id.remove_button).setOnClickListener {
-            viewModel.deleteModifierItem(inflater.findViewById<EditText>(R.id.row_modifier_item_id).text.toString())
-            binding.modifierItemLayout.removeView(inflater)
-        }
-        binding.modifierItemLayout.addView(inflater, binding.modifierItemLayout.childCount - 1)
-    }
 
     private fun resetField() {
         if (command == NavigationCommand.EDIT){
@@ -229,12 +213,18 @@ class AddEditModifierFragment : Fragment() {
         binding.modifierNameEditText.text = null
         binding.isRequiredSwitch.isChecked = false
         binding.isMultipleChoiceSwitch.isChecked = false
-        binding.modifierItemLayout.removeAllViews()
-        binding.modifierItemLayout.addView(binding.addModifierItemButton)
+        binding.modifierIv.setImageURI(null)
+        list.clear()
+        errorlist.clear()
+        viewModel.reset()
     }
 
     private fun successToast(msg: String) {
         Toast.makeText(requireContext(),msg,Toast.LENGTH_SHORT).show()
+    }
+
+    private fun errorToast(msg: String) {
+        Toast.makeText(requireContext(),msg,Toast.LENGTH_LONG).show()
     }
 
     private fun errorDialog(msg: String) {
@@ -250,6 +240,54 @@ class AddEditModifierFragment : Fragment() {
             .show()
     }
 
+    private fun observeError() = viewLifecycleOwner.lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.addEditModifierState.collect() {
+                if (it.productIdError != null){
+                    binding.modifierName.error = it.nameError
+                } else {
+                    binding.modifierName.error = null
+                }
+                if (it.nameError != null){
+                    binding.modifierId.error = it.productIdError
+                } else {
+                    binding.modifierId.error = null
+                }
+                errorlist = it.itemErrorList.toMutableList()
+                println(errorlist)
+                if (errorlist.isNotEmpty()) {
+                    for (i in errorlist.indices){
+                        val viewHolder = binding.itemRv.findViewHolderForAdapterPosition(i)
+                        val idEt = viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_id_etl)
+                        val nameEt = viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_name_etl)
+                        val priceEt = viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_price_etl)
+                        if (errorlist[i]?.first != null){
+                            idEt?.isErrorEnabled = true
+                            idEt?.error = errorlist[i]?.first
+                        } else {
+                            idEt?.error = null
+                            idEt?.isErrorEnabled = false
+                        }
+                        if (errorlist[i]?.second != null){
+                            nameEt?.isErrorEnabled = true
+                            nameEt?.error = errorlist[i]?.second
+                        } else {
+                            nameEt?.error = null
+                            nameEt?.isErrorEnabled = false
+                        }
+                        if (errorlist[i]?.third != null){
+                            priceEt?.isErrorEnabled = true
+                            priceEt?.error = errorlist[i]?.third
+                        } else {
+                            priceEt?.error = null
+                            priceEt?.isErrorEnabled = false
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun observeLoadModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
             viewModel.loadResponse.collect() { it ->
@@ -262,65 +300,14 @@ class AddEditModifierFragment : Fragment() {
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                        loadData()
-                        binding.progressBar.visibility = View.GONE
-                        successToast("Modifier Loaded successfully")
-                    }
-                }
-            }
-        }
-    }
-
-    private fun observeAddModifier() = viewLifecycleOwner.lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addResponse.collect() { it ->
-                when (it) {
-                    is UiState.Loading -> {
-                        binding.saveButton.isFocusable = false
-                        binding.saveButton.isEnabled = false
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Failure -> {
-                        binding.saveButton.isFocusable = true
-                        binding.saveButton.isEnabled = true
-                        binding.progressBar.visibility = View.GONE
-                        it.e?.message?.let { it1 -> errorDialog(it1) }
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        successToast("Modifier Added successfully")
-                        navigateBack()
-                        binding.saveButton.isFocusable = true
-                        binding.saveButton.isEnabled = true
-                    }
-                }
-            }
-        }
-    }
-
-    private fun observeAddItemFinishModifier() = viewLifecycleOwner.lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addItemFinishResponse.collect() { it ->
-                when (it) {
-                    is UiState.Loading -> {
-                        binding.saveButton.isFocusable = false
-                        binding.saveButton.isEnabled = false
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Failure -> {
-                        println("Add item finish response error")
-                        binding.progressBar.visibility = View.GONE
-                        binding.saveButton.isEnabled = true
-                        binding.saveButton.isFocusable = true
-                        it.e?.message?.let { it1 -> errorDialog(it1) }
-                    }
-                    is UiState.Success -> {
-                        println("my data : ${it.data}")
-                        if (it.data == binding.modifierItemLayout.childCount-1) {
-                            println("im inside")
+                            loadData()
+                            adapter.submitList(list)
+                            for (i in list){
+                                errorlist.add(null)
+                            }
                             binding.progressBar.visibility = View.GONE
-                            addModifierToVm()
-//                        }
+                        if (it.data == "Load Success"){
+                            successToast("Modifier Loaded successfully")
                         }
                     }
                 }
@@ -328,53 +315,28 @@ class AddEditModifierFragment : Fragment() {
         }
     }
 
-    private fun observeEditModifier() = viewLifecycleOwner.lifecycleScope.launch {
+    private fun observeAddEditModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.editResponse.collect() { it ->
+            viewModel.addEditModifierResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
-                        binding.saveButton.isFocusable = false
                         binding.saveButton.isEnabled = false
+                        binding.resetButton.isEnabled = false
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-                        it.e?.printStackTrace()
-                        binding.saveButton.isFocusable = true
                         binding.saveButton.isEnabled = true
+                        binding.resetButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
-                        it.e?.message?.let { it1 -> errorDialog(it1) }
+                        it.e?.message?.let { it1 -> errorToast(it1) }
                     }
                     is UiState.Success -> {
-                        addModifier()
-                    }
-                }
-            }
-        }
-    }
-
-    //main update observer
-    private fun observeEditFinishModifier() = viewLifecycleOwner.lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.editFinishResponse.collect() { it ->
-                when (it) {
-                    is UiState.Loading -> {
-                        binding.saveButton.isFocusable = false
-                        binding.saveButton.isEnabled = false
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Failure -> {
-                        binding.progressBar.visibility = View.GONE
-                        binding.saveButton.isFocusable = true
-                        binding.saveButton.isEnabled = true
-                        it.e?.message?.let { it1 -> errorDialog(it1) }
-                    }
-                    is UiState.Success -> {
-                        if (it.data){
-                            binding.progressBar.visibility = View.GONE
-                            binding.saveButton.isFocusable = true
-                            binding.saveButton.isEnabled = true
-                            successToast("Modifier successfully updated")
+                        if (it.data == MenuCreatorResponse.MODIFIER_ADD_SUCCESS || it.data == MenuCreatorResponse.MODIFIER_UPDATE_SUCCESS){
                             navigateBack()
+                            binding.progressBar.visibility = View.GONE
+                            binding.saveButton.isEnabled = true
+                            binding.resetButton.isEnabled = true
+                            successToast(it.data)
                         }
                     }
                 }
@@ -382,28 +344,8 @@ class AddEditModifierFragment : Fragment() {
         }
     }
 
-    private fun observeUpdateModifierItem() = viewLifecycleOwner.lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.editItemResponse.collect() { it ->
-                when (it) {
-                    is UiState.Loading -> {
-                        binding.saveButton.isFocusable = false
-                        binding.saveButton.isEnabled = false
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Failure -> {
-                        binding.saveButton.isFocusable = true
-                        binding.saveButton.isEnabled = true
-                        it.e?.message?.let { it1 -> errorDialog(it1) }
-                    }
-                    is UiState.Success -> {
-                        if (it.data == binding.modifierItemLayout.childCount-1) {
-                            addModifierToVm()
-                        }
-                    }
-                }
-            }
-        }
+    private fun setImage(uri: Uri){
+        binding.modifierIv.setImageURI(uri)
     }
 
     override fun onStop() {

@@ -19,8 +19,9 @@ object FireStoreDocumentField{
     const val STAFF_STATUS = "staffPosition"
     const val PROFILE_IMAGE_PATH = "profileImagePath"
     const val PROFILE_URI = "profileUri"
-    const val FOOD_IMAGE_PATH = "imagePath"
-    const val FOOD_IMAGE_URI = "imageUri"
+    const val PRODUCT_IMAGE_PATH = "imagePath"
+    const val PRODUCT_IMAGE_URI = "imageUri"
+    const val MODIFIER_ITEM_LIST = "modifierItemList"
     const val SETTINGS = "Settings"
 }
 
@@ -31,5 +32,19 @@ object NavigationCommand{
 
 object FirebaseStorageReference{
     const val PRODUCT_IMAGE_REFERENCE = "productImages/"
+    const val FOOD_IMAGE_PATH = "foods/"
+    const val MODIFIER_IMAGE_PATH = "modifiers/"
     const val PROfILE_IMAGE_REFERENCE = "profileImages/"
+}
+
+object MenuCreatorResponse{
+    const val ITEM_DELETED = "Item deleted"
+    const val MODIFIER_DELETED = "Modifier deleted"
+    const val MODIFIER_ITEM_ADD_SUCCESS = "Modifier item upload success"
+    const val MODIFIER_ADD_SUCCESS = "Modifier added successfully"
+    const val MODIFIER_UPLOAD_SUCCESS = "Modifier upload success"
+    const val MODIFIER_MERGE_SUCCESS = "Modifier upload success"
+    const val MODIFIER_UPDATE_SUCCESS = "Modifier update success"
+    const val FOOD_DELETED = "Food deleted"
+    const val PRODUCT_IMAGE_DELETED = "Image deleted"
 }

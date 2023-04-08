@@ -1,4 +1,4 @@
-package com.example.fyp.menucreator.domain
+package com.example.fyp.menucreator.domain.foodCategory
 
 import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.data.repository.MenuSettingsRepository

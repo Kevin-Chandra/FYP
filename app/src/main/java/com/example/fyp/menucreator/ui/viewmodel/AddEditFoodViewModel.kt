@@ -1,6 +1,5 @@
 package com.example.fyp.menucreator.ui.viewmodel
 
-import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +11,11 @@ import com.example.fyp.menucreator.domain.*
 import com.example.fyp.menucreator.domain.food.AddFoodUseCase
 import com.example.fyp.menucreator.domain.food.GetFoodUseCase
 import com.example.fyp.menucreator.domain.food.UpdateFoodUseCase
+import com.example.fyp.menucreator.domain.modifier.GetModifierListUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateProductCategoryUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateProductIdUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateProductNameUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateProductPriceUseCase
 import com.example.fyp.menucreator.util.AddEditFoodEvent
 import com.example.fyp.menucreator.util.AddEditFoodState
 import com.example.fyp.menucreator.util.UiState
@@ -33,7 +37,7 @@ class AddEditFoodViewModel @Inject constructor(
     private val validateProductNameUseCase: ValidateProductNameUseCase,
     private val validateProductPriceUseCase: ValidateProductPriceUseCase,
     private val validateProductCategoryUseCase: ValidateProductCategoryUseCase,
-    private val modifierRepository: ModifierRepository,
+    private val getModifierListUseCase: GetModifierListUseCase
 ) : ViewModel() {
 
     private var productId: String? = null
@@ -41,7 +45,7 @@ class AddEditFoodViewModel @Inject constructor(
     val food: Food
         get() = _food!!
 
-    private val _modifiers = MutableStateFlow<UiState<Map<String, Modifier>>>(UiState.Loading)
+    private val _modifiers = MutableStateFlow<UiState<List<Modifier>>>(UiState.Loading)
     val modifiers = _modifiers.asStateFlow()
 
     private var _modifierMap: MutableMap<String, Modifier> = mutableMapOf()
@@ -60,7 +64,6 @@ class AddEditFoodViewModel @Inject constructor(
 
     init {
         getModifierList()
-        loadModifierMap()
     }
 
     fun initialize(id: String) {
@@ -91,7 +94,6 @@ class AddEditFoodViewModel @Inject constructor(
     }
 
     fun onEvent(event: AddEditFoodEvent) {
-
         when(event) {
             is AddEditFoodEvent.DescriptionChanged -> {
                 _addEditFoodState.value = _addEditFoodState.value.copy(description = event.description)
@@ -241,23 +243,32 @@ class AddEditFoodViewModel @Inject constructor(
         return modifierMap[id]
     }
 
-    private fun loadModifierMap() = viewModelScope.launch {
-        modifiers.collect() {
-            when (it) {
-                is UiState.Success -> {
-                    _modifierMap = it.data.toMutableMap()
-                    println("Modifier Loaded in vm")
-                }
-                is UiState.Failure -> println(it.e)
-                is UiState.Loading -> println("Loading in vm")
-            }
-        }
-    }
+//    private fun loadModifierMap() = viewModelScope.launch {
+//        modifiers.collect() {
+//            when (it) {
+//                is UiState.Success -> {
+//                    _modifierMap = it.data.toMutableMap()
+//                }
+//                is UiState.Failure -> println(it.e)
+//                is UiState.Loading -> println("Loading in vm")
+//            }
+//        }
+//    }
 
-    private fun getModifierList() = viewModelScope.launch{
+    private fun getModifierList() {
         _modifiers.value = UiState.Loading
-        modifierRepository.subscribeModifierUpdates().collect { result ->
-            _modifiers.value = result
+        getModifierListUseCase {
+            viewModelScope.launch {
+                it.collect() { result ->
+                    if (result is UiState.Success){
+                        _modifierMap.clear()
+                        for (i in result.data){
+                            _modifierMap[i.productId] = i
+                        }
+                    }
+                    _modifiers.value = result
+                }
+            }
         }
     }
 
@@ -272,4 +283,5 @@ class AddEditFoodViewModel @Inject constructor(
         onEvent(AddEditFoodEvent.ModifierChanged(food.modifierList))
         food.imageUri?.toUri()?.let { AddEditFoodEvent.ImageChanged(it) }?.let { onEvent(it) }
     }
+
 }
