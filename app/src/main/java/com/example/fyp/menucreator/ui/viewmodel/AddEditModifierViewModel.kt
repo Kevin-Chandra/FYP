@@ -61,8 +61,7 @@ class AddEditModifierViewModel @Inject constructor(
 
     private val loadModifier = MutableStateFlow<UiState<Modifier?>>(UiState.Loading)
 
-    private val _modifierItemMap = mutableMapOf<String, ModifierItem>()
-    val modifierItemMap = _modifierItemMap
+    private val modifierItemMap = mutableMapOf<String, ModifierItem>()
 
     private val _addEditModifierState = MutableStateFlow(AddEditModifierState())
     val addEditModifierState = _addEditModifierState.asStateFlow()
@@ -267,7 +266,7 @@ class AddEditModifierViewModel @Inject constructor(
             }
             if (items is UiState.Success){
                 for (i in items.data){
-                    _modifierItemMap[i.productId] = i
+                    modifierItemMap[i.productId] = i
                 }
             }
             if (modifier is UiState.Success && items is UiState.Success){
