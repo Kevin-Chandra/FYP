@@ -12,17 +12,18 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.databinding.FragmentAddEditFoodBinding
+import com.example.fyp.databinding.RowAddEditModifierBinding
 import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.menucreator.ui.viewmodel.AddEditFoodViewModel
@@ -32,8 +33,6 @@ import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -60,6 +59,7 @@ class AddEditFoodFragment : Fragment() {
     private var arrayAdapter: ArrayAdapter<String>? = null
 
     private var allowReset = false
+    private var allowBack = true
 
     private var imageUri : Uri? = null
 
@@ -197,7 +197,7 @@ class AddEditFoodFragment : Fragment() {
             object : OnBackPressedCallback(true)
             {
                 override fun handleOnBackPressed() {
-                    AlertDialog.Builder(context)
+                    val dialog = AlertDialog.Builder(context)
                         .setTitle("Save Data?")
                         .setMessage("Do you want to save the current food info?")
                         .setPositiveButton("Save"){
@@ -210,9 +210,10 @@ class AddEditFoodFragment : Fragment() {
                         .setNeutralButton("Cancel"){
                                 dialog,_ -> dialog.dismiss()
                         }
-                        .setCancelable(false)
+                        .setCancelable(true)
                         .create()
-                        .show()
+                    if (allowBack)
+                        dialog.show()
                 }
             }
         requireActivity().onBackPressedDispatcher.addCallback(this,callback)
@@ -264,7 +265,6 @@ class AddEditFoodFragment : Fragment() {
     private fun addNewFood(){
         binding.productIdEditText.focusable = View.FOCUSABLE
         binding.productIdEditText.isEnabled = true
-//        modifierLayoutEnabler(false)
         loadData()
     }
 
@@ -297,16 +297,20 @@ class AddEditFoodFragment : Fragment() {
         selectedItems.add(id)
         viewModel.onEvent(AddEditFoodEvent.ModifierChanged(selectedItems.toList()))
         val index = binding.modifiersLinearLayout.childCount
-        val inflater = layoutInflater.inflate(R.layout.row_add_edit_modifier, binding.modifiersLinearLayout,false)
-        inflater.findViewById<TextView>(R.id.modifier_name_textView).text = viewModel.getModifier(id)?.name
-        inflater.findViewById<MaterialButton>(R.id.remove_button).setOnClickListener {
-            selectedItems.remove(id)
-            viewModel.onEvent(AddEditFoodEvent.ModifierChanged(selectedItems.toList()))
-            binding.modifiersLinearLayout.removeView(inflater)
-            checkedItems[modifierList.indexOf(id)] = false
+        val addEditModifierRowBinding = RowAddEditModifierBinding.inflate(layoutInflater, binding.modifiersLinearLayout,false)
+        val modifier = viewModel.getModifier(id)
+        addEditModifierRowBinding.apply {
+            modifierNameTextView.text = modifier?.name
+            modifierIdTextView.text = modifier?.productId
+            modifierRemoveButton.setOnClickListener {
+                selectedItems.remove(id)
+                viewModel.onEvent(AddEditFoodEvent.ModifierChanged(selectedItems.toList()))
+                binding.modifiersLinearLayout.removeView(addEditModifierRowBinding.root)
+                checkedItems[modifierList.indexOf(id)] = false
+            }
         }
         checkedItems[modifierList.indexOf(id)] = true
-        binding.modifiersLinearLayout.addView(inflater,index)
+        binding.modifiersLinearLayout.addView(addEditModifierRowBinding.root,index)
     }
 
     private fun resetField() {
@@ -358,7 +362,7 @@ class AddEditFoodFragment : Fragment() {
         binding.modifiersLinearLayout.visibility = if (boolean) View.VISIBLE else View.GONE
         for (i in 0  until binding.modifiersLinearLayout.childCount){
             val child: View = binding.modifiersLinearLayout.getChildAt(i)
-            child.findViewById<MaterialButton>(R.id.remove_button).isEnabled = boolean
+            child.findViewById<MaterialButton>(R.id.modifier_remove_button).isEnabled = boolean
             child.isEnabled = boolean
         }
         binding.modifiersLinearLayout.isEnabled = boolean
@@ -366,27 +370,23 @@ class AddEditFoodFragment : Fragment() {
 
     private fun navigateBack() = findNavController().navigateUp()
 
-
     private fun observeFoodUpdate() =  viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.CREATED) {
             viewModel.addEditFoodResponse.collect() {
                 println(it)
                 when (it) {
                     is UiState.Loading -> {
-                        binding.saveButton.isEnabled = false
-                        binding.resetButton.isEnabled = false
+                        uiEnabled(false)
                         binding.progressBar2.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-                        binding.saveButton.isEnabled = true
-                        binding.resetButton.isEnabled = true
+                        uiEnabled(true)
                         binding.progressBar2.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorToast(it1) }
                     }
                     is UiState.Success -> {
                         if (it.data == "Add Food Success" || it.data == "Update Food Success"){
-                            binding.saveButton.isEnabled = true
-                            binding.resetButton.isEnabled = true
+                            uiEnabled(true)
                             binding.progressBar2.visibility = View.GONE
                             navigateBack()
                             successToast(it.data)
@@ -431,17 +431,43 @@ class AddEditFoodFragment : Fragment() {
             viewModel.foodLoaded.collect() {
                 when (it) {
                     is UiState.Loading -> {
+                        uiEnabled(false)
                         binding.progressBar2.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
+                        uiEnabled(true)
                         binding.progressBar2.visibility = View.GONE
                     }
                     is UiState.Success -> {
                         loadData()
+                        uiEnabled(true)
                         binding.progressBar2.visibility = View.GONE
                     }
                 }
             }
+        }
+    }
+
+    private fun uiEnabled(boolean: Boolean){
+        allowBack = boolean
+        binding.apply {
+            productDescriptionEditText.isEnabled = boolean
+            setImageBtn.isEnabled = boolean
+            productNameEditText.isEnabled = boolean
+            saveButton.isEnabled = boolean
+            resetButton.isEnabled = boolean
+            productPriceEditText.isEnabled = boolean
+            categoryEtl.isEnabled = boolean
+            modifierSwitch.isEnabled = boolean
+            if (modifierSwitch.isChecked)
+                addModifierButton.isEnabled = boolean
+            for (i in 0 until modifiersLinearLayout.childCount){
+                modifiersLinearLayout.getChildAt(i)
+                    .findViewById<MaterialButton>(R.id.modifier_remove_button)
+                    .isEnabled = boolean
+            }
+            if (command == NavigationCommand.ADD)
+                productIdEditText.isEnabled = boolean
         }
     }
 

@@ -10,6 +10,7 @@ data class AddEditModifierState(
     val nameError: String? = null,
     val isMultipleChoice: Boolean = false,
     val isRequired: Boolean = false,
+    // Triple of <Id, isEdit?> , Name, Price
     val itemList: List<Triple<Pair<String,Boolean>,String,String>> = listOf(),
     val itemErrorList: List<Triple<String?,String?,String?>?> = listOf(),
     val image: Uri? = null

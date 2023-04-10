@@ -5,36 +5,32 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
-import androidx.core.view.get
 import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doBeforeTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener
 import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.databinding.FragmentAddEditModifierBinding
 import com.example.fyp.menucreator.ui.adapter.ModifierItemAddEditAdapter
 import com.example.fyp.menucreator.ui.viewmodel.AddEditModifierViewModel
 import com.example.fyp.menucreator.util.*
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class AddEditModifierFragment : Fragment() {
@@ -52,6 +48,10 @@ class AddEditModifierFragment : Fragment() {
     private var errorlist : MutableList<Triple<String?,String?,String?>?> = mutableListOf()
 
     private var imageUri : Uri? = null
+
+    private var allowBack = true
+
+    private var disableRvTouch = false
 
     private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
         if (it != null) {
@@ -87,29 +87,40 @@ class AddEditModifierFragment : Fragment() {
             }
         }
 
+        //true to disable touch
+        binding.itemRv.addOnItemTouchListener(object : SimpleOnItemTouchListener() {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                return !disableRvTouch
+            }
+        })
 
         adapter = ModifierItemAddEditAdapter(
             onItemRemoveClicked = { _, pos ->
+                println("${errorlist.size} -- $errorlist")
+                println("${list.size} -- $list")
                 val viewHolder = binding.itemRv.findViewHolderForAdapterPosition(pos)
                 viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_id_etl)?.isErrorEnabled = false
                 viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_name_etl)?.isErrorEnabled = false
                 viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_price_etl)?.isErrorEnabled = false
                 list.removeAt(pos)
                 errorlist.removeAt(pos)
-                viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
                 viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
+                viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
                 binding.itemRv.adapter?.notifyItemRemoved(pos)
             },
             onIdChanged = { id , pos ->
                 list[pos] = list[pos].copy(first = Pair(id,false))
+                viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
                 viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
             },
             onNameChanged = { name , pos ->
                 list[pos] = list[pos].copy(second = name)
+                viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
                 viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
             },
             onPriceChanged = { price , pos ->
                 list[pos] = list[pos].copy(third = price)
+                viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
                 viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
             }
         )
@@ -147,20 +158,17 @@ class AddEditModifierFragment : Fragment() {
         loadData()
     }
     private fun editModifier() {
-        println("edit mod")
         binding.modifierTitleTextView.text = "Edit Modifier"
         binding.modifierIdEditText.isEnabled = false
         observeLoadModifier()
     }
 
     private fun loadData() {
-        println("load data")
         binding.modifierIdEditText.setText(viewModel.addEditModifierState.value.productId)
         binding.modifierNameEditText.setText(viewModel.addEditModifierState.value.name)
         binding.isRequiredSwitch.isChecked = viewModel.addEditModifierState.value.isRequired
         binding.isMultipleChoiceSwitch.isChecked = viewModel.addEditModifierState.value.isMultipleChoice
         list = viewModel.addEditModifierState.value.itemList.toMutableList()
-        println("list $list")
         viewModel.addEditModifierState.value.image?.let {
             Glide.with(requireContext())
                 .load(it)
@@ -174,7 +182,7 @@ class AddEditModifierFragment : Fragment() {
         val callback: OnBackPressedCallback =
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    AlertDialog.Builder(context)
+                    val backDialog = AlertDialog.Builder(context)
                         .setTitle("Save Data?")
                         .setMessage("Do you want to save the current modifier info?")
                         .setPositiveButton("Save") { _, _ ->
@@ -186,9 +194,10 @@ class AddEditModifierFragment : Fragment() {
                         .setNeutralButton("Cancel") { dialog, _ ->
                             dialog.dismiss()
                         }
-                        .setCancelable(false)
+                        .setCancelable(true)
                         .create()
-                        .show()
+                    if (allowBack)
+                        backDialog.show()
                 }
             }
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
@@ -254,7 +263,7 @@ class AddEditModifierFragment : Fragment() {
                     binding.modifierId.error = null
                 }
                 errorlist = it.itemErrorList.toMutableList()
-                println(errorlist)
+                println("aaaa" + errorlist)
                 if (errorlist.isNotEmpty()) {
                     for (i in errorlist.indices){
                         val viewHolder = binding.itemRv.findViewHolderForAdapterPosition(i)
@@ -293,13 +302,16 @@ class AddEditModifierFragment : Fragment() {
             viewModel.loadResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
+                        uiEnabled(false)
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
+                        uiEnabled(true)
                         binding.progressBar.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
+                            uiEnabled(true)
                             loadData()
                             adapter.submitList(list)
                             for (i in list){
@@ -320,13 +332,11 @@ class AddEditModifierFragment : Fragment() {
             viewModel.addEditModifierResponse.collect() { it ->
                 when (it) {
                     is UiState.Loading -> {
-                        binding.saveButton.isEnabled = false
-                        binding.resetButton.isEnabled = false
+                        uiEnabled(false)
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UiState.Failure -> {
-                        binding.saveButton.isEnabled = true
-                        binding.resetButton.isEnabled = true
+                        uiEnabled(true)
                         binding.progressBar.visibility = View.GONE
                         it.e?.message?.let { it1 -> errorToast(it1) }
                     }
@@ -334,13 +344,28 @@ class AddEditModifierFragment : Fragment() {
                         if (it.data == MenuCreatorResponse.MODIFIER_ADD_SUCCESS || it.data == MenuCreatorResponse.MODIFIER_UPDATE_SUCCESS){
                             navigateBack()
                             binding.progressBar.visibility = View.GONE
-                            binding.saveButton.isEnabled = true
-                            binding.resetButton.isEnabled = true
+                            uiEnabled(true)
                             successToast(it.data)
                         }
                     }
                 }
             }
+        }
+    }
+
+    private fun uiEnabled(boolean: Boolean){
+        allowBack = boolean
+        disableRvTouch = boolean
+        binding.apply {
+            addModifierItemButton.isEnabled = boolean
+            editImgBtn.isEnabled = boolean
+            saveButton.isEnabled = boolean
+            resetButton.isEnabled = boolean
+            isMultipleChoiceSwitch.isEnabled = boolean
+            isRequiredSwitch.isEnabled = boolean
+            modifierNameEditText.isEnabled = boolean
+            if (command == NavigationCommand.ADD)
+                modifierIdEditText.isEnabled = boolean
         }
     }
 

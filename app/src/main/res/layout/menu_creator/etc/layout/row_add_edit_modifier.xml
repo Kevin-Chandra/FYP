@@ -8,28 +8,46 @@
     <TextView
         android:id="@+id/modifier_name_textView"
         style="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:layout_width="241dp"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:weightSum="10"
+        app:layout_constraintHorizontal_weight="6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/remove_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/modifier_id_textView"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/modifier_id_textView"
+        style="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:weightSum="10"
+        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/remove_button"
-        app:layout_constraintHorizontal_bias="0.8"
+        app:layout_constraintEnd_toStartOf="@+id/modifier_name_textView"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/remove_button"
+        android:id="@+id/modifier_remove_button"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="0dp"
         app:icon="@drawable/ic_close"
-        app:iconTint="@color/borderlessButtonBackgroundColor"
         app:iconGravity="end"
         app:iconPadding="0dp"
-        android:padding="0dp"
+        app:iconTint="@color/borderlessButtonBackgroundColor"
+        android:weightSum="10"
+        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/modifier_name_textView"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

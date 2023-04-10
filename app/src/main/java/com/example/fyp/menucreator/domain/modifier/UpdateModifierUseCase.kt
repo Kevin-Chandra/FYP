@@ -7,6 +7,7 @@ import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.ModifierRepository
 import com.example.fyp.menucreator.domain.modifierItem.AddModifierItemUseCase
 import com.example.fyp.menucreator.domain.modifierItem.DeleteModifierItemUseCase
+import com.example.fyp.menucreator.domain.modifierItem.UpdateModifierItemUseCase
 import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import com.example.fyp.menucreator.util.MenuCreatorResponse
 import com.example.fyp.menucreator.util.UiState
@@ -19,6 +20,7 @@ class UpdateModifierUseCase @Inject constructor(
     private val uploadImageUseCase: UploadImageUseCase,
     private val deleteModifierItemUseCase: DeleteModifierItemUseCase,
     private val addModifierItemUseCase: AddModifierItemUseCase,
+    private val updateModifierItemUseCase: UpdateModifierItemUseCase
 ) {
     suspend operator fun invoke(
         modifier: Modifier,
@@ -33,11 +35,12 @@ class UpdateModifierUseCase @Inject constructor(
         val parentJob = CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
             try {
                 var imgPath: Deferred<Pair<String, String>?>? = null
-                var listToBeDeleted : List<String> = emptyList()
+                var oldList = mutableListOf<String>()
+                val toUpdateList = mutableListOf<ModifierItem>()
+                val toAddList = mutableListOf<ModifierItem>()
                 val getItemListJob = launch {
-                    listToBeDeleted = modifierRepository.getModifierList(modifier.productId)?: emptyList()
+                    oldList = modifierRepository.getModifierList(modifier.productId)?.toMutableList()?: mutableListOf()
                 }
-                println("$image and ${modifier.imageUri}")
                 if (image != null && image.toString() != modifier.imageUri) {
                     imgPath = async {
                         uploadImageUseCase(ProductType.Modifier, modifier.productId, image) {
@@ -50,25 +53,27 @@ class UpdateModifierUseCase @Inject constructor(
                         }
                     }
                 }
+                getItemListJob.join()
+                for (i in itemList){
+                    if (oldList.contains(i.productId)){
+                        oldList.remove(i.productId)
+                        toUpdateList.add(i)
+                    } else {
+                        toAddList.add(i)
+                    }
+                }
                 val deleteItemsJob = launch {
-                    getItemListJob.join()
-                    println(listToBeDeleted)
-                    for (i in listToBeDeleted){
+                    for (i in oldList){
                         println("deleting $i...")
                         launch { deleteModifierItemUseCase(i){} }
                     }
                 }
-                val count = AtomicInteger(0)
-                val itemJob = launch {
-                    deleteItemsJob.children.forEach {
-                        it.join()
-                        println(it.toString() + "finish")
-                    }
-                    deleteItemsJob.join()
-                    println("item job started")
-                    for (item in itemList) {
+                val addItemJob = launch {
+                    println("add item job started")
+                    for (item in toAddList) {
                         launch(Dispatchers.IO) {
                             ensureActive()
+                            println("add $item")
                             addModifierItemUseCase(item) {
                                 when (it) {
                                     is UiState.Failure -> {
@@ -76,9 +81,26 @@ class UpdateModifierUseCase @Inject constructor(
                                     }
                                     UiState.Loading -> {}
                                     is UiState.Success -> {
-                                        count.incrementAndGet()
                                         println(it)
-                                        println("count = " + count.get())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                val updateItemJob = launch{
+                    for (i in toUpdateList){
+                        launch(Dispatchers.IO){
+                            ensureActive()
+                            println("update $i")
+                            updateModifierItemUseCase(i){
+                                when (it) {
+                                    is UiState.Failure -> {
+                                        throw it.e!!
+                                    }
+                                    UiState.Loading -> {}
+                                    is UiState.Success -> {
+                                        println(it)
                                     }
                                 }
                             }
@@ -86,7 +108,6 @@ class UpdateModifierUseCase @Inject constructor(
                     }
                 }
                 val modifierJob = launch {
-                    getItemListJob.join()
                     ensureActive()
                     println("update mod job started")
                     modifierRepository.updateModifier(modifier) {
@@ -98,7 +119,7 @@ class UpdateModifierUseCase @Inject constructor(
                         }
                     }
                 }
-                launch {
+                val updateImageFieldJob = launch {
                     ensureActive()
                     if (image != null  && image.toString() != modifier.imageUri) {
                         modifierJob.join()
@@ -113,9 +134,13 @@ class UpdateModifierUseCase @Inject constructor(
                         }
                     }
                 }
-                itemJob.children.forEach {
+                addItemJob.children.forEach {
                     it.join()
-                    println("child job Joined")
+                    println("add child job Joined")
+                }
+                updateItemJob.children.forEach {
+                    it.join()
+                    println("update child job Joined")
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) {

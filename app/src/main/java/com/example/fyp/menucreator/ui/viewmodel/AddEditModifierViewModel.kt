@@ -87,6 +87,9 @@ class AddEditModifierViewModel @Inject constructor(
             is AddEditModifierEvent.ItemListChanged -> {
                 _addEditModifierState.value = _addEditModifierState.value.copy(itemList = event.items)
             }
+            is AddEditModifierEvent.ItemErrorListChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(itemErrorList = event.itemErrors)
+            }
             is AddEditModifierEvent.MultipleChoiceChanged -> {
                 _addEditModifierState.value = _addEditModifierState.value.copy(isMultipleChoice = event.multipleChoice)
             }
@@ -101,9 +104,6 @@ class AddEditModifierViewModel @Inject constructor(
             }
             is AddEditModifierEvent.Save -> {
                 submit(event.isEdit)
-            }
-            is AddEditModifierEvent.ItemErrorListChanged -> {
-                _addEditModifierState.value = _addEditModifierState.value.copy(itemErrorList = event.itemErrors)
             }
         }
     }
@@ -121,7 +121,7 @@ class AddEditModifierViewModel @Inject constructor(
 
         for (i in addEditModifierState.value.itemList){
             var idRes = ProductValidationResult(successful = true)
-            if (!isEdit){
+            if (!i.first.second){
                 idRes = validateProductIdUseCase(i.first.first,ProductType.ModifierItem)
             }
             val nameRes = validateProductNameUseCase(i.second)
@@ -192,8 +192,8 @@ class AddEditModifierViewModel @Inject constructor(
         val itemStringList = mutableListOf<String>()
         val itemList = mutableListOf<ModifierItem>()
         for (i in addEditModifierState.value.itemList){
-            itemList.add(getModifierItem(i.second,i.second,i.third))
-            itemStringList.add(i.second)
+            itemList.add(getModifierItem(i.first.first,i.second,i.third))
+            itemStringList.add(i.first.first)
         }
 
         val modifier = getModifier(
@@ -213,8 +213,8 @@ class AddEditModifierViewModel @Inject constructor(
         val itemStringList = mutableListOf<String>()
         val itemList = mutableListOf<ModifierItem>()
         for (i in addEditModifierState.value.itemList){
-            itemList.add(getModifierItem(i.second,i.second,i.third))
-            itemStringList.add(i.second)
+            itemList.add(getModifierItem(i.first.first,i.second,i.third))
+            itemStringList.add(i.first.first)
         }
 
         val newModifier = modifier.copy(

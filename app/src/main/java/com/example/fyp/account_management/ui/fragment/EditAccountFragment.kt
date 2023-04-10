@@ -87,8 +87,6 @@ class EditAccountFragment : Fragment() {
         observeRegistrationState()
         setUpDatePicker()
 
-//        binding.lastNameEt.setText(viewModel.registerState.value.lname)
-
         binding.editImgBtn.setOnClickListener {
             getContent.launch("image/*")
         }
@@ -262,7 +260,4 @@ class EditAccountFragment : Fragment() {
             }
         }
     }
-
-
-
 }
