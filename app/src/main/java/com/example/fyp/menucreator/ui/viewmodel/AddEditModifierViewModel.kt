@@ -293,10 +293,13 @@ class AddEditModifierViewModel @Inject constructor(
         onEvent(AddEditModifierEvent.MultipleChoiceChanged(modifier.multipleChoice))
         onEvent(AddEditModifierEvent.ImageChanged(modifier.imageUri?.toUri()))
         val list = mutableListOf<Triple<Pair<String,Boolean>,String,String>>()
+        val errorList = mutableListOf<Triple<String?,String?,String?>?>()
         for (i in modifier.modifierItemList){
             list.add(getItem(i,true))
+            errorList.add(null)
         }
         onEvent(AddEditModifierEvent.ItemListChanged(list))
+        onEvent(AddEditModifierEvent.ItemErrorListChanged(errorList))
     }
 
 

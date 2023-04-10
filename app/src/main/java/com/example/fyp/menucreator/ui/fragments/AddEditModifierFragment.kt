@@ -110,17 +110,14 @@ class AddEditModifierFragment : Fragment() {
             },
             onIdChanged = { id , pos ->
                 list[pos] = list[pos].copy(first = Pair(id,false))
-                viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
                 viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
             },
             onNameChanged = { name , pos ->
                 list[pos] = list[pos].copy(second = name)
-                viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
                 viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
             },
             onPriceChanged = { price , pos ->
                 list[pos] = list[pos].copy(third = price)
-                viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
                 viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
             }
         )
@@ -155,6 +152,7 @@ class AddEditModifierFragment : Fragment() {
     }
     private fun addNewModifier() {
         binding.modifierTitleTextView.text = "Add New Modifier"
+        uiEnabled(true)
         loadData()
     }
     private fun editModifier() {
@@ -311,13 +309,13 @@ class AddEditModifierFragment : Fragment() {
                         it.e?.message?.let { it1 -> errorDialog(it1) }
                     }
                     is UiState.Success -> {
-                            uiEnabled(true)
-                            loadData()
-                            adapter.submitList(list)
-                            for (i in list){
-                                errorlist.add(null)
-                            }
-                            binding.progressBar.visibility = View.GONE
+                        uiEnabled(true)
+                        loadData()
+                        adapter.submitList(list)
+                        for (i in list){
+                            errorlist.add(null)
+                        }
+                        binding.progressBar.visibility = View.GONE
                         if (it.data == "Load Success"){
                             successToast("Modifier Loaded successfully")
                         }
