@@ -6,8 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.fyp.account_management.data.model.AccountType
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.databinding.FragmentProductListBinding
@@ -24,6 +27,7 @@ class ProductListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel : FoodListingViewModel by activityViewModels()
+    private val accountViewModel by viewModels<MainAuthViewModel>()
 
     private lateinit var foodAdapter : ProductListItemAdapter
 
@@ -38,6 +42,11 @@ class ProductListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        accountViewModel.getSession {
+            if (it != null && (it.accountType == AccountType.Admin || it.accountType == AccountType.Manager))
+                binding.fabAddFood.visibility = View.VISIBLE
+        }
 
         foodAdapter = ProductListItemAdapter{
             val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(it.productId,ProductType.FoodAndBeverage)

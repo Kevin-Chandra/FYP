@@ -8,9 +8,11 @@ import androidx.core.content.ContextCompat.startActivity
 import com.example.fyp.account_management.data.model.*
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
+import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.menucreator.util.FirebaseStorageReference
+import com.example.fyp.menucreator.util.UiState
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -74,6 +76,22 @@ class AuthRepository @Inject constructor(
                 result.invoke(Response.Error(IllegalArgumentException("Email/Password is blank")))
             else
                 result.invoke(Response.Error(e))
+        }
+    }
+
+    suspend fun getAccount(id: String, result: (Response<Account>) -> Unit){
+        try {
+            val account  = userCollectionRef.document(id)
+                .get()
+                .await()
+                .toObject<Account>()
+            if (account == null){
+                result.invoke(Response.Error(Exception("No account found!")))
+                return
+            }
+            result.invoke(Response.Success(account))
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
         }
     }
 

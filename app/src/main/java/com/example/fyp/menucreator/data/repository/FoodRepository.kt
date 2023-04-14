@@ -35,19 +35,6 @@ class FoodRepository(
         return false
     }
 
-    suspend fun checkFoodId(id: String, result: (UiState<Boolean>) -> Unit) {
-        try {
-            val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id).get().await()
-            if (query.documents.isNotEmpty()){
-                result.invoke(UiState.Success(true))
-            } else {
-                result.invoke(UiState.Success(false))
-            }
-        } catch (e: Exception){
-            result.invoke(UiState.Failure(e))
-        }
-    }
-
     fun subscribeFoodUpdates() = callbackFlow<UiState<List<Food>>> {
         val snapshotListener = foodCollectionRef.addSnapshotListener{ querySnapshot, e ->
             if (e != null ){
@@ -64,19 +51,6 @@ class FoodRepository(
         }
         awaitClose {
             snapshotListener.remove()
-        }
-    }
-
-    suspend fun deleteFood(id: String) : UiState<Boolean> {
-        val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
-            .get()
-            .await()
-        return try {
-            for (doc in query.documents)
-                foodCollectionRef.document(doc.id).delete().await()
-            UiState.Success(true)
-        } catch (e : Exception){
-            UiState.Failure(e)
         }
     }
 
@@ -143,6 +117,24 @@ class FoodRepository(
                 throw Exception("Product Id not found!")
             for (doc in query.documents)
                 result.invoke(UiState.Success(doc.toObject<Food>()!!))
+        } catch (e: Exception){
+            result.invoke(UiState.Failure(e))
+        }
+    }
+
+    suspend fun updateAvailability(id: String, value: Boolean, result: (UiState<String>) -> Unit){
+        try {
+            val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Product Id not found!")
+            for (doc in query.documents){
+                foodCollectionRef.document(doc.id)
+                    .update(FireStoreDocumentField.AVAILABILITY,value)
+                    .await()
+            }
+            result.invoke(UiState.Success("Updated Availability!"))
         } catch (e: Exception){
             result.invoke(UiState.Failure(e))
         }

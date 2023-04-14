@@ -1,5 +1,7 @@
 package com.example.fyp.menucreator.domain.modifier
 
+import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.data.repository.ModifierItemRepository
@@ -16,7 +18,11 @@ class DeleteModifierUseCase @Inject constructor(
     private val deleteModifierItemUseCase: DeleteModifierItemUseCase,
     private val deleteImageUseCase: DeleteImageUseCase,
 ) {
-    suspend operator fun invoke(id:String, result:(UiState<String>) -> Unit){
+    suspend operator fun invoke(account: Account, id:String, result:(UiState<String>) -> Unit){
+        if (account.accountType != AccountType.Admin && account.accountType != AccountType.Manager){
+            result.invoke(UiState.Failure(Exception("You don't have permission")))
+            return
+        }
         val jobs = mutableListOf<Job>()
         getModifierUseCase(id) { it ->
             if (it is UiState.Success && it.data != null) {

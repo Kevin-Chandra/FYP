@@ -160,8 +160,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/img_ph"
                 app:layout_constraintEnd_toEndOf="@+id/account_name_ph"
                 app:layout_constraintStart_toEndOf="@+id/img_ph"
-                app:layout_constraintTop_toBottomOf="@+id/account_name_ph"
-                tools:visibility="gone" />
+                app:layout_constraintTop_toBottomOf="@+id/account_name_ph" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -215,8 +214,9 @@
         android:drawablePadding="8dp"
         android:padding="8dp"
         android:maxLines="1"
+        android:textColor="@color/black"
         android:background="@drawable/oval_button"
-        android:backgroundTint="#C1B0FD"
+        android:backgroundTint="#E6E6E6"
         android:gravity="center_vertical"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"

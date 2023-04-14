@@ -1,6 +1,8 @@
 package com.example.fyp.menucreator.domain.food
 
 import android.net.Uri
+import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.FoodRepository
@@ -14,12 +16,16 @@ class AddFoodUseCase @Inject constructor(
     private val uploadImageUseCase: UploadImageUseCase,
     private val deleteFoodUseCase: DeleteFoodUseCase
 ) {
-    suspend operator fun invoke(food: Food, image: Uri?, result:(UiState<String>) -> Unit){
+    suspend operator fun invoke(account: Account, food: Food, image: Uri?, result:(UiState<String>) -> Unit){
+        if (account.accountType != AccountType.Admin && account.accountType != AccountType.Manager){
+            result.invoke(UiState.Failure(Exception("You don't have permission")))
+            return
+        }
         val exceptionHandler = CoroutineExceptionHandler { context, throwable ->
             result.invoke(UiState.Failure(throwable as Exception))
             context.cancelChildren()
             val deletionJob = CoroutineScope(Dispatchers.IO).launch {
-                deleteFoodUseCase(food.productId){}
+                deleteFoodUseCase(account,food.productId){}
             }
             deletionJob.invokeOnCompletion {
                 result.invoke(UiState.Success("Deleted failed data"))

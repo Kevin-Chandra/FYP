@@ -75,20 +75,6 @@ class ModifierItemRepository {
         }
     }
 
-    suspend fun deleteModifierItem(id: String): UiState<Boolean> {
-        val query = modifierItemCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
-            .get()
-            .await()
-        return try {
-            for (doc in query.documents)
-                modifierItemCollectionRef.document(doc.id).delete().await()
-            println("[$id] deleted in database")
-            UiState.Success(true)
-        } catch (e : Exception){
-            UiState.Failure(e)
-        }
-    }
-
     suspend fun deleteModifierItem(id: String, result: (UiState<String>) -> Unit) {
         try {
             val query = modifierItemCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
@@ -99,26 +85,6 @@ class ModifierItemRepository {
             result.invoke(UiState.Success(MenuCreatorResponse.ITEM_DELETED))
         } catch (e : Exception){
             result.invoke(UiState.Failure(e))
-        }
-    }
-
-    suspend fun updateModifierItem(id: String, item: ModifierItem): UiState<Boolean> {
-        val query = modifierItemCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
-            .get()
-            .await()
-        return try {
-//            if (query.documents.isEmpty()){
-//                addModifierItem(item)
-//            } else {
-                for (doc in query.documents)
-                    modifierItemCollectionRef.document(doc.id).set(
-                        item,
-                        SetOptions.merge()
-                    )
-//            }
-            UiState.Success(false)
-        } catch (e : Exception){
-            UiState.Failure(e)
         }
     }
 
@@ -171,6 +137,24 @@ class ModifierItemRepository {
             result.invoke(UiState.Failure(e))
         }
 
+    }
+
+    suspend fun updateAvailability(id: String, value: Boolean, result: (UiState<String>) -> Unit){
+        try {
+            val query = modifierItemCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Product Id not found!")
+            for (doc in query.documents){
+                modifierItemCollectionRef.document(doc.id)
+                    .update(FireStoreDocumentField.AVAILABILITY,value)
+                    .await()
+            }
+            result.invoke(UiState.Success("Updated Availability!"))
+        } catch (e: Exception){
+            result.invoke(UiState.Failure(e))
+        }
     }
 
 }

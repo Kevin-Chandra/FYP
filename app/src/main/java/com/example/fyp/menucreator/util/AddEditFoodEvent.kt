@@ -1,6 +1,7 @@
 package com.example.fyp.menucreator.util
 
 import android.net.Uri
+import com.example.fyp.account_management.data.model.Account
 import java.util.Date
 
 sealed class AddEditFoodEvent {
@@ -21,5 +22,5 @@ sealed class AddEditFoodEvent {
 
     data class ImageChanged(val image: Uri?) : AddEditFoodEvent()
 
-    data class Save(val isEdit: Boolean): AddEditFoodEvent()
+    data class Save(val isEdit: Boolean, val account: Account): AddEditFoodEvent()
 }

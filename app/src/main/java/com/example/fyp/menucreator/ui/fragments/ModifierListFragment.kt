@@ -6,8 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.fyp.account_management.data.model.AccountType
+import com.example.fyp.account_management.ui.view_model.AccountViewModel
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.menucreator.ui.adapter.ModifierListItemAdapter
 import com.example.fyp.databinding.FragmentModifierListBinding
 import com.example.fyp.menucreator.data.model.ProductType
@@ -25,6 +29,7 @@ class ModifierListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel by activityViewModels<ModifierListingViewModel>()
+    private val accountViewModel by viewModels<MainAuthViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +42,11 @@ class ModifierListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        accountViewModel.getSession {
+            if (it != null && (it.accountType == AccountType.Admin || it.accountType == AccountType.Manager))
+                binding.fabAddModifier.visibility = View.VISIBLE
+        }
 
         val modifierAdapter = ModifierListItemAdapter(onItemClicked = {
             val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(

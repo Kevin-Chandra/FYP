@@ -1,6 +1,8 @@
 package com.example.fyp.menucreator.domain.food
 
 import android.net.Uri
+import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.data.repository.FoodRepository
@@ -13,8 +15,16 @@ class UpdateFoodUseCase @Inject constructor(
     private val foodRepo: FoodRepository,
     private val uploadImageUseCase: UploadImageUseCase
 ) {
-    suspend operator fun invoke(food: Food, image: Uri?, result:(UiState<String>) -> Unit) {
-        val parentJob = CoroutineScope(Dispatchers.IO).launch {
+    suspend operator fun invoke(account:Account,food: Food, image: Uri?, result:(UiState<String>) -> Unit) {
+        if (account.accountType != AccountType.Admin && account.accountType != AccountType.Manager){
+            result.invoke(UiState.Failure(Exception("You don't have permission")))
+            return
+        }
+        val exceptionHandler = CoroutineExceptionHandler { context, throwable ->
+            result.invoke(UiState.Failure(throwable as Exception))
+            context.cancelChildren()
+        }
+        val parentJob = CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
             try {
                 var imgPath: Deferred<Pair<String, String>?>? = null
                 if (image != null) {
@@ -61,6 +71,12 @@ class UpdateFoodUseCase @Inject constructor(
                 return@launch
             }
         }
-        parentJob.invokeOnCompletion { result.invoke(UiState.Success("Update Food Success")) }
+        parentJob.invokeOnCompletion {
+            if (it != null) {
+                result.invoke(UiState.Failure(it as Exception))
+            } else {
+                result.invoke(UiState.Success("Update Food Success"))
+            }
+        }
     }
 }

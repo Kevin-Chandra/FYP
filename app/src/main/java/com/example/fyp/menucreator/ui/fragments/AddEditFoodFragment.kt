@@ -22,6 +22,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.fyp.R
+import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.data.model.AccountType
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.databinding.FragmentAddEditFoodBinding
 import com.example.fyp.databinding.RowAddEditModifierBinding
 import com.example.fyp.menucreator.data.model.FoodCategory
@@ -46,6 +49,7 @@ class AddEditFoodFragment : Fragment() {
 
     private val viewModel : AddEditFoodViewModel by viewModels()
     private val catViewModel  by activityViewModels<FoodCategoryViewModel>()
+    private val authViewModel  by activityViewModels<MainAuthViewModel>()
 
     private lateinit var checkedItems : BooleanArray
     private var modifierList: Array<String> = arrayOf()
@@ -55,6 +59,8 @@ class AddEditFoodFragment : Fragment() {
     private var categoryString: MutableList<String> = mutableListOf()
 
     private lateinit var command: String
+
+    private var account: Account? = null
 
     private var arrayAdapter: ArrayAdapter<String>? = null
 
@@ -88,6 +94,10 @@ class AddEditFoodFragment : Fragment() {
         observeFoodUpdate()
         observeError()
         //checked items -> boolean array to track which elements is ticked
+
+        authViewModel.getSession {
+            account = it
+        }
 
         arguments?.let {
             command = AddEditFoodFragmentArgs.fromBundle(it).command
@@ -140,7 +150,8 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun handleSaveClicked() {
-        viewModel.onEvent(AddEditFoodEvent.Save(command == NavigationCommand.EDIT))
+        account?:return
+        viewModel.onEvent(AddEditFoodEvent.Save(command == NavigationCommand.EDIT,account!!))
     }
 
     private fun setImage(uri: Uri){

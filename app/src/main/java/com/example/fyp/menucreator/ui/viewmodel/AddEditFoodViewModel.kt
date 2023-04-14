@@ -3,6 +3,7 @@ package com.example.fyp.menucreator.ui.viewmodel
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ProductType
@@ -41,6 +42,7 @@ class AddEditFoodViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var productId: String? = null
+
     private var _food: Food? = null
     val food: Food
         get() = _food!!
@@ -120,7 +122,7 @@ class AddEditFoodViewModel @Inject constructor(
                 _addEditFoodState.value = _addEditFoodState.value.copy(productId = event.id)
             }
             is AddEditFoodEvent.Save -> {
-                submit(event.isEdit)
+                submit(event.isEdit,event.account)
             }
         }
     }
@@ -135,7 +137,9 @@ class AddEditFoodViewModel @Inject constructor(
         imageUri: String?,
         imagePath: String?,
         modifierList: List<String>?,
-        createdDate: Date = Date()
+        createdDate: Date = Date(),
+        createdBy: String,
+        lastUpdatedBy: String
     ): Food {
         return Food(
             productId = productId,
@@ -149,11 +153,13 @@ class AddEditFoodViewModel @Inject constructor(
             allTimeSales = 0,
             modifierList = modifierList?: listOf(),
             lastUpdated = Date(),
-            createdAt = createdDate
+            createdAt = createdDate,
+            createdBy = createdBy,
+            lastUpdatedBy = lastUpdatedBy
         )
     }
 
-    fun submit(edit: Boolean) = viewModelScope.launch{
+    fun submit(edit: Boolean,account: Account) = viewModelScope.launch{
         _addEditFoodResponse.value = UiState.Loading
 
         var idResult = ProductValidationResult(successful = true)
@@ -191,14 +197,15 @@ class AddEditFoodViewModel @Inject constructor(
         }
 
         if (edit)
-            updateFood()
+            updateFood(account)
         else
-            addFood()
+            addFood(account)
     }
 
-    private suspend fun addFood() {
+    private suspend fun addFood(account: Account) {
         val modifierList = if (addEditFoodState.value.isModifiable) addEditFoodState.value.modifierList else null
         addFoodUseCase.invoke(
+            account,
             getFood(
                 addEditFoodState.value.productId,
                 addEditFoodState.value.name,
@@ -210,6 +217,8 @@ class AddEditFoodViewModel @Inject constructor(
                 null,
                 modifierList,
                 Date(),
+                account.id,
+                account.id
             ),
             addEditFoodState.value.image
         ){
@@ -217,9 +226,10 @@ class AddEditFoodViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateFood(){
+    private suspend fun updateFood(account: Account){
         val modifierList = if (addEditFoodState.value.isModifiable) addEditFoodState.value.modifierList else null
         editFoodUseCase.invoke(
+            account,
             getFood(
                 addEditFoodState.value.productId,
                 addEditFoodState.value.name,
@@ -231,6 +241,8 @@ class AddEditFoodViewModel @Inject constructor(
                 food.imagePath,
                 modifierList,
                 food.createdAt?: Date(),
+                food.createdBy,
+                account.id
             ),
             if (addEditFoodState.value.image.toString() == food.imageUri) null else addEditFoodState.value.image
         ){
@@ -243,23 +255,11 @@ class AddEditFoodViewModel @Inject constructor(
         return modifierMap[id]
     }
 
-//    private fun loadModifierMap() = viewModelScope.launch {
-//        modifiers.collect() {
-//            when (it) {
-//                is UiState.Success -> {
-//                    _modifierMap = it.data.toMutableMap()
-//                }
-//                is UiState.Failure -> println(it.e)
-//                is UiState.Loading -> println("Loading in vm")
-//            }
-//        }
-//    }
-
     private fun getModifierList() {
         _modifiers.value = UiState.Loading
         getModifierListUseCase {
             viewModelScope.launch {
-                it.collect() { result ->
+                it.collect { result ->
                     if (result is UiState.Success){
                         _modifierMap.clear()
                         for (i in result.data){

@@ -1,6 +1,8 @@
 package com.example.fyp.menucreator.domain.modifier
 
 import android.net.Uri
+import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.data.model.ProductType
@@ -23,11 +25,16 @@ class UpdateModifierUseCase @Inject constructor(
     private val updateModifierItemUseCase: UpdateModifierItemUseCase
 ) {
     suspend operator fun invoke(
+        account: Account,
         modifier: Modifier,
         itemList: List<ModifierItem>,
         image: Uri?,
         result: (UiState<String>) -> Unit
     ) {
+        if (account.accountType != AccountType.Admin && account.accountType != AccountType.Manager){
+            result.invoke(UiState.Failure(Exception("You don't have permission")))
+            return
+        }
         val exceptionHandler = CoroutineExceptionHandler { context, throwable ->
             result.invoke(UiState.Failure(throwable as Exception))
             context.cancelChildren()

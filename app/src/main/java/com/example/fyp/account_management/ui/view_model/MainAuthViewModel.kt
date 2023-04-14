@@ -25,8 +25,6 @@ class MainAuthViewModel @Inject constructor(
     private val deleteAccountUseCase: DeleteAccountUseCase
 ) : ViewModel() {
 
-    var user: Account? = null
-
     private val _loginState = MutableStateFlow<Response<Boolean>>(Response.Success(false))
     val loginState = _loginState.asStateFlow()
 

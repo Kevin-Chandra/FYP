@@ -17,4 +17,6 @@ data class Modifier(
     @Exclude
     val createdAt: Date? = null,
     val lastUpdated: Date = Date(),
+    val createdBy: String = "",
+    val lastUpdatedBy: String = "",
     ) : Product(productId, ProductType.Modifier)

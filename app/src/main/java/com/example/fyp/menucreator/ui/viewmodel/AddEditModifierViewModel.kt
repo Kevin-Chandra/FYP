@@ -3,6 +3,7 @@ package com.example.fyp.menucreator.ui.viewmodel
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.domain.use_case.ValidateNameUseCase
 import com.example.fyp.account_management.domain.use_case.ValidationResult
 import com.example.fyp.menucreator.data.model.Modifier
@@ -102,12 +103,12 @@ class AddEditModifierViewModel @Inject constructor(
                 _addEditModifierState.value = _addEditModifierState.value.copy(isRequired = event.required)
             }
             is AddEditModifierEvent.Save -> {
-                submit(event.isEdit)
+                submit(event.isEdit,event.account)
             }
         }
     }
 
-    private fun submit(isEdit: Boolean) = viewModelScope.launch{
+    private fun submit(isEdit: Boolean,account: Account) = viewModelScope.launch{
         _addEditModifierResponse.value = UiState.Loading
         var idResult = ProductValidationResult(successful = true)
         if (!isEdit){
@@ -180,14 +181,14 @@ class AddEditModifierViewModel @Inject constructor(
         }
 
         if (isEdit){
-            updateModifier()
+            updateModifier(account)
         } else {
-            addModifier()
+            addModifier(account)
         }
 
     }
 
-    private fun addModifier() = viewModelScope.launch(Dispatchers.IO){
+    private fun addModifier(account: Account) = viewModelScope.launch(Dispatchers.IO){
         val itemStringList = mutableListOf<String>()
         val itemList = mutableListOf<ModifierItem>()
         for (i in addEditModifierState.value.itemList){
@@ -200,15 +201,17 @@ class AddEditModifierViewModel @Inject constructor(
             addEditModifierState.value.name,
             addEditModifierState.value.isMultipleChoice,
             addEditModifierState.value.isRequired,
-            itemStringList.toList()
+            itemStringList.toList(),
+            account.id,
+            account.id
         )
 
-        addModifierUseCase.invoke(modifier,itemList,addEditModifierState.value.image){
+        addModifierUseCase.invoke(account, modifier,itemList,addEditModifierState.value.image){
             _addEditModifierResponse.value = it
         }
     }
 
-    private fun updateModifier() = viewModelScope.launch(Dispatchers.IO){
+    private fun updateModifier(account: Account) = viewModelScope.launch(Dispatchers.IO){
         val itemStringList = mutableListOf<String>()
         val itemList = mutableListOf<ModifierItem>()
         for (i in addEditModifierState.value.itemList){
@@ -222,10 +225,11 @@ class AddEditModifierViewModel @Inject constructor(
             multipleChoice = addEditModifierState.value.isMultipleChoice,
             required = addEditModifierState.value.isRequired,
             modifierItemList = itemStringList.toList(),
-            lastUpdated = Date()
+            lastUpdated = Date(),
+            lastUpdatedBy = account.id
         )
 
-        updateModifierUseCase.invoke(newModifier,itemList,addEditModifierState.value.image){
+        updateModifierUseCase.invoke(account, newModifier,itemList,addEditModifierState.value.image){
             _addEditModifierResponse.value = it
         }
     }
@@ -237,9 +241,11 @@ class AddEditModifierViewModel @Inject constructor(
         name: String,
         isMultipleChoice: Boolean,
         isRequired: Boolean,
-        itemList: List<String>
+        itemList: List<String>,
+        createdBy: String,
+        lastUpdatedBy: String
     ): Modifier {
-        return Modifier(productId, name, isMultipleChoice, isRequired, itemList,null,null,null,Date())
+        return Modifier(productId, name, isMultipleChoice, isRequired, itemList,null,null,null,Date(),createdBy,lastUpdatedBy)
     }
 
     private fun getModifierItem(

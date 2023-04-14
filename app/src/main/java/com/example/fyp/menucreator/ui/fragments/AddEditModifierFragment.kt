@@ -23,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener
 import com.bumptech.glide.Glide
 import com.example.fyp.R
+import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.databinding.FragmentAddEditModifierBinding
 import com.example.fyp.menucreator.ui.adapter.ModifierItemAddEditAdapter
 import com.example.fyp.menucreator.ui.viewmodel.AddEditModifierViewModel
@@ -39,6 +41,7 @@ class AddEditModifierFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: AddEditModifierViewModel by viewModels()
+    private val authViewModel: MainAuthViewModel by viewModels()
 
     private lateinit var command: String
 
@@ -52,6 +55,8 @@ class AddEditModifierFragment : Fragment() {
     private var allowBack = true
 
     private var disableRvTouch = false
+
+    private var account: Account? = null
 
     private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
         if (it != null) {
@@ -74,6 +79,10 @@ class AddEditModifierFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         observeAddEditModifier()
         observeError()
+
+        authViewModel.getSession {
+            account = it
+        }
 
         arguments?.let {
             command = AddEditModifierFragmentArgs.fromBundle(it).command
@@ -144,7 +153,9 @@ class AddEditModifierFragment : Fragment() {
             getContent.launch("image/*")
         }
         binding.saveButton.setOnClickListener {
-            viewModel.onEvent(AddEditModifierEvent.Save(command.contentEquals(NavigationCommand.EDIT)))
+            viewModel.onEvent(AddEditModifierEvent.Save(
+                command.contentEquals(NavigationCommand.EDIT),account?:return@setOnClickListener)
+            )
         }
         binding.resetButton.setOnClickListener {
             resetField()
@@ -184,7 +195,7 @@ class AddEditModifierFragment : Fragment() {
                         .setTitle("Save Data?")
                         .setMessage("Do you want to save the current modifier info?")
                         .setPositiveButton("Save") { _, _ ->
-                            viewModel.onEvent(AddEditModifierEvent.Save(command.contentEquals(NavigationCommand.EDIT)))
+                            viewModel.onEvent(AddEditModifierEvent.Save(command.contentEquals(NavigationCommand.EDIT),account?:return@setPositiveButton))
                         }
                         .setNegativeButton("Exit") { _, _ ->
                             findNavController().navigateUp()
