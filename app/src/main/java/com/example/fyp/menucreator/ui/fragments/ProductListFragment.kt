@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.account_management.data.model.AccountType
@@ -40,13 +41,25 @@ class ProductListFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        println("On destroy")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        println("On detach")
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         accountViewModel.getSession {
             if (it != null && (it.accountType == AccountType.Admin || it.accountType == AccountType.Manager))
-                binding.fabAddFood.visibility = View.VISIBLE
+                if (this.lifecycle.currentState >= Lifecycle.State.STARTED)
+                    binding.fabAddFood.visibility = View.VISIBLE
         }
+
 
         foodAdapter = ProductListItemAdapter{
             val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(it.productId,ProductType.FoodAndBeverage)

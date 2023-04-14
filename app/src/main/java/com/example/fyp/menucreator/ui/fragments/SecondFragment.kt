@@ -48,11 +48,11 @@ class SecondFragment : Fragment() {
     private var _binding: FragmentSecondBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel : FoodModifierDetailViewModel by viewModels()
-    private val foodListViewModel : FoodListingViewModel by activityViewModels()
-    private val modifierListViewModel : ModifierListingViewModel by activityViewModels()
-    private val authViewModel : MainAuthViewModel by activityViewModels()
-    private val accountViewModel : AccountViewModel by viewModels()
+    private val viewModel: FoodModifierDetailViewModel by viewModels()
+    private val foodListViewModel: FoodListingViewModel by activityViewModels()
+    private val modifierListViewModel: ModifierListingViewModel by activityViewModels()
+    private val authViewModel: MainAuthViewModel by activityViewModels()
+    private val accountViewModel: AccountViewModel by viewModels()
 
     private var _foodBinding: FoodViewComponentBinding? = null
     private val foodBinding get() = _foodBinding!!
@@ -65,14 +65,14 @@ class SecondFragment : Fragment() {
     private var _detailedModifierBinding: ModifierDetailedRowComponentBinding? = null
     private val detailedModifierBinding get() = _detailedModifierBinding!!
 
-    private lateinit var bottomSheet : BottomSheetDialog
+    private lateinit var bottomSheet: BottomSheetDialog
 
     private var productId: String? = null
     private var type: ProductType? = null
 
-    private var action : NavDirections? = null
+    private var action: NavDirections? = null
 
-    private var account : Account? = null
+    private var account: Account? = null
 
     private var isObservingLoadData = true
 
@@ -86,18 +86,22 @@ class SecondFragment : Fragment() {
         arguments?.let {
             productId = SecondFragmentArgs.fromBundle(it).productId
             type = SecondFragmentArgs.fromBundle(it).type
-            viewModel.initialize(SecondFragmentArgs.fromBundle(it).productId,SecondFragmentArgs.fromBundle(it).type)
+            viewModel.initialize(
+                SecondFragmentArgs.fromBundle(it).productId,
+                SecondFragmentArgs.fromBundle(it).type
+            )
         }
 
-        bottomSheetBinding = SetAvailabilityLayoutBinding.inflate(inflater,container,false)
+        bottomSheetBinding = SetAvailabilityLayoutBinding.inflate(inflater, container, false)
 
         if (viewModel.type == ProductType.FoodAndBeverage) {
-            _foodBinding = FoodViewComponentBinding.inflate(inflater,container,false)
+            _foodBinding = FoodViewComponentBinding.inflate(inflater, container, false)
         } else {
             //inflate detailed view container
-            _detailedModifierBinding = ModifierDetailedRowComponentBinding.inflate(inflater,container,false)
+            _detailedModifierBinding =
+                ModifierDetailedRowComponentBinding.inflate(inflater, container, false)
         }
-        _modifierBinding = ModifierViewComponentBinding.inflate(inflater,container,false)
+        _modifierBinding = ModifierViewComponentBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -107,19 +111,21 @@ class SecondFragment : Fragment() {
 
         authViewModel.getSession {
             account = it
-            if (it != null){
-                when (it.accountType){
+            if (it != null && this.lifecycle.currentState >= Lifecycle.State.STARTED) {
+                when (it.accountType) {
                     AccountType.Customer -> {}
                     AccountType.Admin -> {
                         setAdminAccess()
                         setStaffAccess()
                     }
+
                     AccountType.Manager -> {
                         setAdminAccess()
                         setStaffAccess()
                     }
+
                     AccountType.Staff -> {
-                        if (it.staffPosition != StaffPosition.Disabled && it.staffPosition != StaffPosition.Pending){
+                        if (it.staffPosition != StaffPosition.Disabled && it.staffPosition != StaffPosition.Pending) {
                             setStaffAccess()
                         }
                     }
@@ -142,7 +148,7 @@ class SecondFragment : Fragment() {
         }
 
         bottomSheetBinding.saveButton.setOnClickListener {
-            if (account == null){
+            if (account == null) {
                 errorDialog("Account not yet loaded!")
                 return@setOnClickListener
             }
@@ -160,10 +166,10 @@ class SecondFragment : Fragment() {
             bottomSheet.show()
         }
 
-        binding.deleteFab.setOnClickListener{
+        binding.deleteFab.setOnClickListener {
             deleteDialog()
         }
-        binding.editFab.setOnClickListener{
+        binding.editFab.setOnClickListener {
             action?.let { it1 -> findNavController().navigate(it1) }
         }
     }
@@ -171,20 +177,20 @@ class SecondFragment : Fragment() {
     private fun setShimmerFood(b: Boolean) {
         if (b) {
             foodBinding.shimmerLayout.showShimmer(true)
-            foodBinding.createdByTv .visibility = View.INVISIBLE
-            foodBinding.createdByCv .visibility = View.INVISIBLE
-            foodBinding.lastUpdatedByTv .visibility = View.INVISIBLE
-            foodBinding.lastUpdatedCv .visibility = View.INVISIBLE
+            foodBinding.createdByTv.visibility = View.INVISIBLE
+            foodBinding.createdByCv.visibility = View.INVISIBLE
+            foodBinding.lastUpdatedByTv.visibility = View.INVISIBLE
+            foodBinding.lastUpdatedCv.visibility = View.INVISIBLE
         } else {
             foodBinding.shimmerLayout.hideShimmer()
             foodBinding.cvShimmer1.visibility = View.GONE
             foodBinding.cvShimmer2.visibility = View.GONE
             foodBinding.shimmerTv1.visibility = View.GONE
             foodBinding.shimmerTv2.visibility = View.GONE
-            foodBinding.createdByTv .visibility = View.VISIBLE
-            foodBinding.createdByCv .visibility = View.VISIBLE
-            foodBinding.lastUpdatedByTv .visibility = View.VISIBLE
-            foodBinding.lastUpdatedCv .visibility = View.VISIBLE
+            foodBinding.createdByTv.visibility = View.VISIBLE
+            foodBinding.createdByCv.visibility = View.VISIBLE
+            foodBinding.lastUpdatedByTv.visibility = View.VISIBLE
+            foodBinding.lastUpdatedCv.visibility = View.VISIBLE
         }
     }
 
@@ -194,7 +200,7 @@ class SecondFragment : Fragment() {
             modifierBinding.createdByTv2.visibility = View.INVISIBLE
             modifierBinding.createdByCv.visibility = View.INVISIBLE
             modifierBinding.lastUpdatedByTv2.visibility = View.INVISIBLE
-            modifierBinding.lastUpdatedCv .visibility = View.INVISIBLE
+            modifierBinding.lastUpdatedCv.visibility = View.INVISIBLE
         } else {
             modifierBinding.shimmerLayout.hideShimmer()
             modifierBinding.cvShimmer1.visibility = View.GONE
@@ -202,7 +208,7 @@ class SecondFragment : Fragment() {
             modifierBinding.shimmerTv1.visibility = View.GONE
             modifierBinding.shimmerTv2.visibility = View.GONE
             modifierBinding.createdByTv2.visibility = View.VISIBLE
-            modifierBinding.createdByCv .visibility = View.VISIBLE
+            modifierBinding.createdByCv.visibility = View.VISIBLE
             modifierBinding.lastUpdatedByTv2.visibility = View.VISIBLE
             modifierBinding.lastUpdatedCv.visibility = View.VISIBLE
         }
@@ -213,11 +219,11 @@ class SecondFragment : Fragment() {
         binding.editFab.visibility = View.VISIBLE
     }
 
-    private fun setStaffAccess(){
+    private fun setStaffAccess() {
         binding.setAvailabilityFab.visibility = View.VISIBLE
     }
 
-    private fun deleteDialog(){
+    private fun deleteDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Delete Product")
             .setMessage("Are you sure deleting this product?")
@@ -234,12 +240,12 @@ class SecondFragment : Fragment() {
 
     private fun navigateBack() = findNavController().navigateUp()
     private fun deleteProduct() {
-        account?:return
+        account ?: return
         isObservingLoadData = false
         viewModel.deleteProduct(account!!, productId!!)
     }
 
-    private fun loadData(){
+    private fun loadData() {
         binding.swipeRefreshLayout.isRefreshing = true
 
         //Base layout is fragment_second constraint layout
@@ -252,66 +258,83 @@ class SecondFragment : Fragment() {
         } else {
             action = SecondFragmentDirections.actionSecondFragmentToAddEditModifierFragment(
                 NavigationCommand.EDIT,
-                viewModel.productId)
+                viewModel.productId
+            )
             loadModifierData()
         }
         binding.swipeRefreshLayout.isRefreshing = false
     }
 
     private fun loadModifierData() {
-        productId?:return
+        productId ?: return
         val modifier = modifierListViewModel.getModifier(productId!!) ?: return
 
-        accountViewModel.getAccount(modifier.lastUpdatedBy){
-            when (it){
-                is Response.Error -> {
-                    modifierBinding.lastUpdatedByTv2.text = "Last Updated by [DELETED ACCOUNT]"
-                    setShimmerModifier(false)
-                }
-                Response.Loading -> {
-                    setShimmerModifier(true)
-                }
-                is Response.Success ->{
-                    val acc = it.data
-                    if (acc == null){
-                        modifierBinding.lastUpdatedByTv2.text = "Last Updated by [DELETED ACCOUNT]"
-                    } else {
-                        modifierBinding.lastUpdatedByTv2.text = "Last Updated by ${acc.first_name} ${acc.last_name}"
-                        acc.profileUri?.let { uri ->
-                            Glide.with(requireContext())
-                                .load(uri)
-                                .centerCrop()
-                                .into(modifierBinding.lastUpdatedIv)
-                        }
-                    }
-                    setShimmerModifier(false)
-                }
-            }
-        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    accountViewModel.getAccount(modifier.lastUpdatedBy) {
+                        when (it) {
+                            is Response.Error -> {
+                                modifierBinding.lastUpdatedByTv2.text =
+                                    "Last Updated by [DELETED ACCOUNT]"
+                                setShimmerModifier(false)
+                            }
 
-        accountViewModel.getAccount(modifier.createdBy){
-            when (it){
-                is Response.Error -> {
-                    modifierBinding.createdByTv2.text = "Created by [DELETED ACCOUNT]"
-                    setShimmerModifier(false)
-                }
-                Response.Loading -> {
-                    setShimmerModifier(true)
-                }
-                is Response.Success -> {
-                    val acc = it.data
-                    if (acc == null){
-                        modifierBinding.createdByTv2.text = "Created by [DELETED ACCOUNT]"
-                    } else {
-                        modifierBinding.createdByTv2.text = "Created by ${acc.first_name} ${acc.last_name}"
-                        acc.profileUri?.let { uri ->
-                            Glide.with(requireContext())
-                                .load(uri)
-                                .centerCrop()
-                                .into(modifierBinding.createdByIv)
+                            Response.Loading -> {
+                                setShimmerModifier(true)
+                            }
+
+                            is Response.Success -> {
+                                val acc = it.data
+                                if (acc == null) {
+                                    modifierBinding.lastUpdatedByTv2.text =
+                                        "Last Updated by [DELETED ACCOUNT]"
+                                } else {
+                                    modifierBinding.lastUpdatedByTv2.text =
+                                        "Last Updated by ${acc.first_name} ${acc.last_name}"
+                                    acc.profileUri?.let { uri ->
+                                        Glide.with(requireContext())
+                                            .load(uri)
+                                            .centerCrop()
+                                            .into(modifierBinding.lastUpdatedIv)
+                                    }
+                                }
+                                setShimmerModifier(false)
+                            }
                         }
                     }
-                    setShimmerModifier(false)
+                }
+                launch {
+                    accountViewModel.getAccount(modifier.createdBy) {
+                        when (it) {
+                            is Response.Error -> {
+                                modifierBinding.createdByTv2.text = "Created by [DELETED ACCOUNT]"
+                                setShimmerModifier(false)
+                            }
+
+                            Response.Loading -> {
+                                setShimmerModifier(true)
+                            }
+
+                            is Response.Success -> {
+                                val acc = it.data
+                                if (acc == null) {
+                                    modifierBinding.createdByTv2.text =
+                                        "Created by [DELETED ACCOUNT]"
+                                } else {
+                                    modifierBinding.createdByTv2.text =
+                                        "Created by ${acc.first_name} ${acc.last_name}"
+                                    acc.profileUri?.let { uri ->
+                                        Glide.with(requireContext())
+                                            .load(uri)
+                                            .centerCrop()
+                                            .into(modifierBinding.createdByIv)
+                                    }
+                                }
+                                setShimmerModifier(false)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -389,56 +412,72 @@ class SecondFragment : Fragment() {
         foodBinding.availabilityChip.text = if (food.availability) "Available" else "Unavailable"
         foodBinding.lastUpdatedTextView.text = "Last Updated ${food.lastUpdated.toString()}"
 
-        accountViewModel.getAccount(food.lastUpdatedBy){
-            when (it){
-                is Response.Error -> {
-                    foodBinding.lastUpdatedByTv.text = "Last Updated by [DELETED ACCOUNT]"
-                    setShimmerFood(false)
-                }
-                Response.Loading -> {
-                    setShimmerFood(true)
-                }
-                is Response.Success ->{
-                    val acc = it.data
-                    if (acc == null){
-                        foodBinding.lastUpdatedByTv.text = "Last Updated by [DELETED ACCOUNT]"
-                    } else {
-                        foodBinding.lastUpdatedByTv.text = "Last Updated by ${acc.first_name} ${acc.last_name}"
-                        acc.profileUri?.let { uri ->
-                            Glide.with(requireContext())
-                                .load(uri)
-                                .centerCrop()
-                                .into(foodBinding.lastUpdatedIv)
-                        }
-                    }
-                    setShimmerFood(false)
-                }
-            }
-        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    accountViewModel.getAccount(food.lastUpdatedBy) {
+                        when (it) {
+                            is Response.Error -> {
+                                foodBinding.lastUpdatedByTv.text =
+                                    "Last Updated by [DELETED ACCOUNT]"
+                                setShimmerFood(false)
+                            }
 
-        accountViewModel.getAccount(food.createdBy){
-            when (it){
-                is Response.Error -> {
-                    foodBinding.createdByTv.text = "Created by [DELETED ACCOUNT]"
-                    setShimmerFood(false)
-                }
-                Response.Loading -> {
-                    setShimmerFood(true)
-                }
-                is Response.Success -> {
-                    val acc = it.data
-                    if (acc == null){
-                        foodBinding.createdByTv.text = "Created by [DELETED ACCOUNT]"
-                    } else {
-                        foodBinding.createdByTv.text = "Created by ${acc.first_name} ${acc.last_name}"
-                        acc.profileUri?.let { uri ->
-                            Glide.with(requireContext())
-                                .load(uri)
-                                .centerCrop()
-                                .into(foodBinding.createdByIv)
+                            Response.Loading -> {
+                                setShimmerFood(true)
+                            }
+
+                            is Response.Success -> {
+                                val acc = it.data
+                                if (acc == null) {
+                                    foodBinding.lastUpdatedByTv.text =
+                                        "Last Updated by [DELETED ACCOUNT]"
+                                } else {
+                                    foodBinding.lastUpdatedByTv.text =
+                                        "Last Updated by ${acc.first_name} ${acc.last_name}"
+                                    acc.profileUri?.let { uri ->
+                                        Glide.with(requireContext())
+                                            .load(uri)
+                                            .centerCrop()
+                                            .into(foodBinding.lastUpdatedIv)
+                                    }
+                                }
+                                setShimmerFood(false)
+                            }
                         }
                     }
-                    setShimmerFood(false)
+                }
+                launch {
+                    accountViewModel.getAccount(food.createdBy) {
+                        when (it) {
+                            is Response.Error -> {
+                                foodBinding.createdByTv.text = "Created by [DELETED ACCOUNT]"
+                                setShimmerFood(false)
+                            }
+
+                            Response.Loading -> {
+                                setShimmerFood(true)
+                            }
+
+                            is Response.Success -> {
+                                val acc = it.data
+                                if (acc == null) {
+                                    foodBinding.createdByTv.text = "Created by [DELETED ACCOUNT]"
+                                } else {
+                                    foodBinding.createdByTv.text =
+                                        "Created by ${acc.first_name} ${acc.last_name}"
+                                    acc.profileUri?.let { uri ->
+                                        Glide.with(requireContext())
+                                            .load(uri)
+                                            .centerCrop()
+                                            .into(foodBinding.createdByIv)
+                                    }
+                                }
+                                setShimmerFood(false)
+
+                            }
+                        }
+                    }
                 }
             }
         }

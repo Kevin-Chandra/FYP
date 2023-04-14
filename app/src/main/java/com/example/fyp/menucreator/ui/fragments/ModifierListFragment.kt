@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.account_management.data.model.AccountType
@@ -29,7 +30,7 @@ class ModifierListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel by activityViewModels<ModifierListingViewModel>()
-    private val accountViewModel by viewModels<MainAuthViewModel>()
+    private val accountViewModel by activityViewModels<MainAuthViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +46,8 @@ class ModifierListFragment : Fragment() {
 
         accountViewModel.getSession {
             if (it != null && (it.accountType == AccountType.Admin || it.accountType == AccountType.Manager))
-                binding.fabAddModifier.visibility = View.VISIBLE
+                if (this.lifecycle.currentState >= Lifecycle.State.STARTED)
+                    binding.fabAddModifier.visibility = View.VISIBLE
         }
 
         val modifierAdapter = ModifierListItemAdapter(onItemClicked = {

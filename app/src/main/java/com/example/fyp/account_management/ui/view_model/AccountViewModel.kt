@@ -22,7 +22,7 @@ class AccountViewModel @Inject constructor(
     private val getAccountUseCase: GetAccountUseCase
 ) : ViewModel() {
 
-    fun getAccount( id:String , result: (Response<Account?>) -> Unit) = viewModelScope.launch(){
+    suspend fun getAccount( id:String , result: (Response<Account?>) -> Unit) {
         getAccountUseCase(id){
             result.invoke(it)
         }

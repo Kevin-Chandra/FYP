@@ -2,6 +2,7 @@ package com.example.fyp.menucreator.ui.fragments
 
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -41,6 +42,12 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setMenu()
+
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                activity?.finishAndRemoveTask()
+            }
+        })
 
         pagerAdapter = MenuCreatorViewPagerAdapter(this)
 
