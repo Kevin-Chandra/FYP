@@ -234,8 +234,6 @@ class AddEditModifierViewModel @Inject constructor(
         }
     }
 
-
-
     private fun getModifier(
         productId: String,
         name: String,
