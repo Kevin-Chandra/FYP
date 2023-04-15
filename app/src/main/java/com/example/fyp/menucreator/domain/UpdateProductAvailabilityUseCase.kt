@@ -24,7 +24,7 @@ class UpdateProductAvailabilityUseCase @Inject constructor(
             return
         }
         if (account.accountType == AccountType.Staff && (account.staffPosition == StaffPosition.Disabled || account.staffPosition == StaffPosition.Pending)){
-            result.invoke(UiState.Failure(Exception("Your staff account is ${account.staffPosition}!")))
+            result.invoke(UiState.Failure(Exception("Your staff account is ${account.staffPosition.toString().lowercase()}!")))
             return
         }
         when(type){

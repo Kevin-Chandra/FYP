@@ -19,6 +19,8 @@ import com.example.fyp.menucreator.domain.productImage.DeleteImageUseCase
 import com.example.fyp.menucreator.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
@@ -202,21 +204,34 @@ class FoodModifierDetailViewModel @Inject constructor(
         }
     }
 
-    private fun updateModifierItemAvailability(account: Account, availabilityMap: Map<String,Boolean>) = viewModelScope.launch {
-        availabilityMap.forEach {
-            if (it.value == itemMap?.get(it.key)?.availability)
-                return@forEach
-            launch(Dispatchers.IO) {
-                updateProductAvailabilityUseCase.invoke(
-                    account,
-                    it.key,
-                    ProductType.ModifierItem,
-                    it.value
-                ) {
+    private fun updateModifierItemAvailability(account: Account, availabilityMap: Map<String,Boolean>) {
+        val parentJob = viewModelScope.launch {
+            availabilityMap.forEach {
+                if (it.value == itemMap?.get(it.key)?.availability)
+                    return@forEach
+                launch(Dispatchers.IO) {
+                    ensureActive()
+                    updateProductAvailabilityUseCase.invoke(
+                        account,
+                        it.key,
+                        ProductType.ModifierItem,
+                        it.value
+                    ) { response ->
+                        if (response is UiState.Failure) {
+                            _updateAvailabilityResponse.value = UiState.Failure(response.e)
+                            this.cancel()
+                        }
+                    }
                 }
             }
         }
-        _updateAvailabilityResponse.value = UiState.Success("Updated Availability!")
+        parentJob.invokeOnCompletion {
+            it?.let {
+                _updateAvailabilityResponse.value = UiState.Failure(it as Exception)
+                return@invokeOnCompletion
+            }
+            _updateAvailabilityResponse.value = UiState.Success("Updated Availability!")
+        }
     }
 
     fun removeModifierFromFoodAndUpdate(account: Account, food : Food, list: List<String>) = viewModelScope.launch{

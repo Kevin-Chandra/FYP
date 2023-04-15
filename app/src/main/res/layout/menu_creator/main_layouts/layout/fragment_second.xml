@@ -35,6 +35,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            android:backgroundTint="#FF3131"
             android:src="@drawable/ic_delete"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -47,10 +48,11 @@
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-
-            android:src="@drawable/ic_random"
+            android:src="@drawable/ic_availability"
             android:visibility="gone"
             tools:visibility="visible" />
+
+
 
         <ProgressBar
             android:id="@+id/progressBar"
