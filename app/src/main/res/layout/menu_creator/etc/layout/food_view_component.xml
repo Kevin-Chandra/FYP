@@ -95,7 +95,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/availability_chip"
-            style="@style/TextAppearance.Material3.HeadlineSmall"
+            style="@style/Widget.Material3.Chip.Assist.Elevated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"

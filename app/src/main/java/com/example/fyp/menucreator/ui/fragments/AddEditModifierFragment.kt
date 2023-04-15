@@ -1,6 +1,5 @@
 package com.example.fyp.menucreator.ui.fragments
 
-import android.app.AlertDialog
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -29,6 +28,7 @@ import com.example.fyp.databinding.FragmentAddEditModifierBinding
 import com.example.fyp.menucreator.ui.adapter.ModifierItemAddEditAdapter
 import com.example.fyp.menucreator.ui.viewmodel.AddEditModifierViewModel
 import com.example.fyp.menucreator.util.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -191,7 +191,7 @@ class AddEditModifierFragment : Fragment() {
         val callback: OnBackPressedCallback =
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    val backDialog = AlertDialog.Builder(context)
+                    val backDialog = MaterialAlertDialogBuilder(context)
                         .setTitle("Save Data?")
                         .setMessage("Do you want to save the current modifier info?")
                         .setPositiveButton("Save") { _, _ ->
@@ -247,7 +247,7 @@ class AddEditModifierFragment : Fragment() {
 
     private fun errorDialog(msg: String) {
         binding.progressBar.visibility = View.GONE
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Exception occurred!")
             .setMessage("Unable to save modifier\nReason: $msg")
             .setCancelable(false)

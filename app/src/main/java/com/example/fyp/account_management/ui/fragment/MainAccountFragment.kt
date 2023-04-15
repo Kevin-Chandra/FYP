@@ -107,7 +107,7 @@ class MainAccountFragment : Fragment() {
 
         binding.deleteBtn.setOnClickListener {
             val input = LayoutInflater.from(requireContext()).inflate(R.layout.password_input_dialog,getView() as ViewGroup,false)
-            AlertDialog.Builder(requireContext())
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Enter password to confirm")
                 .setView(input)
                 .setPositiveButton("Submit") { _, _ ->
@@ -224,7 +224,7 @@ class MainAccountFragment : Fragment() {
     }
 
     private fun errorDialog(msg: String){
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Error")
             .setMessage(msg)
             .setCancelable(false)

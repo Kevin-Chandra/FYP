@@ -71,5 +71,5 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.fyp.menucreator.ui.fragments.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="Settings" />
 </navigation>

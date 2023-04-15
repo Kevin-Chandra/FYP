@@ -1,6 +1,5 @@
 package com.example.fyp.menucreator.ui.fragments
 
-import android.app.AlertDialog
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -35,6 +34,7 @@ import com.example.fyp.menucreator.util.AddEditFoodEvent
 import com.example.fyp.menucreator.util.NavigationCommand
 import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*
@@ -208,7 +208,7 @@ class AddEditFoodFragment : Fragment() {
             object : OnBackPressedCallback(true)
             {
                 override fun handleOnBackPressed() {
-                    val dialog = AlertDialog.Builder(context)
+                    val dialog = MaterialAlertDialogBuilder(context)
                         .setTitle("Save Data?")
                         .setMessage("Do you want to save the current food info?")
                         .setPositiveButton("Save"){
@@ -280,7 +280,7 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun handleAddModifier() {
-        val dialog = AlertDialog.Builder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Select Modifier")
             .setMultiChoiceItems(modifierList,checkedItems) { _, which, isChecked ->
                  // If the user checked the item, add it to the selected items
@@ -357,7 +357,7 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun errorDialog(msg: String){
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Exception occured")
             .setMessage("Unable to save food\nReason: $msg")
             .setCancelable(false)

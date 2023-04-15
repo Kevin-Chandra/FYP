@@ -3,4 +3,6 @@
     <color name="regButtonColor">#FFFFFFFF</color>
     <color name="borderlessButtonBackgroundColor">#FFFFFF</color>
     <color name="borderlessButtonColor">#000000</color>
+
+    <color name="primary">@color/md_theme_dark_primary</color>
 </resources>

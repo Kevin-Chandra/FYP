@@ -153,13 +153,12 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_modifier_item_button"
-                style="@style/Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 app:icon="@drawable/ic_add"
                 android:text="Add more"
-                android:textColor="@color/borderlessButtonBackgroundColor"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/item_rv" />
 

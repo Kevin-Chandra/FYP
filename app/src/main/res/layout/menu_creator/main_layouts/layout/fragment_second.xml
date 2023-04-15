@@ -36,6 +36,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:backgroundTint="#FF3131"
+            app:borderWidth="0dp"
             android:src="@drawable/ic_delete"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -52,8 +53,6 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
-
-
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyle"
@@ -61,7 +60,6 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:layout_centerInParent="true" />
-
 
     </RelativeLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
