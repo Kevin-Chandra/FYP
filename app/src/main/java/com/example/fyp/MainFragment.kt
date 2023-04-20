@@ -14,6 +14,7 @@ import com.example.fyp.account_management.AuthActivity
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.databinding.FragmentMainBinding
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
+import com.example.fyp.ordering_system.ui.OnlineOrderingActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -47,6 +48,10 @@ class MainFragment : Fragment() {
 
         binding.accountBtn.setOnClickListener {
             startActivity(Intent(requireContext(),AccountActivity::class.java))
+        }
+
+        binding.onlineOrderingBtn.setOnClickListener {
+            startActivity(Intent(requireContext(),OnlineOrderingActivity::class.java))
         }
 
         binding.menuCreatorButton.setOnClickListener {

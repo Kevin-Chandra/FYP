@@ -7,12 +7,17 @@ object FireStoreCollection{
     const val FOOD_CATEGORY = "FoodCategory"
     const val USER = "User"
     const val ADMIN_SETTINGS = "AdminSettings"
+    const val ORDER_ITEM = "OrderItem"
+    const val ORDER = "Order"
 }
 
 object FireStoreDocumentField{
     const val STAFF_REGISTRATION_TOKEN = "StaffRegistrationToken"
     const val ID = "id"
     const val FOOD_CATEGORY_NAME = "name"
+    const val ORDER_ID = "orderId"
+    const val ORDER_ITEM_ID = "orderItemId"
+    const val ORDER_ITEM_STATUS = "orderItemStatus"
     const val DATE = "date"
     const val PRODUCT_ID = "productId"
     const val AVAILABILITY = "availability"
@@ -28,8 +33,8 @@ object FireStoreDocumentField{
 }
 
 object NavigationCommand{
-    val ADD = "add"
-    val EDIT = "edit"
+    const val ADD = "add"
+    const val EDIT = "edit"
 }
 
 object FirebaseStorageReference{

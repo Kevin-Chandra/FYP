@@ -16,6 +16,11 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
+            android:name=".ordering_system.ui.OnlineOrderingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_online_ordering"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name=".account_management.AccountActivity"
             android:exported="false"
             android:label="@string/title_activity_account"
@@ -36,6 +41,7 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

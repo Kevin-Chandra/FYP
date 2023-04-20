@@ -1,0 +1,33 @@
+package com.example.fyp.ordering_system.data.model
+
+import com.google.firebase.firestore.DocumentId
+import java.util.Date
+
+data class Order(
+    @DocumentId
+    val orderId : String = "",
+    val orderType : OrderType = OrderType.Online,
+    val orderStatus: OrderStatus = OrderStatus.Pending,
+    val orderList: List<OrderItem> = listOf(),
+    val orderStartTime: Date= Date(),
+    val orderFinishTime: Date= Date(),
+    val taxPercentage: Double = 0.0,
+    val serviceChargePercentage : Double = 0.0,
+    val subTotal: Double = 0.0,
+    val grandTotal: Double = 0.0
+)
+
+enum class OrderType{
+    Online,
+    DineIn,
+    Reservation,
+    Takeaway
+}
+
+enum class OrderStatus{
+    Pending,
+    Rejected,
+    Confirmed,
+    Ongoing,
+    Finished
+}

@@ -25,7 +25,6 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.random.Random
 
-
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val database: FirebaseFirestore,
