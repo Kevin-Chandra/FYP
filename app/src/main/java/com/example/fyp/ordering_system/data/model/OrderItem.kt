@@ -19,10 +19,11 @@ data class OrderItem (
     val quantity: Int = -1,
     val note : String? = null,
     val timeFinished: Date = Date(),
-    val orderItemStatus :OrderItemStatus = OrderItemStatus.Sent
+    val orderItemStatus :OrderItemStatus = OrderItemStatus.Created
 )
 
 enum class OrderItemStatus{
+    Created,
     Sent,
     Preparing,
     Finished,
