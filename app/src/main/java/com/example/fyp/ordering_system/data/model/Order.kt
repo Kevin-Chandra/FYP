@@ -4,17 +4,17 @@ import com.google.firebase.firestore.DocumentId
 import java.util.Date
 
 data class Order(
-    @DocumentId
     val orderId : String = "",
     val orderType : OrderType = OrderType.Online,
-    val orderStatus: OrderStatus = OrderStatus.Pending,
-    val orderList: List<OrderItem> = listOf(),
+    val orderStatus: OrderStatus = OrderStatus.Sent,
+    val orderList: List<String> = listOf(),
     val orderStartTime: Date= Date(),
     val orderFinishTime: Date= Date(),
     val taxPercentage: Double = 0.0,
     val serviceChargePercentage : Double = 0.0,
     val subTotal: Double = 0.0,
-    val grandTotal: Double = 0.0
+    val grandTotal: Double = 0.0,
+    val orderUser: String = ""
 )
 
 enum class OrderType{
@@ -25,7 +25,7 @@ enum class OrderType{
 }
 
 enum class OrderStatus{
-    Pending,
+    Sent,
     Rejected,
     Confirmed,
     Ongoing,

@@ -16,11 +16,17 @@ interface OrderItemDao {
     @Upsert
     suspend fun upsertOrderItem(orderItem: OrderItem)
 
+    @Update
+    suspend fun updateOrderItem(orderItem: OrderItem)
+
     @Query("SELECT * FROM order_items WHERE orderItemId = :orderItemId")
     suspend fun getOrderItem(orderItemId: String): OrderItem
 
     @Query("SELECT * FROM order_items ORDER BY timeAdded ASC")
     fun getOrderItemList(): Flow<List<OrderItem>>
+
+    @Query("DELETE FROM order_items WHERE orderItemId = :id")
+    suspend fun deleteByOrderItemId(id: String)
 
     @Delete
     suspend fun deleteOrderItem(item: OrderItem)

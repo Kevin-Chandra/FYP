@@ -65,6 +65,9 @@ class SecondFragment : Fragment() {
     private var _detailedModifierBinding: ModifierDetailedRowComponentBinding? = null
     private val detailedModifierBinding get() = _detailedModifierBinding!!
 
+    private var _creatorInfoBinding: CreatorInfoLayoutBinding? = null
+    private val creatorInfoBinding get() = _creatorInfoBinding!!
+
     private lateinit var bottomSheet: BottomSheetDialog
 
     private var productId: String? = null
@@ -98,9 +101,9 @@ class SecondFragment : Fragment() {
             _foodBinding = FoodViewComponentBinding.inflate(inflater, container, false)
         } else {
             //inflate detailed view container
-            _detailedModifierBinding =
-                ModifierDetailedRowComponentBinding.inflate(inflater, container, false)
+            _detailedModifierBinding = ModifierDetailedRowComponentBinding.inflate(inflater, container, false)
         }
+        _creatorInfoBinding = CreatorInfoLayoutBinding.inflate(inflater,container,false)
         _modifierBinding = ModifierViewComponentBinding.inflate(inflater, container, false)
 
         return binding.root
@@ -174,43 +177,45 @@ class SecondFragment : Fragment() {
         }
     }
 
-    private fun setShimmerFood(b: Boolean) {
-        if (b) {
-            foodBinding.shimmerLayout.showShimmer(true)
-            foodBinding.createdByTv.visibility = View.INVISIBLE
-            foodBinding.createdByCv.visibility = View.INVISIBLE
-            foodBinding.lastUpdatedByTv.visibility = View.INVISIBLE
-            foodBinding.lastUpdatedCv.visibility = View.INVISIBLE
-        } else {
-            foodBinding.shimmerLayout.hideShimmer()
-            foodBinding.cvShimmer1.visibility = View.GONE
-            foodBinding.cvShimmer2.visibility = View.GONE
-            foodBinding.shimmerTv1.visibility = View.GONE
-            foodBinding.shimmerTv2.visibility = View.GONE
-            foodBinding.createdByTv.visibility = View.VISIBLE
-            foodBinding.createdByCv.visibility = View.VISIBLE
-            foodBinding.lastUpdatedByTv.visibility = View.VISIBLE
-            foodBinding.lastUpdatedCv.visibility = View.VISIBLE
-        }
-    }
+//    private fun setShimmerFood(b: Boolean) {
+//        if (b) {
+//            foodBinding.shimmerLayout.showShimmer(true)
+//            foodBinding.createdByTv.visibility = View.INVISIBLE
+//            foodBinding.createdByCv.visibility = View.INVISIBLE
+//            foodBinding.lastUpdatedByTv.visibility = View.INVISIBLE
+//            foodBinding.lastUpdatedCv.visibility = View.INVISIBLE
+//        } else {
+//            foodBinding.shimmerLayout.hideShimmer()
+//            foodBinding.cvShimmer1.visibility = View.GONE
+//            foodBinding.cvShimmer2.visibility = View.GONE
+//            foodBinding.shimmerTv1.visibility = View.GONE
+//            foodBinding.shimmerTv2.visibility = View.GONE
+//            foodBinding.createdByTv.visibility = View.VISIBLE
+//            foodBinding.createdByCv.visibility = View.VISIBLE
+//            foodBinding.lastUpdatedByTv.visibility = View.VISIBLE
+//            foodBinding.lastUpdatedCv.visibility = View.VISIBLE
+//        }
+//    }
 
-    private fun setShimmerModifier(b: Boolean) {
+    private fun setShimmerCreatorLayout(b: Boolean) {
         if (b) {
-            modifierBinding.shimmerLayout.showShimmer(true)
-            modifierBinding.createdByTv2.visibility = View.INVISIBLE
-            modifierBinding.createdByCv.visibility = View.INVISIBLE
-            modifierBinding.lastUpdatedByTv2.visibility = View.INVISIBLE
-            modifierBinding.lastUpdatedCv.visibility = View.INVISIBLE
+            creatorInfoBinding.apply {
+                shimmerLayout.showShimmer(true)
+                createdByTv4.visibility = View.INVISIBLE
+                createdByCv.visibility = View.INVISIBLE
+                lastUpdatedByTv4.visibility = View.INVISIBLE
+                lastUpdatedCv.visibility = View.INVISIBLE
+            }
         } else {
-            modifierBinding.shimmerLayout.hideShimmer()
-            modifierBinding.cvShimmer1.visibility = View.GONE
-            modifierBinding.cvShimmer2.visibility = View.GONE
-            modifierBinding.shimmerTv1.visibility = View.GONE
-            modifierBinding.shimmerTv2.visibility = View.GONE
-            modifierBinding.createdByTv2.visibility = View.VISIBLE
-            modifierBinding.createdByCv.visibility = View.VISIBLE
-            modifierBinding.lastUpdatedByTv2.visibility = View.VISIBLE
-            modifierBinding.lastUpdatedCv.visibility = View.VISIBLE
+            creatorInfoBinding.shimmerLayout.hideShimmer()
+            creatorInfoBinding.cvShimmer1.visibility = View.GONE
+            creatorInfoBinding.cvShimmer2.visibility = View.GONE
+            creatorInfoBinding.shimmerTv1.visibility = View.GONE
+            creatorInfoBinding.shimmerTv2.visibility = View.GONE
+            creatorInfoBinding.createdByTv4.visibility = View.VISIBLE
+            creatorInfoBinding.createdByCv.visibility = View.VISIBLE
+            creatorInfoBinding.lastUpdatedByTv4.visibility = View.VISIBLE
+            creatorInfoBinding.lastUpdatedCv.visibility = View.VISIBLE
         }
     }
 
@@ -275,31 +280,31 @@ class SecondFragment : Fragment() {
                     accountViewModel.getAccount(modifier.lastUpdatedBy) {
                         when (it) {
                             is Response.Error -> {
-                                modifierBinding.lastUpdatedByTv2.text =
+                                creatorInfoBinding.lastUpdatedByTv4.text =
                                     "Last Updated by [DELETED ACCOUNT]"
-                                setShimmerModifier(false)
+                                setShimmerCreatorLayout(false)
                             }
 
                             Response.Loading -> {
-                                setShimmerModifier(true)
+                                setShimmerCreatorLayout(true)
                             }
 
                             is Response.Success -> {
                                 val acc = it.data
                                 if (acc == null) {
-                                    modifierBinding.lastUpdatedByTv2.text =
+                                    creatorInfoBinding.lastUpdatedByTv4.text =
                                         "Last Updated by [DELETED ACCOUNT]"
                                 } else {
-                                    modifierBinding.lastUpdatedByTv2.text =
+                                    creatorInfoBinding.lastUpdatedByTv4.text =
                                         "Last Updated by ${acc.first_name} ${acc.last_name}"
                                     acc.profileUri?.let { uri ->
                                         Glide.with(requireContext())
                                             .load(uri)
                                             .centerCrop()
-                                            .into(modifierBinding.lastUpdatedIv)
+                                            .into(creatorInfoBinding.lastUpdatedIv)
                                     }
                                 }
-                                setShimmerModifier(false)
+                                setShimmerCreatorLayout(false)
                             }
                         }
                     }
@@ -308,30 +313,30 @@ class SecondFragment : Fragment() {
                     accountViewModel.getAccount(modifier.createdBy) {
                         when (it) {
                             is Response.Error -> {
-                                modifierBinding.createdByTv2.text = "Created by [DELETED ACCOUNT]"
-                                setShimmerModifier(false)
+                                creatorInfoBinding.createdByTv4.text = "Created by [DELETED ACCOUNT]"
+                                setShimmerCreatorLayout(false)
                             }
 
                             Response.Loading -> {
-                                setShimmerModifier(true)
+                                setShimmerCreatorLayout(true)
                             }
 
                             is Response.Success -> {
                                 val acc = it.data
                                 if (acc == null) {
-                                    modifierBinding.createdByTv2.text =
+                                    creatorInfoBinding.createdByTv4.text =
                                         "Created by [DELETED ACCOUNT]"
                                 } else {
-                                    modifierBinding.createdByTv2.text =
+                                    creatorInfoBinding.createdByTv4.text =
                                         "Created by ${acc.first_name} ${acc.last_name}"
                                     acc.profileUri?.let { uri ->
                                         Glide.with(requireContext())
                                             .load(uri)
                                             .centerCrop()
-                                            .into(modifierBinding.createdByIv)
+                                            .into(creatorInfoBinding.createdByIv)
                                     }
                                 }
-                                setShimmerModifier(false)
+                                setShimmerCreatorLayout(false)
                             }
                         }
                     }
@@ -347,6 +352,9 @@ class SecondFragment : Fragment() {
             (detailedModifierBinding.root.parent as ViewGroup).removeView(detailedModifierBinding.root)
         modifierBinding.modifierDetailedViewContainer.addView(_detailedModifierBinding?.root)
 
+        if (creatorInfoBinding.root.parent == null)
+            modifierBinding.creatorCl.addView(creatorInfoBinding.root)
+
         detailedModifierBinding.apply {
             modifier.imageUri?.let{
                 Glide.with(requireContext())
@@ -361,7 +369,7 @@ class SecondFragment : Fragment() {
         loadModifierItem(modifier)
         loadBottomSheet()
 
-        modifierBinding.lastUpdatedTextView.text = "Last Updated ${modifier.lastUpdated.toString()}"
+        creatorInfoBinding.lastUpdatedTv.text = "Last Updated ${modifier.lastUpdated.toString()}"
     }
 
     private fun loadBottomSheet(){
@@ -410,7 +418,7 @@ class SecondFragment : Fragment() {
         foodBinding.categoryValueTv.text = food.category
         foodBinding.priceTextview.text = food.price.toString()
         foodBinding.availabilityChip.text = if (food.availability) "Available" else "Unavailable"
-        foodBinding.lastUpdatedTextView.text = "Last Updated ${food.lastUpdated.toString()}"
+        creatorInfoBinding.lastUpdatedTv.text = "Last Updated ${food.lastUpdated.toString()}"
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -418,31 +426,31 @@ class SecondFragment : Fragment() {
                     accountViewModel.getAccount(food.lastUpdatedBy) {
                         when (it) {
                             is Response.Error -> {
-                                foodBinding.lastUpdatedByTv.text =
+                                creatorInfoBinding.lastUpdatedByTv4.text =
                                     "Last Updated by [DELETED ACCOUNT]"
-                                setShimmerFood(false)
+                                setShimmerCreatorLayout(false)
                             }
 
                             Response.Loading -> {
-                                setShimmerFood(true)
+                                setShimmerCreatorLayout(true)
                             }
 
                             is Response.Success -> {
                                 val acc = it.data
                                 if (acc == null) {
-                                    foodBinding.lastUpdatedByTv.text =
+                                    creatorInfoBinding.lastUpdatedByTv4.text =
                                         "Last Updated by [DELETED ACCOUNT]"
                                 } else {
-                                    foodBinding.lastUpdatedByTv.text =
+                                    creatorInfoBinding.lastUpdatedByTv4.text =
                                         "Last Updated by ${acc.first_name} ${acc.last_name}"
                                     acc.profileUri?.let { uri ->
                                         Glide.with(requireContext())
                                             .load(uri)
                                             .centerCrop()
-                                            .into(foodBinding.lastUpdatedIv)
+                                            .into(creatorInfoBinding.lastUpdatedIv)
                                     }
                                 }
-                                setShimmerFood(false)
+                                setShimmerCreatorLayout(false)
                             }
                         }
                     }
@@ -451,30 +459,29 @@ class SecondFragment : Fragment() {
                     accountViewModel.getAccount(food.createdBy) {
                         when (it) {
                             is Response.Error -> {
-                                foodBinding.createdByTv.text = "Created by [DELETED ACCOUNT]"
-                                setShimmerFood(false)
+                                creatorInfoBinding.createdByTv4.text = "Created by [DELETED ACCOUNT]"
+                                setShimmerCreatorLayout(false)
                             }
 
                             Response.Loading -> {
-                                setShimmerFood(true)
+                                setShimmerCreatorLayout(true)
                             }
 
                             is Response.Success -> {
                                 val acc = it.data
                                 if (acc == null) {
-                                    foodBinding.createdByTv.text = "Created by [DELETED ACCOUNT]"
+                                    creatorInfoBinding.createdByTv4.text = "Created by [DELETED ACCOUNT]"
                                 } else {
-                                    foodBinding.createdByTv.text =
+                                    creatorInfoBinding.createdByTv4.text =
                                         "Created by ${acc.first_name} ${acc.last_name}"
                                     acc.profileUri?.let { uri ->
                                         Glide.with(requireContext())
                                             .load(uri)
                                             .centerCrop()
-                                            .into(foodBinding.createdByIv)
+                                            .into(creatorInfoBinding.createdByIv)
                                     }
                                 }
-                                setShimmerFood(false)
-
+                                setShimmerCreatorLayout(false)
                             }
                         }
                     }
@@ -524,6 +531,9 @@ class SecondFragment : Fragment() {
             }
 
         }
+
+        if (creatorInfoBinding.root.parent == null)
+            foodBinding.creatorLayout.addView(creatorInfoBinding.root)
 
         loadBottomSheet()
 

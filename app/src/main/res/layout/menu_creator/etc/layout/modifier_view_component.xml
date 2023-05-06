@@ -14,128 +14,6 @@
         android:id="@+id/base_layout"
         android:padding="0dp">
 
-        <com.facebook.shimmer.ShimmerFrameLayout
-            android:id="@+id/shimmer_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/created_by_cv"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/last_updated_textView"
-            app:shimmer_auto_start="true"
-            tools:visibility="visible">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize8Percent">
-
-                <TextView
-                    android:id="@+id/shimmer_tv1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="24dp"
-                    android:background="#DDDDDD"
-                    app:layout_constraintBottom_toBottomOf="@+id/cv_shimmer1"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/cv_shimmer1"
-                    app:layout_constraintTop_toTopOf="@+id/cv_shimmer1" />
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cv_shimmer1"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    app:cardCornerRadius="50dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/shimmer_tv2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="24dp"
-                    android:background="#DDDDDD"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/cv_shimmer2"
-                    app:layout_constraintTop_toTopOf="@+id/cv_shimmer2" />
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cv_shimmer2"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    app:cardCornerRadius="50dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/cv_shimmer1" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.facebook.shimmer.ShimmerFrameLayout>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/last_updated_cv"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="50dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/last_updated_textView">
-
-            <ImageView
-                android:id="@+id/last_updated_iv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_profile_placeholder_24"
-                tools:srcCompat="@tools:sample/avatars" />
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:id="@+id/last_updated_by_tv2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/last_updated_cv"
-            app:layout_constraintStart_toEndOf="@+id/last_updated_cv"
-            app:layout_constraintTop_toTopOf="@+id/last_updated_cv"
-            tools:text="TextView" />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/created_by_cv"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="50dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/last_updated_cv">
-
-            <ImageView
-                android:id="@+id/created_by_iv"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/ic_profile_placeholder_24"
-                tools:srcCompat="@tools:sample/avatars" />
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:id="@+id/created_by_tv2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/created_by_cv"
-            app:layout_constraintStart_toEndOf="@+id/created_by_cv"
-            app:layout_constraintTop_toTopOf="@+id/created_by_cv"
-            tools:text="TextView" />
-
         <TextView
             android:id="@+id/modifier_name_textview"
             style="@style/TextAppearance.MaterialComponents.Headline4"
@@ -177,17 +55,17 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/last_updated_textView"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/creator_cl"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="16dp"
-            tools:text="TextView"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/modifier_item_container_layout" />
+            app:layout_constraintTop_toBottomOf="@+id/modifier_item_container_layout">
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

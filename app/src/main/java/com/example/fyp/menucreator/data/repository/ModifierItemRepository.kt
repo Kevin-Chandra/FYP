@@ -1,6 +1,5 @@
 package com.example.fyp.menucreator.data.repository
 
-import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
@@ -136,7 +135,28 @@ class ModifierItemRepository {
         } catch (e: Exception){
             result.invoke(UiState.Failure(e))
         }
+    }
 
+    suspend fun getModifierItem(id: String) : ModifierItem?{
+        try{
+            val query = modifierItemCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                return null
+            else{
+                for (doc in query.documents) {
+                    return modifierItemCollectionRef
+                        .document(doc.id)
+                        .get()
+                        .await()
+                        .toObject<ModifierItem>()
+                }
+            }
+            return null
+        } catch (e: Exception){
+            return null
+        }
     }
 
     suspend fun updateAvailability(id: String, value: Boolean, result: (UiState<String>) -> Unit){

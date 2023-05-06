@@ -11,6 +11,8 @@ data class Modifier(
     val multipleChoice : Boolean = false,
     val required : Boolean = false,
     val modifierItemList : List<String> = listOf(),
+    val minItem: Int? = 0,
+    val maxItem: Int? = 0,
     val imagePath: String? = null,
     val imageUri: String? = null,
     @ServerTimestamp

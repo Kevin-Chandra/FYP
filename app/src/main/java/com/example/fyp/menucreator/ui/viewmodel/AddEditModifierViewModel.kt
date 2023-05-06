@@ -192,7 +192,7 @@ class AddEditModifierViewModel @Inject constructor(
         val itemStringList = mutableListOf<String>()
         val itemList = mutableListOf<ModifierItem>()
         for (i in addEditModifierState.value.itemList){
-            itemList.add(getModifierItem(i.first.first,i.second,i.third))
+            itemList.add(getModifierItem(i.first.first,i.second,i.third,addEditModifierState.value.productId))
             itemStringList.add(i.first.first)
         }
 
@@ -215,7 +215,7 @@ class AddEditModifierViewModel @Inject constructor(
         val itemStringList = mutableListOf<String>()
         val itemList = mutableListOf<ModifierItem>()
         for (i in addEditModifierState.value.itemList){
-            itemList.add(getModifierItem(i.first.first,i.second,i.third))
+            itemList.add(getModifierItem(i.first.first,i.second,i.third,addEditModifierState.value.productId))
             itemStringList.add(i.first.first)
         }
 
@@ -226,7 +226,9 @@ class AddEditModifierViewModel @Inject constructor(
             required = addEditModifierState.value.isRequired,
             modifierItemList = itemStringList.toList(),
             lastUpdated = Date(),
-            lastUpdatedBy = account.id
+            lastUpdatedBy = account.id,
+            minItem = 0,
+            maxItem = itemStringList.size
         )
 
         updateModifierUseCase.invoke(account, newModifier,itemList,addEditModifierState.value.image){
@@ -243,15 +245,16 @@ class AddEditModifierViewModel @Inject constructor(
         createdBy: String,
         lastUpdatedBy: String
     ): Modifier {
-        return Modifier(productId, name, isMultipleChoice, isRequired, itemList,null,null,null,Date(),createdBy,lastUpdatedBy)
+        return Modifier(productId, name, isMultipleChoice, isRequired, itemList,0,itemList.size,null,null,null,Date(),createdBy,lastUpdatedBy)
     }
 
     private fun getModifierItem(
         productId: String,
         name: String,
         price: String,
+        modifierParent: String
     ): ModifierItem {
-        return ModifierItem(productId, name, price.toDoubleOrNull() ?: -1.0)
+        return ModifierItem(productId, name, price.toDoubleOrNull() ?: -1.0, modifierParent = modifierParent)
     }
 
     private fun load() = viewModelScope.launch{

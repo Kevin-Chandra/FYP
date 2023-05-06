@@ -16,10 +16,12 @@ data class OrderItem (
     @PrimaryKey val orderItemId : String = "",
     val foodId : String = "",
     val modifierItems : List<String>? = null,
-    val quantity: Int = -1,
+    val quantity: Int = 0,
     val note : String? = null,
+    val price : Double = 0.0,
     val timeFinished: Date = Date(),
-    val orderItemStatus :OrderItemStatus = OrderItemStatus.Created
+    val orderItemStatus :OrderItemStatus = OrderItemStatus.Created,
+    val orderId: String = ""
 )
 
 enum class OrderItemStatus{

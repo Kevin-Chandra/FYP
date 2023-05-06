@@ -9,6 +9,7 @@ data class ModifierItem(
     override val name:String = "",
     override val price:Double = -1.0,
     val availability: Boolean = true,
+    val modifierParent: String = "",
     @ServerTimestamp
     val date: Date = Date()
 ): Product(productId, ProductType.ModifierItem)

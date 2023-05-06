@@ -282,6 +282,7 @@ class AddEditFoodFragment : Fragment() {
     private fun handleAddModifier() {
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Select Modifier")
+            .setCancelable(false)
             .setMultiChoiceItems(modifierList,checkedItems) { _, which, isChecked ->
                  // If the user checked the item, add it to the selected items
                  if (isChecked)

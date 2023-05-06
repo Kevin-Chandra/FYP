@@ -109,4 +109,9 @@ class ProductViewModel @Inject constructor(
             }
         }
     }
+
+    fun getModifier(id: String) = modifierMap[id]
+
+    fun getModifierItem(id: String) = itemMap[id]
+    fun getFood(id: String) = foodMap[id]
 }

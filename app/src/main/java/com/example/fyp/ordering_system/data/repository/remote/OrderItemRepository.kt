@@ -56,6 +56,24 @@ class OrderItemRepository @Inject constructor(
         }
     }
 
+    suspend fun updateItemStatus(id: String, orderItemStatus: OrderItemStatus ,result: (Response<String>) -> Unit){
+        try {
+            val query = itemCollectionReference.whereEqualTo(FireStoreDocumentField.ORDER_ITEM_ID,id)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Order item ID not found!")
+            for (doc in query.documents)
+                itemCollectionReference.document(doc.id).update(
+                    FireStoreDocumentField.ORDER_ITEM_STATUS,
+                    orderItemStatus
+                )
+            result.invoke(Response.Success("Order Item Status Updated!"))
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
+        }
+    }
+
     suspend fun deleteOrderItem(id: String,result: (Response<String>) -> Unit){
         try {
             val query = itemCollectionReference.whereEqualTo(FireStoreDocumentField.ORDER_ITEM_ID,id)
@@ -83,7 +101,7 @@ class OrderItemRepository @Inject constructor(
         }
     }
 
-    suspend fun getOrderItemList(orderItemStatus: OrderItemStatus) = callbackFlow<UiState<List<OrderItem>>> {
+    suspend fun getOrderItemListByStatus(orderItemStatus: OrderItemStatus) = callbackFlow<Response<List<OrderItem>>> {
         val snapshotListener = itemCollectionReference.whereEqualTo(FireStoreDocumentField.ORDER_ITEM_STATUS,orderItemStatus)
             .addSnapshotListener{ querySnapshot, e ->
                 if (e != null ){
@@ -93,13 +111,27 @@ class OrderItemRepository @Inject constructor(
                 querySnapshot?.let{
                     val itemsResponse = run {
                         val items = querySnapshot.toObjects(OrderItem::class.java)
-                        UiState.Success(items)
+                        Response.Success(items)
                     }
                     trySend(itemsResponse)
                 }
         }
         awaitClose {
             snapshotListener.remove()
+        }
+    }
+
+    suspend fun getOrderItemListByOrderId(orderId: String, result: (Response<List<OrderItem>>) -> Unit) {
+        try {
+            val query = itemCollectionReference.whereEqualTo(FireStoreDocumentField.ORDER_ID,orderId)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Product Id not found!")
+            val items = query.toObjects(OrderItem::class.java)
+            result.invoke(Response.Success(items))
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
         }
     }
 

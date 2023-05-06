@@ -1,10 +1,12 @@
 package com.example.fyp.ordering_system.util
 
-import android.net.Uri
-import java.util.*
+import com.example.fyp.menucreator.data.model.Modifier
+import com.example.fyp.menucreator.data.model.ModifierItem
 
 data class OrderingState(
-    val foodId: String = "",
-    val modifierList : Map<String,List<String>> = emptyMap(),
-    val quantity : Int  = 0
+//    val foodId: String = "",
+//    val modifierList : MutableMap<Modifier,List<ModifierItem>?> = mutableMapOf(),
+//    val quantity : Int  = 1,
+//    val price : Double = 0.0,
+    val note: String = ""
 )

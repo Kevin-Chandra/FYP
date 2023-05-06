@@ -65,7 +65,6 @@ class MenuSettingsRepository {
 //    fun getFoodCategory()
     
     fun getFoodCategory() = callbackFlow<UiState<List<FoodCategory>>> {
-        println("AAA")
         val snapshotListener = foodCategoryRef.addSnapshotListener{ querySnapshot, e ->
             if (e != null ){
                 UiState.Failure(e)

@@ -10,6 +10,8 @@ import com.example.fyp.menucreator.domain.foodCategory.GetFoodCategoryUseCase
 import com.example.fyp.menucreator.domain.foodCategory.UpdateFoodCategoryUseCase
 import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import com.example.fyp.ordering_system.data.repository.local.OnlineOrderingDatabase
+import com.example.fyp.ordering_system.domain.validation.ValidateModifierUseCase
+import com.example.fyp.ordering_system.domain.validation.ValidateQuantityUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,5 +36,13 @@ object OnlineOrderingModule  {
     @Singleton
     @Provides
     fun provideOrderItemDao(db: OnlineOrderingDatabase) = db.orderItemDao()
+
+    @Singleton
+    @Provides
+    fun provideOrderModifierValidation() = ValidateModifierUseCase()
+
+    @Singleton
+    @Provides
+    fun provideOrderQuantityValidation() = ValidateQuantityUseCase()
 
 }

@@ -2,15 +2,13 @@ package com.example.fyp
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import com.example.fyp.account_management.AccountActivity
-import com.example.fyp.account_management.AuthActivity
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.databinding.FragmentMainBinding
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
@@ -23,6 +21,8 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val authViewModel by viewModels<MainAuthViewModel>()
+
+    private lateinit var account: Account
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,23 +51,27 @@ class MainFragment : Fragment() {
         }
 
         binding.onlineOrderingBtn.setOnClickListener {
-            startActivity(Intent(requireContext(),OnlineOrderingActivity::class.java))
+            val i = Intent(requireContext(), OnlineOrderingActivity::class.java)
+            i.putExtra("accountType", account.accountType)
+            startActivity(i)
         }
 
         binding.menuCreatorButton.setOnClickListener {
             val i = Intent(requireContext(), MenuCreatorActivity::class.java)
             startActivity(i)
         }
-
-
     }
 
     private fun getSession() = authViewModel.getSession {
         if (it != null){
+            account = it
             binding.shimmerHello.stopShimmer()
             binding.shimmerHello.visibility = View.GONE
             binding.helloTv.visibility = View.VISIBLE
             binding.helloTv.text = "Hello, ${it.first_name}"
+            binding.onlineOrderingBtn.isEnabled = true
+        } else {
+            binding.onlineOrderingBtn.isEnabled = false
         }
     }
 }

@@ -15,12 +15,3 @@ data class AddEditModifierState(
     val itemErrorList: List<Triple<String?,String?,String?>?> = listOf(),
     val image: Uri? = null
 )
-
-data class ModifierItemState(
-    val productId: String = "",
-    val productIdError: String? = null,
-    val name: String = "",
-    val nameError: String? = null,
-    val price: String = "",
-    val priceError: String? = null,
-)
