@@ -47,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.compose.FypTheme
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.ordering_system.data.model.OrderItem
@@ -65,6 +66,7 @@ fun ReviewOrderScreen(
     navigator: NavController,
     cartViewModel: CartViewModel = hiltViewModel(),
     productViewModel: ProductViewModel = hiltViewModel(),
+    account: Account
 ) {
     val cart = cartViewModel.cart.value
 
@@ -78,30 +80,13 @@ fun ReviewOrderScreen(
             val snackBarHostState by remember {
                 mutableStateOf(SnackbarHostState())
             }
-//        val scaffoldState = rememberScaffoldState()
-
-//        LaunchedEffect(key1 = uiState){
-            if (uiState.value is Response.Success) {
-                if ((uiState.value as Response.Success<String>).data == "Order Submitted!")
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar("Success", null, true, SnackbarDuration.Short)
-                    }
-            }
-            if (uiState.value is Response.Error){
-                val text = (uiState.value as Response.Error).exception.message ?: ""
-                coroutineScope.launch {
-                    snackBarHostState.showSnackbar("Error! $text", null,false,SnackbarDuration.Long)
-                }
-            }
-//        }
-
 
             Scaffold(
                 snackbarHost = { SnackbarHost( hostState = snackBarHostState) },
                 bottomBar = {
                     Button(
                         onClick = {
-                            cartViewModel.onOrderingEvent(OrderingEvent.SubmitOrder)
+                            cartViewModel.onOrderingEvent(OrderingEvent.SubmitOrder(account.id))
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -155,8 +140,32 @@ fun ReviewOrderScreen(
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(text = "Total")
-                            Text(text = (sum * 1.06).toString() )
+                            Text(text = String.format("%.2f", (sum * 1.06) ))
                         }
+                    }
+                }
+            }
+            LaunchedEffect(key1 = uiState.value) {
+                if (uiState.value is Response.Success) {
+                    if ((uiState.value as Response.Success<String>).data == "Order Submitted!")
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(
+                                "Success",
+                                null,
+                                true,
+                                SnackbarDuration.Short
+                            )
+                        }
+                }
+                if (uiState.value is Response.Error) {
+                    val text = (uiState.value as Response.Error).exception.message ?: ""
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(
+                            "Error! $text",
+                            null,
+                            false,
+                            SnackbarDuration.Long
+                        )
                     }
                 }
             }

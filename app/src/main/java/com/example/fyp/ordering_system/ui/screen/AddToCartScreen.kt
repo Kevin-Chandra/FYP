@@ -134,9 +134,6 @@ fun AddToCartScreen (
                         Text(text = if (orderItemId == null) "Add to cart ${cartState.value.price}" else "Update cart ${cartState.value.price}")
                     }
                 },
-                topBar = {
-
-                }
             ) {
                 Box(modifier = Modifier.padding(it)) {
                     if (uiState.value.errorMessage != null){

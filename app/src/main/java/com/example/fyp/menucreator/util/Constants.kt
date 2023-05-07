@@ -19,6 +19,7 @@ object FireStoreDocumentField{
     const val ORDER_ITEM_ID = "orderItemId"
     const val ORDER_ITEM_STATUS = "orderItemStatus"
     const val ORDER_STATUS = "orderStatus"
+    const val ORDER_START_TIME = "orderStartTime"
     const val DATE = "date"
     const val TIME_ADDED = "timeAdded"
     const val PRODUCT_ID = "productId"

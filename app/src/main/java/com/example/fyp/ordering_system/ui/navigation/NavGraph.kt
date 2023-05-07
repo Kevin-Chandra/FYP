@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.ordering_system.ui.screen.AddToCartScreen
 import com.example.fyp.ordering_system.ui.screen.ReviewOrderScreen
 import com.example.fyp.ordering_system.ui.screen.ViewProductListScreen
@@ -18,7 +19,8 @@ import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 fun SetupOnlineOrderingNavGraph(
     navController : NavHostController,
     productViewModel: ProductViewModel,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    account: Account
 ) {
     NavHost(
         navController = navController,
@@ -54,7 +56,7 @@ fun SetupOnlineOrderingNavGraph(
         composable(
             route = Screen.ReviewOrderScreen.route
         ){
-            ReviewOrderScreen(navigator = navController, cartViewModel = cartViewModel, productViewModel = productViewModel)
+            ReviewOrderScreen(navigator = navController, cartViewModel = cartViewModel, productViewModel = productViewModel,account = account)
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.ordering_system.ui.screen.ManageOrderScreen
 import com.example.fyp.ordering_system.ui.screen.MainOnlineOrderingScreen
 import com.example.fyp.ordering_system.ui.viewmodel.IncomingOrderViewModel
@@ -16,6 +17,7 @@ fun OnlineOrderingNavGraph(
     navController : NavHostController,
     incomingOrderViewModel: IncomingOrderViewModel,
     productViewModel: ProductViewModel,
+    accountViewModel: AccountViewModel
 ) {
     NavHost(
         navController = navController,
@@ -41,7 +43,7 @@ fun OnlineOrderingNavGraph(
             )
         ){ entry ->
             val type = entry.arguments?.getString("type") ?: "Incoming"
-            ManageOrderScreen(navigator = navController,type,incomingOrderViewModel,productViewModel)
+            ManageOrderScreen(navigator = navController,type,incomingOrderViewModel,productViewModel,accountViewModel)
         }
     }
 }

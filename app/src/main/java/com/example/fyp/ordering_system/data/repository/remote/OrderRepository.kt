@@ -10,6 +10,7 @@ import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
@@ -118,6 +119,7 @@ class OrderRepository @Inject constructor(
     suspend fun getOrderListByStatus(orderStatus: OrderStatus) = callbackFlow<Response<List<Order>>> {
         val snapshotListener = orderCollectionRef
             .whereEqualTo(FireStoreDocumentField.ORDER_STATUS,orderStatus)
+            .orderBy(FireStoreDocumentField.ORDER_START_TIME,Query.Direction.DESCENDING)
             .addSnapshotListener { querySnapshot, e ->
             if (e != null) {
                 e.printStackTrace()

@@ -6,5 +6,5 @@ import com.example.fyp.menucreator.data.model.ModifierItem
 
 sealed class OrderingEvent {
     data class FoodDeletedChanged(val id: String) : OrderingEvent()
-    object SubmitOrder: OrderingEvent()
+    data class SubmitOrder(val accountId: String): OrderingEvent()
 }

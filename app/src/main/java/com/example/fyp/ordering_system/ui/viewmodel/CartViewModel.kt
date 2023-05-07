@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 import java.util.UUID
 import javax.inject.Inject
 
@@ -44,43 +45,19 @@ class CartViewModel @Inject constructor(
     private val _orderingUiState = MutableStateFlow<Response<String>>(Response.Success(""))
     val orderingUiState = _orderingUiState.asStateFlow()
     init {
-        getCartUseCase().onEach{ it ->
+        getCartUseCase().onEach{
             cart.value = it
-            println(it)
-            println(it.size)
         }.launchIn(viewModelScope)
     }
 
     fun onOrderingEvent(event: OrderingEvent){
         println(event)
         when(event){
-//            AddToCartEvent.AddToCart -> {
-//                addToCart()
-//                resetState()
-//            }
-//            is AddToCartEvent.FoodChanged -> {
-//                food = event.food
-//                _orderingState.update { _orderingState.value.copy( foodId = event.food.productId) }
-//                updatePrice()
-//            }
-//            is AddToCartEvent.ModifierItemListChanged -> {
-//
-//                _orderingState.update { _orderingState.value.copy( modifierList = event.list) }
-//                updatePrice()
-//            }
-//            is AddToCartEvent.QuantityChanged -> {
-//                _orderingState.update { _orderingState.value.copy( quantity = event.qty) }
-//                updatePrice()
-//            }
-//            is AddToCartEvent.NoteChanged -> {
-//                _orderingState.update { _orderingState.value.copy( note = event.note) }
-//            }
             is OrderingEvent.FoodDeletedChanged -> {
                 deleteFood(event.id)
             }
-//            else -> {}
-            OrderingEvent.SubmitOrder -> {
-                submitOrder()
+            is OrderingEvent.SubmitOrder -> {
+                submitOrder(event.accountId)
             }
         }
     }
@@ -99,49 +76,21 @@ class CartViewModel @Inject constructor(
 
     private fun getRandomUUID() = UUID.randomUUID().toString()
 
-//    private fun getOrderItem(
-//        foodId: String,
-//        modifierItemList: List<String>?,
-//        quantity: Int,
-//        note: String?,
-//        price: Double
-//    ) : OrderItem{
-//        return OrderItem(
-//            orderItemId = getRandomUUID(),
-//            foodId = foodId,
-//            modifierItems = modifierItemList,
-//            quantity = quantity,
-//            note = note,
-//            price = price
-//        )
-//    }
-
     private fun getOrder(
-        orderItemList : List<OrderItem>
+        orderItemList : List<OrderItem>,
+        accountId: String
     ) = Order(
         orderId = getRandomUUID(),
         orderList = orderItemList.map{ it.orderItemId },
         taxPercentage = tax,
         subTotal = orderItemList.sumOf { it.price },
-        grandTotal = orderItemList.sumOf { it.price } * (1+tax)
+        grandTotal =  DecimalFormat("#.##").format(orderItemList.sumOf { it.price } * (1+tax)).toDouble(),
+        orderBy = accountId
     )
 
-//    private fun addToCart() = viewModelScope.launch{
-//        upsertToCartUseCase(
-//            getOrderItem(
-//                orderingState.value.foodId,
-//                orderingState.value.modifierList.map { it.productId },
-////                    .filter { it.value }.map { it.key.productId },
-//                orderingState.value.quantity,
-//                orderingState.value.note,
-//                orderingState.value.price
-//            )
-//        )
-//    }
-
-    private fun submitOrder() = viewModelScope.launch {
+    private fun submitOrder(accountId: String) = viewModelScope.launch {
         _orderingUiState.value = Response.Loading
-        submitOrderUseCase(getOrder(cart.value), cart.value){
+        submitOrderUseCase(getOrder(cart.value, accountId), cart.value){
             _orderingUiState.value = it
         }
     }

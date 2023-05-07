@@ -14,7 +14,7 @@ data class Order(
     val serviceChargePercentage : Double = 0.0,
     val subTotal: Double = 0.0,
     val grandTotal: Double = 0.0,
-    val orderUser: String = ""
+    val orderBy: String = ""
 )
 
 enum class OrderType{
