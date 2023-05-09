@@ -24,11 +24,6 @@ fun OnlineOrderingNavGraph(
         startDestination = Screen.MainOnlineOrderingScreen.route){
 
         composable(
-            route = Screen.ViewOrderScreen.route
-        ){
-            MainOnlineOrderingScreen(navigator = navController)
-        }
-        composable(
             route = Screen.MainOnlineOrderingScreen.route
         ){
             MainOnlineOrderingScreen(navigator = navController)

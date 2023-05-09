@@ -3,6 +3,7 @@ package com.example.fyp.ordering_system.ui.screen
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material.Snackbar
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Delete
@@ -31,6 +35,8 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +45,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,82 +88,21 @@ fun ReviewOrderScreen(
             val snackBarHostState by remember {
                 mutableStateOf(SnackbarHostState())
             }
+            val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-            Scaffold(
-                snackbarHost = { SnackbarHost( hostState = snackBarHostState) },
-                bottomBar = {
-                    Button(
-                        onClick = {
-                            cartViewModel.onOrderingEvent(OrderingEvent.SubmitOrder(account.id))
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(text = "Submit Order")
-                    }
-                }
-            ) {
-                Box {
-                    if (uiState.value is Response.Loading){
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(it)
-                            .align(Alignment.Center)
-
-                    ) {
-                        LazyColumn(
-                            Modifier.fillMaxWidth()
-                        ){
-                            items(cart){
-                                OrderItemCard(
-                                    Modifier
-                                        .clickable {
-                                            navigator.navigate(Screen.AddToCartScreen.withArgs(it.foodId,it.orderItemId))
-                                        }
-                                        .animateItemPlacement(),
-                                    item = it,
-                                    productViewModel,
-                                    cartViewModel
-                                )
-                            }
-                        }
-                        val sum = cart.sumOf { it.price * it.quantity }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "Subtotal")
-                            Text(text = sum.toString())
-                        }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "Tax")
-                            Text(text = (sum * 0.06).toString() )
-                        }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "Service Charge")
-                            Text(text = (sum * 0.0).toString() )
-                        }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "Total")
-                            Text(text = String.format("%.2f", (sum * 1.06) ))
-                        }
-                    }
-                }
-            }
             LaunchedEffect(key1 = uiState.value) {
                 if (uiState.value is Response.Success) {
-                    if ((uiState.value as Response.Success<String>).data == "Order Submitted!")
-                        coroutineScope.launch {
-                            snackBarHostState.showSnackbar(
-                                "Success",
-                                null,
-                                true,
-                                SnackbarDuration.Short
-                            )
-                        }
+                    if ((uiState.value as Response.Success<String>).data == "Order Submitted!") {
+                        navigator.navigate(Screen.OngoingOrderScreen.withArgs(cartViewModel.orderId))
+//                        coroutineScope.launch {
+//                            snackBarHostState.showSnackbar(
+//                                "Success",
+//                                null,
+//                                true,
+//                                SnackbarDuration.Short
+//                            )
+//                        }
+                    }
                 }
                 if (uiState.value is Response.Error) {
                     val text = (uiState.value as Response.Error).exception.message ?: ""
@@ -166,6 +113,102 @@ fun ReviewOrderScreen(
                             false,
                             SnackbarDuration.Long
                         )
+                    }
+                }
+            }
+            Scaffold(
+                snackbarHost = { SnackbarHost( hostState = snackBarHostState) },
+                bottomBar = {
+                    Button(
+                        enabled = cart.isNotEmpty(),
+                        onClick = {
+                            cartViewModel.onOrderingEvent(OrderingEvent.SubmitOrder(account.id))
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text(text = "Submit Order")
+                    }
+                },
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(text = "Review Order")
+                        },
+                        scrollBehavior = scrollBehavior
+                    )
+                },
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+            ) {
+                Box(modifier = Modifier.padding(it)) {
+                    if (uiState.value is Response.Loading){
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                            .align(Alignment.Center)
+                            .verticalScroll(rememberScrollState())
+
+                    ) {
+                        if (cart.isEmpty()){
+                            Text(
+                                text = "No item in cart",
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .padding(32.dp)
+                                    .fillMaxWidth(),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        } else {
+                            Column(
+                                Modifier.fillMaxWidth()
+                            ){
+                                cart.forEach{ item ->
+                                    OrderItemCard(
+                                        Modifier
+                                            .clickable {
+                                                navigator.navigate(
+                                                    Screen.AddToCartScreen.withArgs(
+                                                        item.foodId,
+                                                        item.orderItemId
+                                                    )
+                                                )
+                                            },
+                                        item = item,
+                                        productViewModel,
+                                        cartViewModel
+                                    )
+                                }
+                            }
+                        }
+                        Divider(modifier = Modifier.padding(vertical = 16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(text = "Subtotal")
+                            Text(text = cartViewModel.getSubTotalPrice().toString())
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(text = "Tax (${cartViewModel.getTaxPercentage()}%)")
+                            Text(text = String.format("%.2f",cartViewModel.getTaxValue()))
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(text = "Service Charge (${cartViewModel.getServiceChargePercentage()}%)")
+                            Text(text = String.format("%.2f",cartViewModel.getServiceChargeValue()))
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(
+                                text = "Total",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = String.format("%.2f", cartViewModel.getGrandTotal() ),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
                 }
             }

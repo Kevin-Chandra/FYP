@@ -2,8 +2,6 @@ package com.example.fyp.ordering_system.data.repository.local
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
@@ -30,5 +28,9 @@ interface OrderItemDao {
 
     @Delete
     suspend fun deleteOrderItem(item: OrderItem)
+
+    @Query("DELETE FROM order_items")
+    suspend fun nukeTable()
+
 
 }

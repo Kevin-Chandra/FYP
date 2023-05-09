@@ -26,6 +26,7 @@ import com.example.fyp.ordering_system.ui.navigation.OnlineOrderingNavGraph
 import com.example.fyp.ordering_system.ui.navigation.SetupOnlineOrderingNavGraph
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.IncomingOrderViewModel
+import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -60,11 +61,13 @@ class OnlineOrderingActivity : ComponentActivity() {
             if (!loading){
                 if (accountType == AccountType.Customer){
                     val cartViewModel = hiltViewModel<CartViewModel>()
+                    val ongoingOrderViewModel = hiltViewModel<OngoingOrderViewModel>()
                     SetupOnlineOrderingNavGraph(
                         navController = navController,
                         productViewModel = productViewModel,
                         cartViewModel = cartViewModel,
-                        account = account
+                        account = account,
+                        ongoingOrderViewModel = ongoingOrderViewModel
                     )
                 } else {
                     val incomingOrderViewModel: IncomingOrderViewModel = hiltViewModel()
@@ -82,21 +85,5 @@ class OnlineOrderingActivity : ComponentActivity() {
             }
 
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-//@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FypTheme {
-        Greeting(name = "KAk")
     }
 }

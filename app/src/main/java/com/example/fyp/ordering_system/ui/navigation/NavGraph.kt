@@ -10,9 +10,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.ordering_system.ui.screen.AddToCartScreen
+import com.example.fyp.ordering_system.ui.screen.MainOnlineOrderingScreenCustomer
+import com.example.fyp.ordering_system.ui.screen.OngoingOrderScreen
 import com.example.fyp.ordering_system.ui.screen.ReviewOrderScreen
 import com.example.fyp.ordering_system.ui.screen.ViewProductListScreen
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
+import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 
 @Composable
@@ -20,12 +23,18 @@ fun SetupOnlineOrderingNavGraph(
     navController : NavHostController,
     productViewModel: ProductViewModel,
     cartViewModel: CartViewModel,
+    ongoingOrderViewModel: OngoingOrderViewModel,
     account: Account
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.ProductListScreen.route){
+        startDestination = Screen.CustomerMainOnlineOrderingScreen .route){
 
+        composable(
+            route = Screen.CustomerMainOnlineOrderingScreen.route
+        ){
+            MainOnlineOrderingScreenCustomer(navController,productViewModel,cartViewModel,ongoingOrderViewModel,account)
+        }
         composable(
             route = Screen.ProductListScreen.route
         ){
@@ -57,6 +66,18 @@ fun SetupOnlineOrderingNavGraph(
             route = Screen.ReviewOrderScreen.route
         ){
             ReviewOrderScreen(navigator = navController, cartViewModel = cartViewModel, productViewModel = productViewModel,account = account)
+        }
+        composable(
+            route = Screen.OngoingOrderScreen.route + "/{id}",
+            arguments = listOf(
+                navArgument("id"){
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ){ entry ->
+            val id = entry.arguments?.getString("id") ?: ""
+            OngoingOrderScreen(navigator = navController, id = id, viewModel = ongoingOrderViewModel)
         }
     }
 }

@@ -33,8 +33,8 @@ class FoodCategoryViewModel @Inject constructor(
     private val _addState = MutableStateFlow<UiState<Boolean>>(UiState.Success(false))
     val addState = _addState.asStateFlow()
 
-    private val _updateState = MutableStateFlow<UiState<Boolean>>(UiState.Success(false))
-    val updateState = _updateState.asStateFlow()
+//    private val _updateState = MutableStateFlow<UiState<Boolean>>(UiState.Success(false))
+//    val updateState = _updateState.asStateFlow()
 
     init {
         getCategoryList()
@@ -53,11 +53,11 @@ class FoodCategoryViewModel @Inject constructor(
         }
     }
 
-    private fun updateFoodCategory(category: FoodCategory) = viewModelScope.launch {
-        updateFoodCategoryUseCase(category){
-            _deleteState.value = it
-        }
-    }
+//    private fun updateFoodCategory(category: FoodCategory) = viewModelScope.launch {
+//        updateFoodCategoryUseCase(category){
+//            _deleteState.value = it
+//        }
+//    }
 
     private fun addCategory(category: FoodCategory) = viewModelScope.launch {
         addFoodCategoryUseCase(category){
@@ -80,10 +80,10 @@ class FoodCategoryViewModel @Inject constructor(
             addCategory(getCategory(name = name))
     }
 
-    fun updateCategory(id : String, name : String){
-        _updateState.value = UiState.Loading
-        updateFoodCategory(getCategory(id = id, name = name))
-    }
+//    fun updateCategory(id : String, name : String){
+//        _updateState.value = UiState.Loading
+//        updateFoodCategory(getCategory(id = id, name = name))
+//    }
 
     fun deleteCategory(id: String){
         _deleteState.value = UiState.Loading

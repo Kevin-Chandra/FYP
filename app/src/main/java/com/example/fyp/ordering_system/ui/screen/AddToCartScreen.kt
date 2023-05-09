@@ -3,6 +3,8 @@ package com.example.fyp.ordering_system.ui.screen
 import android.content.Context
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,8 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Chip
 import androidx.compose.material.ExperimentalMaterialApi
@@ -136,20 +140,21 @@ fun AddToCartScreen (
                 },
             ) {
                 Box(modifier = Modifier.padding(it)) {
-                    if (uiState.value.errorMessage != null){
-                        errorToast(uiState.value.errorMessage?:"",context)
+                    LaunchedEffect(key1 = uiState.value){
+                        if (uiState.value.errorMessage != null) {
+                            errorToast(uiState.value.errorMessage ?: "", context)
+                        }
+                        if (uiState.value.successAdding){
+                            navigator.navigateUp()
+                        }
                     }
-                    if (uiState.value.successAdding){
-                        navigator.navigateUp()
-                    }
-
-                    LazyColumn(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-//                        .padding(16.dp)
                             .align(Alignment.Center)
+                            .verticalScroll(rememberScrollState()),
                     ) {
-                        item {
+//                        item {
                             CoilImage(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -190,23 +195,29 @@ fun AddToCartScreen (
                                 text = food.description,
                                 style = MaterialTheme.typography.bodyLarge
                             )
-                        }
+//                        }
 
                         //Food Modifier List
                         if (food.modifiable) {
-                            items(food.modifierList) {
-                                productViewModel.getModifier(it)
-                                    ?.let { it1 ->
-                                        ModifierSelection(
-                                            addToCartViewModel,
-                                            productViewModel,
-                                            it1
-                                        )
-                                    }
+                            Column() {
+                                food.modifierList.forEach { id ->
+                                    productViewModel.getModifier(id)
+                                        ?.let { it1 ->
+                                            ModifierSelection(
+                                                addToCartViewModel,
+                                                productViewModel,
+                                                it1
+                                            )
+                                        }
+                                }
                             }
+//                            LazyColumn(){
+//                                items(food.modifierList) {
+//                                }
+//                            }
                         }
 
-                        item {
+//                        item {
                             OutlinedTextField(
                                 value = cartState.value.note,
                                 label = { Text(text = "Note") },
@@ -240,7 +251,7 @@ fun AddToCartScreen (
                                     Icon(imageVector = Icons.Outlined.Add, contentDescription = "Add one")
                                 }
                             }
-                        }
+//                        }
                     }
                     if (uiState.value.loading){
                         CircularProgressIndicator(
@@ -258,7 +269,7 @@ fun errorToast(msg: String, context: Context){
     Toast.makeText(context,msg,Toast.LENGTH_LONG).show()
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ModifierSelection(
     addToCartViewModel: AddToCartViewModel,
@@ -286,11 +297,19 @@ fun ModifierSelection(
             ) {
                 Text(
                     text = thisModifier.name,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.weight(4f).padding(end = 8.dp).basicMarquee(),
+                    maxLines = 1
                 )
                 AssistChip(
-                    label = {Text(text = if (thisModifier.required) "Required" else "Optional")},
-                    onClick = {}
+                    label = {
+                        Text(text = if (thisModifier.required) "Required" else "Optional",
+                            maxLines = 1
+//                            textAlign = TextAlign.Center,
+//                            modifier = Modifier.fillMaxWidth()
+                        )},
+                    onClick = {},
+                    modifier = Modifier.weight(1f)
                 )
             }
             val list = mutableListOf<ModifierItem>()
@@ -360,10 +379,11 @@ fun RadioSelection(
                     Text(
                         text = item.name,
                         textAlign = TextAlign.Start,
+                        modifier = Modifier.weight(4f)
                     )
                     Text(
                         text = item.price.toString(),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().weight(1f),
                         textAlign = TextAlign.End,
                     )
                 }
@@ -379,7 +399,7 @@ fun RadioSelectionPreview(){
     RadioSelection(items = listOf(
         ModifierItem(name = "ABC", price = 2.0),
         ModifierItem(name = "HAdcsD", price = 2.0),
-        ModifierItem(name = "AKNvsdsfvsfkjsb", price = 2.0),
+        ModifierItem(name = "AKNvsdsfvsfkjcsddajbudfciouhsicahawikbhibvSUbiushaujabGS<JbAsb", price = 2.0),
     ), selectedItem = null, onClick = {})
 }
 
@@ -420,10 +440,11 @@ fun CheckboxSelection(
                 Text(
                     text = item.name,
                     textAlign = TextAlign.Start,
+                    modifier = Modifier.weight(4f)
                 )
                 Text(
                     text = item.price.toString(),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().weight(1f),
                     textAlign = TextAlign.End,
                 )
             }

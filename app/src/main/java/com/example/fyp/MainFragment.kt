@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.example.fyp.account_management.AccountActivity
 import com.example.fyp.account_management.data.model.Account
@@ -22,6 +23,8 @@ class MainFragment : Fragment() {
 
     private val authViewModel by viewModels<MainAuthViewModel>()
 
+    private val productSettingsViewModel by activityViewModels<ProductSettingsViewModel>()
+
     private lateinit var account: Account
 
     override fun onCreateView(
@@ -36,6 +39,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initProductSettings()
         getSession()
 
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -63,6 +67,7 @@ class MainFragment : Fragment() {
     }
 
     private fun getSession() = authViewModel.getSession {
+        binding.onlineOrderingBtn.isEnabled = false
         if (it != null){
             account = it
             binding.shimmerHello.stopShimmer()
@@ -70,8 +75,10 @@ class MainFragment : Fragment() {
             binding.helloTv.visibility = View.VISIBLE
             binding.helloTv.text = "Hello, ${it.first_name}"
             binding.onlineOrderingBtn.isEnabled = true
-        } else {
-            binding.onlineOrderingBtn.isEnabled = false
         }
+    }
+
+    private fun initProductSettings(){
+        productSettingsViewModel.insertSettingToDatabase()
     }
 }

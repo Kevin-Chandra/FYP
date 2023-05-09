@@ -63,6 +63,9 @@ class AddToCartViewModel @Inject constructor(
     private val _addToCartUiState = MutableSharedFlow<AddToCartUiState>()
     val addToCartUiState = _addToCartUiState.asSharedFlow()
 
+//    private val _addToCartUiState = MutableStateFlow(AddToCartUiState())
+//    val addToCartUiState = _addToCartUiState.asStateFlow()
+
     fun initializeItemEdit(id : String) = viewModelScope.launch{
         if (!edit){
             edit = true

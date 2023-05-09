@@ -8,6 +8,7 @@ import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.domain.food.GetFoodListUseCase
 import com.example.fyp.menucreator.domain.modifier.GetModifierListUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemListUseCase
+import com.example.fyp.menucreator.domain.productSettings.InsertSettingUseCase
 import com.example.fyp.menucreator.util.UiState
 import com.example.fyp.ordering_system.domain.DeleteItemFromCartUseCase
 import com.example.fyp.ordering_system.domain.GetCartUseCase
@@ -23,6 +24,7 @@ class ProductViewModel @Inject constructor(
     private val getFoodListUseCase: GetFoodListUseCase,
     private val getModifierListUseCase: GetModifierListUseCase,
     private val getModifierItemListUseCase: GetModifierItemListUseCase,
+    private val insertSettingUseCase: InsertSettingUseCase,
 ) : ViewModel(){
 
     private val _foods = MutableStateFlow<UiState<List<Food>>>(UiState.Loading)
@@ -39,6 +41,9 @@ class ProductViewModel @Inject constructor(
     private val itemMap = mutableMapOf<String,ModifierItem>()
 
     init {
+        viewModelScope.launch {
+            insertSettingUseCase.invoke{}
+        }
         getItemList()
         getFoodList()
         getModifierList()

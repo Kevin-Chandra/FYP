@@ -25,9 +25,6 @@ fun MainOnlineOrderingScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = { /*navigate Online Ordering*/ }) {
-                    Text(text = "Online Ordering")
-                }
                 Button(onClick = {
                     navigator.navigate(Screen.ManageOrderScreen.withArgs("Incoming"))
                 }) {

@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.Result
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food
+import com.example.fyp.menucreator.domain.productSettings.GetServiceChargeUseCase
+import com.example.fyp.menucreator.domain.productSettings.GetTaxUseCase
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.domain.DeleteItemFromCartUseCase
@@ -33,11 +35,17 @@ class CartViewModel @Inject constructor(
     private val deleteItemFromCartUseCase: DeleteItemFromCartUseCase,
     private val getCartUseCase: GetCartUseCase,
     private val submitOrderUseCase: SubmitOrderUseCase,
+    private val getTaxUseCase: GetTaxUseCase,
+    private val getServiceChargeUseCase: GetServiceChargeUseCase,
 ) : ViewModel(){
 
-    private val tax = 0.06
+    var tax : Double = 0.0
+    private var serviceCharge : Double = 0.0
 
     val cart = mutableStateOf(listOf<OrderItem>())
+
+    var orderId : String = ""
+    private set
 
     private val _orderingState = MutableStateFlow(OrderingState())
     val orderingState = _orderingState.asStateFlow()
@@ -45,9 +53,14 @@ class CartViewModel @Inject constructor(
     private val _orderingUiState = MutableStateFlow<Response<String>>(Response.Success(""))
     val orderingUiState = _orderingUiState.asStateFlow()
     init {
+        viewModelScope.launch {
+            tax = getTaxUseCase()
+            serviceCharge = getServiceChargeUseCase()
+        }
         getCartUseCase().onEach{
             cart.value = it
         }.launchIn(viewModelScope)
+        orderId = ""
     }
 
     fun onOrderingEvent(event: OrderingEvent){
@@ -70,27 +83,46 @@ class CartViewModel @Inject constructor(
         return acc
     }
 
+    fun getTaxValue(): Double{
+        return getSubTotalPrice() * tax
+    }
+
+    fun getServiceChargeValue(): Double{
+        return getSubTotalPrice() * serviceCharge
+    }
+
+    fun getGrandTotal(): Double{
+        return getSubTotalPrice() * (1 + tax + serviceCharge)
+    }
+
     private fun deleteFood(id : String) = viewModelScope.launch{
         deleteItemFromCartUseCase(id)
     }
+
+    fun getTaxPercentage() = tax * 100
+    fun getServiceChargePercentage() = serviceCharge * 100
 
     private fun getRandomUUID() = UUID.randomUUID().toString()
 
     private fun getOrder(
         orderItemList : List<OrderItem>,
-        accountId: String
+        accountId: String,
+        orderId: String = getRandomUUID()
     ) = Order(
-        orderId = getRandomUUID(),
+        orderId = orderId,
         orderList = orderItemList.map{ it.orderItemId },
         taxPercentage = tax,
+        serviceChargePercentage = serviceCharge,
         subTotal = orderItemList.sumOf { it.price },
-        grandTotal =  DecimalFormat("#.##").format(orderItemList.sumOf { it.price } * (1+tax)).toDouble(),
+        grandTotal =  String.format("%.2f",getGrandTotal()).toDouble(),
         orderBy = accountId
     )
 
     private fun submitOrder(accountId: String) = viewModelScope.launch {
         _orderingUiState.value = Response.Loading
-        submitOrderUseCase(getOrder(cart.value, accountId), cart.value){
+        val id = getRandomUUID()
+        orderId = id
+        submitOrderUseCase(getOrder(cart.value, accountId, id), cart.value){
             _orderingUiState.value = it
         }
     }

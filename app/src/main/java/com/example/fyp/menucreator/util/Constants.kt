@@ -13,13 +13,17 @@ object FireStoreCollection{
 
 object FireStoreDocumentField{
     const val STAFF_REGISTRATION_TOKEN = "StaffRegistrationToken"
+    const val PRODUCT_SETTINGS = "ProductSettings"
     const val ID = "id"
     const val FOOD_CATEGORY_NAME = "name"
     const val ORDER_ID = "orderId"
     const val ORDER_ITEM_ID = "orderItemId"
     const val ORDER_ITEM_STATUS = "orderItemStatus"
     const val ORDER_STATUS = "orderStatus"
+    const val ORDER_BY = "orderBy"
     const val ORDER_START_TIME = "orderStartTime"
+    const val SERVICE_CHARGE = "serviceCharge"
+    const val TAX = "tax"
     const val DATE = "date"
     const val TIME_ADDED = "timeAdded"
     const val PRODUCT_ID = "productId"

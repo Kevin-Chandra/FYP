@@ -1,5 +1,7 @@
 package com.example.fyp.ordering_system.ui.screen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +31,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -43,6 +46,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -64,7 +69,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ManageOrderScreen(
     navigator: NavController,
@@ -172,8 +177,17 @@ fun ManageOrderScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(text = item.orderId)
-                                        Text(text = item.grandTotal.toString())
+                                        Text(
+                                            text = item.orderId,
+                                            textAlign = TextAlign.Start,
+                                            modifier = Modifier.weight(4f).basicMarquee(),
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = item.grandTotal.toString(),
+                                            textAlign = TextAlign.End,
+                                            modifier = Modifier.weight(1f)
+                                        )
                                     }
                                     if (expanded) {
                                         ViewOrder(
@@ -350,7 +364,6 @@ fun OrderByView(
 //    }
     if (email == null){
         LaunchedEffect(key1 = true) {
-            println("AAAAAA")
             accountViewModel.getAccount(orderBy) {
                 if (it is Response.Success){
                     it.data?.let { data ->
@@ -376,8 +389,15 @@ fun OrderByView(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = name)
-        Text(text = email)
+        Text(
+            text = name,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = email,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
