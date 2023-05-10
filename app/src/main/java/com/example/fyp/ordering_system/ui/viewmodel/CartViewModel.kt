@@ -3,21 +3,15 @@ package com.example.fyp.ordering_system.ui.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fyp.account_management.data.Result
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.domain.productSettings.GetServiceChargeUseCase
 import com.example.fyp.menucreator.domain.productSettings.GetTaxUseCase
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
-import com.example.fyp.ordering_system.domain.DeleteItemFromCartUseCase
-import com.example.fyp.ordering_system.domain.GetCartUseCase
-import com.example.fyp.ordering_system.domain.SubmitOrderUseCase
-import com.example.fyp.ordering_system.domain.UpsertToCartUseCase
-import com.example.fyp.ordering_system.util.AddToCartEvent
-import com.example.fyp.ordering_system.util.AddToCartState
+import com.example.fyp.ordering_system.domain.local_database.DeleteItemFromCartUseCase
+import com.example.fyp.ordering_system.domain.local_database.GetCartUseCase
+import com.example.fyp.ordering_system.domain.remote_database.SubmitOrderUseCase
 import com.example.fyp.ordering_system.util.OrderingEvent
-import com.example.fyp.ordering_system.util.OrderingState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,13 +19,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.DecimalFormat
 import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val upsertToCartUseCase: UpsertToCartUseCase,
     private val deleteItemFromCartUseCase: DeleteItemFromCartUseCase,
     private val getCartUseCase: GetCartUseCase,
     private val submitOrderUseCase: SubmitOrderUseCase,
@@ -46,9 +38,6 @@ class CartViewModel @Inject constructor(
 
     var orderId : String = ""
     private set
-
-    private val _orderingState = MutableStateFlow(OrderingState())
-    val orderingState = _orderingState.asStateFlow()
 
     private val _orderingUiState = MutableStateFlow<Response<String>>(Response.Success(""))
     val orderingUiState = _orderingUiState.asStateFlow()
@@ -73,6 +62,10 @@ class CartViewModel @Inject constructor(
                 submitOrder(event.accountId)
             }
         }
+    }
+
+    fun resetState(){
+        _orderingUiState.update { Response.Success("") }
     }
 
     fun getSubTotalPrice() : Double{

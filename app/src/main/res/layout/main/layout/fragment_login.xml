@@ -76,9 +76,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Trouble signing in? Reset Password"
+            android:textColor="@color/primary"
             android:textAlignment="viewStart"
             android:textAllCaps="false"
-            android:textColor="@color/teal_700"
             android:textStyle="italic"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/password_edit_text_layout" />
@@ -159,8 +159,8 @@
             android:textAlignment="center"
             android:ellipsize="end"
             android:textAllCaps="false"
-            android:textColor="@color/regButtonColor"
-            android:textStyle="italic|bold"
+            android:textColor="@color/primary"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/register_btn" />

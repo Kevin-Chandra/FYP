@@ -201,20 +201,24 @@ fun AddToCartScreen (
                         if (food.modifiable) {
                             Column() {
                                 food.modifierList.forEach { id ->
+                                    val list = mutableListOf<ModifierItem>()
                                     productViewModel.getModifier(id)
                                         ?.let { it1 ->
-                                            ModifierSelection(
-                                                addToCartViewModel,
-                                                productViewModel,
-                                                it1
-                                            )
+                                            it1.modifierItemList.forEach{ id1 ->
+                                                productViewModel.getModifierItem(id1)?.let { it2 -> list.add(it2) }
+                                            }
+                                            if (list.any { item -> item.availability }){
+                                                ModifierSelection(
+                                                    addToCartViewModel,
+                                                    list,
+                                                    it1
+                                                )
+                                            } else {
+                                                addToCartViewModel.onEvent(AddToCartEvent.RequiredModifierUnavailable)
+                                            }
                                         }
                                 }
                             }
-//                            LazyColumn(){
-//                                items(food.modifierList) {
-//                                }
-//                            }
                         }
 
 //                        item {
@@ -273,79 +277,78 @@ fun errorToast(msg: String, context: Context){
 @Composable
 fun ModifierSelection(
     addToCartViewModel: AddToCartViewModel,
-    productViewModel: ProductViewModel,
+    list: List<ModifierItem>,
     thisModifier: com.example.fyp.menucreator.data.model.Modifier
 ) {
 
     val cartState = addToCartViewModel.addToCartState.collectAsStateWithLifecycle()
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp),
-        elevation = CardDefaults.cardElevation()
-    ) {
-        Column(
-            modifier = Modifier.padding(8.dp)
-        ){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = thisModifier.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.weight(4f).padding(end = 8.dp).basicMarquee(),
-                    maxLines = 1
-                )
-                AssistChip(
-                    label = {
-                        Text(text = if (thisModifier.required) "Required" else "Optional",
-                            maxLines = 1
+    if (list.any { it.availability }){
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 16.dp),
+            elevation = CardDefaults.cardElevation()
+        ) {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = thisModifier.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.weight(4f).padding(end = 8.dp).basicMarquee(),
+                        maxLines = 1
+                    )
+                    AssistChip(
+                        label = {
+                            Text(text = if (thisModifier.required) "Required" else "Optional",
+                                maxLines = 1
 //                            textAlign = TextAlign.Center,
 //                            modifier = Modifier.fillMaxWidth()
-                        )},
-                    onClick = {},
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            val list = mutableListOf<ModifierItem>()
-            thisModifier.modifierItemList.forEach{ id ->
-                productViewModel.getModifierItem(id)?.let { list.add(it) }
-            }
-
-            if (thisModifier.multipleChoice){
-
-                val selectedItems = remember {
-                    mutableStateListOf<ModifierItem>()
+                            )},
+                        onClick = {},
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-                selectedItems.clear()
-                cartState.value.modifierList[thisModifier]?.let { selectedItems.addAll(it) }
 
-                CheckboxSelection(
-                    items = list,
-                    selectedItems = selectedItems,
-                    onClick = { items ->
-                        addToCartViewModel.onEvent(AddToCartEvent.ModifierItemListChanged(thisModifier,items.toMutableList()))
-                    }
-                )
-            } else {
-                var selectedItem = if (!cartState.value.modifierList[thisModifier].isNullOrEmpty()) cartState.value.modifierList[thisModifier]?.get(0) else null
+                if (thisModifier.multipleChoice){
 
-                RadioSelection(
-                    items = list,
-                    selectedItem = selectedItem,
-                    onClick = { item ->
-                        selectedItem = item
-                        addToCartViewModel.onEvent(AddToCartEvent.ModifierItemListChanged(thisModifier,listOf(item)))
+                    val selectedItems = remember {
+                        mutableStateListOf<ModifierItem>()
                     }
-                )
+                    selectedItems.clear()
+                    cartState.value.modifierList[thisModifier]?.let { selectedItems.addAll(it) }
+
+                    CheckboxSelection(
+                        items = list,
+                        selectedItems = selectedItems,
+                        onClick = { items ->
+                            addToCartViewModel.onEvent(AddToCartEvent.ModifierItemListChanged(thisModifier,items.toMutableList()))
+                        }
+                    )
+                } else {
+                    var selectedItem = if (!cartState.value.modifierList[thisModifier].isNullOrEmpty()) cartState.value.modifierList[thisModifier]?.get(0) else null
+
+                    RadioSelection(
+                        items = list,
+                        selectedItem = selectedItem,
+                        onClick = { item ->
+                            selectedItem = item
+                            addToCartViewModel.onEvent(AddToCartEvent.ModifierItemListChanged(thisModifier,listOf(item)))
+                        }
+                    )
+                }
             }
         }
     }
+
 }
 
 @Composable

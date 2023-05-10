@@ -10,9 +10,6 @@ import com.example.fyp.menucreator.domain.modifier.GetModifierListUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemListUseCase
 import com.example.fyp.menucreator.domain.productSettings.InsertSettingUseCase
 import com.example.fyp.menucreator.util.UiState
-import com.example.fyp.ordering_system.domain.DeleteItemFromCartUseCase
-import com.example.fyp.ordering_system.domain.GetCartUseCase
-import com.example.fyp.ordering_system.domain.UpsertToCartUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

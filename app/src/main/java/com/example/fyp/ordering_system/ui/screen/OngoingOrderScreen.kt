@@ -30,17 +30,19 @@ import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
 fun OngoingOrderScreen(
     navigator: NavController,
     id : String,
-    viewModel: OngoingOrderViewModel = hiltViewModel()
+    viewModel: OngoingOrderViewModel
 ) {
-    val statusState = viewModel.orderingStatusState.collectAsStateWithLifecycle()
-
     LaunchedEffect(key1 = true){
         viewModel.getOrderStatus(id)
     }
+    val statusState = viewModel.orderingStatusState.collectAsStateWithLifecycle()
 
     FypTheme() {
         Scaffold() {
-            Box(Modifier.fillMaxSize().padding(it)) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(it)) {
                 if (statusState.value.loading){
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
@@ -51,55 +53,69 @@ fun OngoingOrderScreen(
                             TextButton(onClick = { navigator.navigateUp() }) {
                                 Text(text = "Ok")
                             }
+                        },
+                        title = {
+                            Text(text = "Error!")
+                        },
+                        text = {
+                            Text(text = statusState.value.errorMessage!!)
                         }
                     )
                 }
                 if (statusState.value.success){
-                    when (statusState.value.status){
-                        "Processing" -> {
-                            Text(
-                                text = "Order is being processed!",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                        "Rejected" -> {
-                            Text(
-                                text = "Unfortunately, the restaurant is busy",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                            AlertDialog(
-                                onDismissRequest = {  },
-                                title = {
-                                    Text(text = "Restaurant is busy!")
-                                },
-                                confirmButton = {
-                                    TextButton(onClick = {
+                    println(statusState.value)
+                    if (statusState.value.successMessage?.equals("Status updated!") == true){
+                        println("enter success ${statusState.value.status}")
+                        when (statusState.value.status){
+                            "Processing" -> {
+                                Text(
+                                    text = "Order is being processed!",
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                            "Rejected" -> {
+                                Text(
+                                    text = "Unfortunately, the restaurant is busy",
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                                AlertDialog(
+                                    onDismissRequest = {  },
+                                    title = {
+                                        Text(text = "Sorry :(")
+                                    },
+                                    text = {
+                                        Text(text = "Unfortunately, restaurant is busy! Please try again next time...")
+                                    },
+                                    confirmButton = {
+                                        TextButton(onClick = {
 //                                        navigator.popBackStack(Screen.ReviewOrderScreen.route,true)
-                                        navigator.navigateUp()
+                                            navigator.navigateUp()
+                                        }
+                                        ) {
+                                            Text(text = "Ok")
+                                        }
                                     }
-                                    ) {
-                                        Text(text = "Ok")
-                                    }
-                                }
-                            )
-                        }
-                        "Confirmed" -> {
-                            Text(
-                                text = "Restaurant is preparing your order!",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                        "Preparing" -> {
-                            Text(
-                                text = "Restaurant is preparing your order!",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                        "Finished" -> {
-                            Text(
-                                text = "Order is finished!",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
+                                )
+                            }
+                            "Confirmed" -> {
+                                Text(
+                                    text = "Restaurant is preparing your order!",
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                            "Preparing" -> {
+                                Text(
+                                    text = "Restaurant is preparing your order!",
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                            "Finished" -> {
+                                Text(
+                                    text = "Order is finished!",
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                            else -> {}
                         }
                     }
                 }
@@ -112,6 +128,7 @@ fun OngoingOrderScreen(
 data class OngoingOrderScreenState(
     val loading: Boolean = false,
     val success: Boolean = false,
+    val successMessage : String? = null,
     val status: String? = null,
     val errorMessage : String? = null
 )

@@ -87,7 +87,7 @@ class OrderRepository @Inject constructor(
                 .await()
             for (doc in query.documents)
                 orderCollectionRef.document(doc.id).delete().await()
-            result.invoke(Response.Success("Order Item Deleted!"))
+            result.invoke(Response.Success("Order deleted successfully!"))
         } catch (e : Exception){
             result.invoke(Response.Error(e))
         }
@@ -107,7 +107,7 @@ class OrderRepository @Inject constructor(
         }
     }
 
-    suspend fun getOrderStatusUpdate(id: String) = callbackFlow<Response<Order>>{
+    suspend fun getOrderStatusUpdate(id: String) = callbackFlow {
         val snapshotListener = orderCollectionRef
             .whereEqualTo(FireStoreDocumentField.ORDER_ID,id)
             .addSnapshotListener { querySnapshot, e ->
@@ -117,7 +117,6 @@ class OrderRepository @Inject constructor(
                     return@addSnapshotListener
                 }
                 querySnapshot?.let {
-
                         val orderResponse = run {
                             try {
                                 val orders = querySnapshot.toObjects<Order>()

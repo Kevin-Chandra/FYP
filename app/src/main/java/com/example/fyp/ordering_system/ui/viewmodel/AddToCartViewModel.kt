@@ -1,23 +1,17 @@
 package com.example.fyp.ordering_system.ui.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.domain.modifier.GetModifierListUseCase
-import com.example.fyp.menucreator.domain.modifier.GetModifierUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemByReturnUseCase
-import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemUseCase
 import com.example.fyp.menucreator.util.UiState
-import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
-import com.example.fyp.ordering_system.domain.DeleteItemFromCartUseCase
-import com.example.fyp.ordering_system.domain.GetCartUseCase
-import com.example.fyp.ordering_system.domain.GetOrderItemByIdUseCase
-import com.example.fyp.ordering_system.domain.UpdateOrderItemUseCase
-import com.example.fyp.ordering_system.domain.UpsertToCartUseCase
+import com.example.fyp.ordering_system.domain.local_database.GetOrderItemByIdUseCase
+import com.example.fyp.ordering_system.domain.local_database.UpdateOrderItemUseCase
+import com.example.fyp.ordering_system.domain.local_database.UpsertToCartUseCase
 import com.example.fyp.ordering_system.domain.validation.OrderValidationResult
 import com.example.fyp.ordering_system.domain.validation.ValidateModifierUseCase
 import com.example.fyp.ordering_system.ui.state.AddToCartUiState
@@ -144,6 +138,10 @@ class AddToCartViewModel @Inject constructor(
             }
             is AddToCartEvent.NoteChanged -> {
                 _addToCartState.update { _addToCartState.value.copy( note = event.note) }
+            }
+
+            is AddToCartEvent.RequiredModifierUnavailable -> {
+                if (requiredModifier > 0) requiredModifier -= 1
             }
         }
     }

@@ -94,14 +94,7 @@ fun ReviewOrderScreen(
                 if (uiState.value is Response.Success) {
                     if ((uiState.value as Response.Success<String>).data == "Order Submitted!") {
                         navigator.navigate(Screen.OngoingOrderScreen.withArgs(cartViewModel.orderId))
-//                        coroutineScope.launch {
-//                            snackBarHostState.showSnackbar(
-//                                "Success",
-//                                null,
-//                                true,
-//                                SnackbarDuration.Short
-//                            )
-//                        }
+                        cartViewModel.resetState()
                     }
                 }
                 if (uiState.value is Response.Error) {
@@ -116,6 +109,7 @@ fun ReviewOrderScreen(
                     }
                 }
             }
+
             Scaffold(
                 snackbarHost = { SnackbarHost( hostState = snackBarHostState) },
                 bottomBar = {

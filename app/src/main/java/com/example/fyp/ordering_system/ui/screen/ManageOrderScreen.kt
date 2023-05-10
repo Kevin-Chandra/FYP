@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -21,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,14 +29,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,9 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,7 +61,6 @@ import com.example.fyp.ordering_system.ui.viewmodel.IncomingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.ManageOrderEvent
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -86,7 +81,7 @@ fun ManageOrderScreen(
     else
         incomingOrderViewModel.ongoingOrders.collectAsStateWithLifecycle()
 
-    val uiState = incomingOrderViewModel.incomingOrderUiState.collectAsStateWithLifecycle()
+    val uiState = incomingOrderViewModel.manageOrderUiState.collectAsStateWithLifecycle()
 
     val snackBarHostState by remember {
         mutableStateOf(SnackbarHostState())
@@ -116,6 +111,20 @@ fun ManageOrderScreen(
                         .fillMaxSize()
                         .padding(it)
                 ) {
+                    var showDialog by remember {
+                        mutableStateOf<Order?>(null)
+                    }
+                    DeleteOrderDialog(
+                        order = showDialog,
+                        onDismiss = {
+                            showDialog = null
+                        },
+                        onDeleteClick = { order ->
+                            incomingOrderViewModel.onEvent(ManageOrderEvent.OnDeleteOrder(order))
+                            showDialog = null
+                        },
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                     if (uiState.value.success) {
                         val orderList = orders.value
                         if (orderList.isEmpty()) {
@@ -135,102 +144,25 @@ fun ManageOrderScreen(
                                         orderList[index].orderId
                                     }
                                 ) { i ->
-                                    val item = orderList[i]
-                                    var expanded by remember {
-                                        mutableStateOf(false)
-                                    }
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        val text = item.orderStartTime
-                                            .toInstant()
-                                            .atZone(ZoneId.systemDefault())
-                                            .toLocalDateTime()
-                                            .format(DateTimeFormatter.ofPattern("d MMM hh:mm:ss a"))
-                                        Text(text = text)
-                                        IconButton(
-                                            onClick = {
-                                                incomingOrderViewModel.onEvent(
-                                                    ManageOrderEvent.OnClickOrder(
-                                                        item.orderId
-                                                    )
-                                                )
-                                                expanded = !expanded
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                                contentDescription = ""
-                                            )
-                                        }
-                                    }
-                                    OrderByView(
-                                        orderBy = item.orderBy,
-                                        accountViewModel = accountViewModel
+                                    OrderCard(
+                                        order = orderList[i],
+                                        onCLickAcceptOrder = { id,list ->
+                                            incomingOrderViewModel.onEvent(ManageOrderEvent.OnAcceptOrder(id,list))
+                                        },
+                                        onCLickRejectOrder = { id,list ->
+                                            incomingOrderViewModel.onEvent(ManageOrderEvent.OnRejectOrder(id,list))
+                                            showDialog = orderList[i]
+                                        },
+                                        getFood = { id ->
+                                            productViewModel.getFood(id)
+                                        },
+                                        getModifierItem = { id ->
+                                            productViewModel.getModifierItem(id)
+                                        },
+                                        showAcceptRejectButtons = incomingType,
+                                        accountViewModel = accountViewModel,
+                                        incomingOrderViewModel = incomingOrderViewModel
                                     )
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 8.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = item.orderId,
-                                            textAlign = TextAlign.Start,
-                                            modifier = Modifier.weight(4f).basicMarquee(),
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = item.grandTotal.toString(),
-                                            textAlign = TextAlign.End,
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                    }
-                                    if (expanded) {
-                                        ViewOrder(
-                                            item.orderId,
-                                            incomingOrderViewModel,
-                                            productViewModel
-                                        )
-                                    }
-                                    if (incomingType) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 8.dp),
-                                            horizontalArrangement = Arrangement.SpaceEvenly
-                                        ) {
-                                            Button(
-                                                onClick = {
-                                                    incomingOrderViewModel.onEvent(
-                                                        ManageOrderEvent.OnRejectOrder(
-                                                            item.orderId,
-                                                            item.orderList
-                                                        )
-                                                    )
-                                                }
-                                            ) {
-                                                Text(text = "Reject")
-                                            }
-                                            Button(
-                                                onClick = {
-                                                    incomingOrderViewModel.onEvent(
-                                                        ManageOrderEvent.OnAcceptOrder(
-                                                            item.orderId,
-                                                            item.orderList
-                                                        )
-                                                    )
-                                                }
-                                            ) {
-                                                Text(text = "Accept")
-                                            }
-
-                                        }
-                                    }
-                                    Divider()
                                 }
                             }
                         }
@@ -259,12 +191,139 @@ fun ManageOrderScreen(
     }
 }
 
+@Composable
+fun DeleteOrderDialog(
+    order: Order?,
+    onDismiss: () -> Unit,
+    onDeleteClick: (Order) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (order != null){
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = { onDeleteClick(order) }) {
+                    Text(text = "Delete Order")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = "Cancel")
+                }
+            },
+            title = {
+                Text(text = "Delete rejected order?")
+            },
+            text = {
+                Text(text = "Do you want to delete order ${order.orderId}, this action cannot be undone!")
+            },
+            modifier = modifier
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun OrderCard(
+    order: Order,
+    onCLickAcceptOrder: (String, List<String>)-> Unit,
+    onCLickRejectOrder: (String, List<String>)-> Unit,
+    getFood: (String) -> Food?,
+    getModifierItem: (String) -> ModifierItem?,
+    showAcceptRejectButtons: Boolean,
+    accountViewModel: AccountViewModel,
+    incomingOrderViewModel: IncomingOrderViewModel
+) {
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+    Card(modifier = Modifier.padding(8.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val text = order.orderStartTime
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime()
+                    .format(DateTimeFormatter.ofPattern("d MMM hh:mm:ss a"))
+                Text(text = text)
+                IconButton(
+                    onClick = {
+                        expanded = !expanded
+                    }
+                ) {
+                    Icon(
+                        imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = ""
+                    )
+                }
+            }
+            OrderByView(
+                orderBy = order.orderBy,
+                accountViewModel = accountViewModel
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = order.orderId,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .weight(4f)
+                        .basicMarquee(),
+                    maxLines = 1
+                )
+                Text(
+                    text = order.grandTotal.toString(),
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            if (expanded) {
+                ViewOrderDetails(
+                    order.orderId,
+                    incomingOrderViewModel,
+                    getFood,
+                    getModifierItem
+                )
+            }
+            if (showAcceptRejectButtons) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(
+                        onClick = { onCLickRejectOrder(order.orderId,order.orderList) }
+                    ) {
+                        Text(text = "Reject")
+                    }
+                    Button(
+                        onClick = { onCLickAcceptOrder(order.orderId,order.orderList) }
+                    ) {
+                        Text(text = "Accept")
+                    }
+
+                }
+            }
+        }
+    }
+}
 
 @Composable
-fun ViewOrder(
+fun ViewOrderDetails(
     orderId :String,
     incomingOrderViewModel: IncomingOrderViewModel,
-    productViewModel: ProductViewModel
+    getFood: (String) -> Food?,
+    getModifierItem: (String) -> ModifierItem?
 ) {
     var state by remember {
         mutableStateOf(UiState())
@@ -285,7 +344,6 @@ fun ViewOrder(
                 }
 
                 is Response.Success -> {
-                    println("hmm")
                     state = UiState(
                         loading = false,
                         success = true,
@@ -302,39 +360,53 @@ fun ViewOrder(
         }
         if (state.success) {
             state.data?.let {
-                ViewOrder(
+                ViewOrderDetails(
                     orderList = it,
-                    getFood = { id ->
-                        productViewModel.getFood(id)
-                    } ,
-                    getModifierItem = { id ->
-                        productViewModel.getModifierItem(id)
-                    })
+                    getFood = getFood ,
+                    getModifierItem = getModifierItem
+                )
             }
         }
     }
 }
 
 @Composable
-fun ViewOrder(
+fun ViewOrderDetails(
     orderList: List<OrderItem>,
     getFood : (String) -> Food?,
     getModifierItem: (String) -> ModifierItem?
 ) {
-    Column() {
-       orderList.forEach { orderItem ->
-            val food = getFood(orderItem.foodId)
-            Row(modifier = Modifier.fillMaxWidth()) {
+    Column(Modifier.padding(8.dp)) {
+        Divider()
+        Row(
+           modifier = Modifier
+               .fillMaxWidth()
+               .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "Name")
+            Text(text = "Quantity")
+        }
+        Divider()
+        orderList.forEachIndexed{ i,orderItem ->
+           val food = getFood(orderItem.foodId)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = food?.name ?: "",
-                    style = MaterialTheme.typography.headlineSmall
+                    text = "${i+1}. ${food?.name ?: ""}",
+                    style = MaterialTheme.typography.bodyLarge
                 )
+                Text(text = orderItem.quantity.toString())
             }
             if (food?.modifiable == true) {
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     orderItem.modifierItems!!.forEach { i ->
                         val modifierItem = getModifierItem(i)
@@ -359,9 +431,6 @@ fun OrderByView(
     var email by rememberSaveable {
         mutableStateOf<String?>(null)
     }
-//    val account by remember {
-//        mutableStateOf<Account?>(null)
-//    }
     if (email == null){
         LaunchedEffect(key1 = true) {
             accountViewModel.getAccount(orderBy) {
@@ -410,7 +479,7 @@ fun OrderByViewPreview() {
 @Preview(showBackground = true)
 @Composable
 fun ViewOrderPreview() {
-    ViewOrder(
+    ViewOrderDetails(
         orderList =  listOf(OrderItem()),
          { it ->
             Food(name = "ABC")

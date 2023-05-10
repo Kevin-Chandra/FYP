@@ -14,5 +14,7 @@ sealed class AddToCartEvent {
 
     data class NoteChanged(val note: String) : AddToCartEvent()
 
+    object RequiredModifierUnavailable : AddToCartEvent()
+
     object AddToCart: AddToCartEvent()
 }

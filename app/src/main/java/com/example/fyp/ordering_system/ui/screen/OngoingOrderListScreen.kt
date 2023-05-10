@@ -46,7 +46,7 @@ fun OngoingOrderListScreen(
     account: Account
 ) {
     val orderList = ongoingOrderViewModel.ongoingOrderList.collectAsStateWithLifecycle()
-    val uiState = ongoingOrderViewModel.orderingStatusState.collectAsStateWithLifecycle()
+    val uiState = ongoingOrderViewModel.ongoingOrderListStatusState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
@@ -83,7 +83,7 @@ fun OngoingOrderListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OngoingOrderCard(
     order: Order,
@@ -103,7 +103,6 @@ fun OngoingOrderCard(
             ) {
                 Text(
                     text = order.orderId,
-//                    modifier = Modifier.weight(2f)
                 )
                 AssistChip(
                     onClick = { },
