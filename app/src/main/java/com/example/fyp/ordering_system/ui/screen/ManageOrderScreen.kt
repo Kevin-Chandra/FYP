@@ -60,6 +60,8 @@ import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.ui.viewmodel.IncomingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.ManageOrderEvent
+import com.example.fyp.ordering_system.util.errorToast
+import com.example.fyp.ordering_system.util.formatDate
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -244,12 +246,7 @@ fun OrderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val text = order.orderStartTime
-                    .toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime()
-                    .format(DateTimeFormatter.ofPattern("d MMM hh:mm:ss a"))
-                Text(text = text)
+                Text(text = formatDate(order.orderStartTime))
                 IconButton(
                     onClick = {
                         expanded = !expanded
@@ -335,7 +332,7 @@ fun ViewOrderDetails(
                     state = UiState(
                         loading = false,
                         error = true,
-                        errorMessage = it.exception.message?.let { it1 -> error(it1) }
+                        errorMessage = it.exception.message
                     )
                 }
 
@@ -384,8 +381,14 @@ fun ViewOrderDetails(
                .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "Name")
-            Text(text = "Quantity")
+            Text(
+                text = "Name",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = "Quantity",
+                style = MaterialTheme.typography.headlineSmall,
+            )
         }
         Divider()
         orderList.forEachIndexed{ i,orderItem ->
@@ -398,15 +401,18 @@ fun ViewOrderDetails(
             ) {
                 Text(
                     text = "${i+1}. ${food?.name ?: ""}",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.headlineSmall
                 )
-                Text(text = orderItem.quantity.toString())
+                Text(
+                    text = orderItem.quantity.toString(),
+                    style = MaterialTheme.typography.headlineSmall
+                )
             }
             if (food?.modifiable == true) {
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .padding(horizontal = 28.dp, vertical = 4.dp)
                 ) {
                     orderItem.modifierItems!!.forEach { i ->
                         val modifierItem = getModifierItem(i)

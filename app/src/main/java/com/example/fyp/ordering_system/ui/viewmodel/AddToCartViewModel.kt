@@ -42,8 +42,6 @@ class AddToCartViewModel @Inject constructor(
     private val validateModifierUseCase: ValidateModifierUseCase,
 ) : ViewModel(){
 
-//    private val tax = 0.06
-
     private lateinit var  food : Food
 
     private var requiredModifier = 0
@@ -56,9 +54,6 @@ class AddToCartViewModel @Inject constructor(
 
     private val _addToCartUiState = MutableSharedFlow<AddToCartUiState>()
     val addToCartUiState = _addToCartUiState.asSharedFlow()
-
-//    private val _addToCartUiState = MutableStateFlow(AddToCartUiState())
-//    val addToCartUiState = _addToCartUiState.asStateFlow()
 
     fun initializeItemEdit(id : String) = viewModelScope.launch{
         if (!edit){
@@ -117,19 +112,20 @@ class AddToCartViewModel @Inject constructor(
         when(event){
             AddToCartEvent.AddToCart -> {
                 addToCart()
-//                resetState()
             }
             is AddToCartEvent.FoodChanged -> {
-                if (!this::food.isInitialized){
+                if (!this::food.isInitialized) {
                     food = event.food
-                    requiredModifier = event.requiredModifier
-                    _addToCartState.update { _addToCartState.value.copy( foodId = event.food.productId) }
-                    updatePrice()
+                    if (food.availability) {
+                        requiredModifier = event.requiredModifier
+                        _addToCartState.update { _addToCartState.value.copy(foodId = event.food.productId) }
+                        updatePrice()
+                    }
                 }
             }
             is AddToCartEvent.ModifierItemListChanged -> {
                 _addToCartState.value.modifierList[event.modifier] = event.list
-                println(_addToCartState.value.modifierList.toList())
+//                println(_addToCartState.value.modifierList.toList())
                 updatePrice()
             }
             is AddToCartEvent.QuantityChanged -> {

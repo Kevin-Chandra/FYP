@@ -63,9 +63,7 @@ fun OngoingOrderScreen(
                     )
                 }
                 if (statusState.value.success){
-                    println(statusState.value)
                     if (statusState.value.successMessage?.equals("Status updated!") == true){
-                        println("enter success ${statusState.value.status}")
                         when (statusState.value.status){
                             "Processing" -> {
                                 Text(

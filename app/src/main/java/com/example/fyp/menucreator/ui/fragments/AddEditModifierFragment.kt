@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
+import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentAddEditModifierBinding
 import com.example.fyp.menucreator.ui.adapter.ModifierItemAddEditAdapter
 import com.example.fyp.menucreator.ui.viewmodel.AddEditModifierViewModel
@@ -41,7 +43,7 @@ class AddEditModifierFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: AddEditModifierViewModel by viewModels()
-    private val authViewModel: MainAuthViewModel by viewModels()
+    private val authViewModel: MainAuthViewModel by activityViewModels()
 
     private lateinit var command: String
 

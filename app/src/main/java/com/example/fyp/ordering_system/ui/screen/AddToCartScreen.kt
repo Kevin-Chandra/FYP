@@ -84,6 +84,7 @@ import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.AddToCartEvent
 import com.example.fyp.ordering_system.util.AddToCartState
+import com.example.fyp.ordering_system.util.errorToast
 import com.ramcosta.composedestinations.annotation.Destination
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.animation.circular.CircularRevealPlugin
@@ -267,10 +268,6 @@ fun AddToCartScreen (
         }
 
     }
-}
-
-fun errorToast(msg: String, context: Context){
-    Toast.makeText(context,msg,Toast.LENGTH_LONG).show()
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)

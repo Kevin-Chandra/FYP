@@ -36,6 +36,10 @@ import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.ordering_system.ui.navigation.Screen
 import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
+import com.example.fyp.ordering_system.util.errorToast
+import com.example.fyp.ordering_system.util.formatDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,12 +94,12 @@ fun OngoingOrderCard(
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).clickable {
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp).clickable {
             onClick()
         }
     ) {
         Column(Modifier.padding(8.dp)) {
-            Text(text = "Order Time: ${order.orderStartTime}")
+            Text(text = "Order Time: ${formatDate(order.orderStartTime)}")
             Row(
                 modifier = Modifier.align(CenterHorizontally).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

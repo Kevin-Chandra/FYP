@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Constants
+import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.databinding.FragmentProductListBinding
 import com.example.fyp.menucreator.data.model.ProductType
@@ -28,38 +29,25 @@ class ProductListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel : FoodListingViewModel by activityViewModels()
-    private val accountViewModel by viewModels<MainAuthViewModel>()
+    private val accountViewModel by activityViewModels<MainAuthViewModel>()
 
     private lateinit var foodAdapter : ProductListItemAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    ): View {
         _binding = FragmentProductListBinding.inflate(inflater, container, false)
         return binding.root
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        println("On destroy")
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        println("On detach")
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         accountViewModel.getSession {
-            if (it != null && (it.accountType == AccountType.Admin || it.accountType == AccountType.Manager))
+            if (it?.accountType == AccountType.Admin || it?.accountType == AccountType.Manager)
                 if (this.lifecycle.currentState >= Lifecycle.State.STARTED)
                     binding.fabAddFood.visibility = View.VISIBLE
         }
-
 
         foodAdapter = ProductListItemAdapter{
             val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(it.productId,ProductType.FoodAndBeverage)

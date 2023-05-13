@@ -61,12 +61,12 @@ class MainAccountFragment : Fragment() {
 
         setShimmer(true)
 
-        authViewModel.getSession {
+        authViewModel.getSession(true) {
             user = it
-            binding.accountNameTv.text = user?.first_name + " " +  user?.last_name
-            binding.accountNameTv.setSelected(true)
+            binding.accountNameTv.text = user?.first_name + " " + user?.last_name
+            binding.accountNameTv.isSelected = true
 
-            if (user?.profileUri != null){
+            if (user?.profileUri != null) {
                 Glide.with(requireContext())
                     .load(user?.profileUri)
                     .placeholder(R.drawable.ic_profile_placeholder_24)
@@ -74,15 +74,15 @@ class MainAccountFragment : Fragment() {
                     .centerCrop()
                     .into(binding.profileIv)
             }
-            if (user?.accountType == AccountType.Admin || user?.accountType == AccountType.Manager){
+            if (user?.accountType == AccountType.Admin || user?.accountType == AccountType.Manager) {
                 binding.registerStaffBtn.visibility = View.VISIBLE
             } else {
                 binding.registerStaffBtn.visibility = View.GONE
             }
 
-            if (user?.accountType == AccountType.Staff){
+            if (user?.accountType == AccountType.Staff) {
                 println("staff ${user?.staffPosition}")
-                if (user?.staffPosition == StaffPosition.Pending){
+                if (user?.staffPosition == StaffPosition.Pending) {
                     println("staff p")
                     binding.accountStatusChip.text = "Pending Account"
                     binding.accountStatusChip.visibility = View.VISIBLE
@@ -90,7 +90,7 @@ class MainAccountFragment : Fragment() {
                         infoDialog("Your staff account is awaiting Admin/Manager to approve")
                     }
 
-                } else if (user?.staffPosition == StaffPosition.Disabled){
+                } else if (user?.staffPosition == StaffPosition.Disabled) {
                     binding.accountStatusChip.text = "Disabled Account"
                     binding.accountStatusChip.visibility = View.VISIBLE
                     binding.accountStatusChip.setOnClickListener {

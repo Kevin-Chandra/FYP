@@ -113,8 +113,9 @@ class SecondFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         authViewModel.getSession {
-            account = it
-            if (it != null && this.lifecycle.currentState >= Lifecycle.State.STARTED) {
+            account = it ?: return@getSession
+
+            if (this.lifecycle.currentState >= Lifecycle.State.STARTED) {
                 when (it.accountType) {
                     AccountType.Customer -> {}
                     AccountType.Admin -> {

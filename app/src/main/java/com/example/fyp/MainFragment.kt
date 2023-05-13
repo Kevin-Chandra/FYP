@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import com.example.fyp.account_management.AccountActivity
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
+import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentMainBinding
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.ordering_system.ui.OnlineOrderingActivity
@@ -66,14 +67,14 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun getSession() = authViewModel.getSession {
+    private fun getSession() = authViewModel.getSession(true) {
         binding.onlineOrderingBtn.isEnabled = false
         if (it != null){
             account = it
             binding.shimmerHello.stopShimmer()
             binding.shimmerHello.visibility = View.GONE
             binding.helloTv.visibility = View.VISIBLE
-            binding.helloTv.text = "Hello, ${it.first_name}"
+            binding.helloTv.text = "Hello, ${account.first_name}"
             binding.onlineOrderingBtn.isEnabled = true
         }
     }

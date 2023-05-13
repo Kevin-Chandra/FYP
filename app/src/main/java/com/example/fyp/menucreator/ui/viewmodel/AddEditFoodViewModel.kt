@@ -4,6 +4,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.domain.use_case.GetAccountUseCase
+import com.example.fyp.account_management.domain.use_case.GetSessionUseCase
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ProductType
@@ -38,7 +40,8 @@ class AddEditFoodViewModel @Inject constructor(
     private val validateProductNameUseCase: ValidateProductNameUseCase,
     private val validateProductPriceUseCase: ValidateProductPriceUseCase,
     private val validateProductCategoryUseCase: ValidateProductCategoryUseCase,
-    private val getModifierListUseCase: GetModifierListUseCase
+    private val getModifierListUseCase: GetModifierListUseCase,
+
 ) : ViewModel() {
 
     private var productId: String? = null

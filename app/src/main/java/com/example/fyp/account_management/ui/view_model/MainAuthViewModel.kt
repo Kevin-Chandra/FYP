@@ -12,8 +12,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +37,12 @@ class MainAuthViewModel @Inject constructor(
     private val _deleteAccountState = MutableStateFlow<Response<String>>(Response.Success(""))
     val deleteAccountState = _deleteAccountState.asStateFlow()
 
+    private var account : Account? = null
+
+    init {
+        getAccountSession()
+    }
+
     fun login(email: String, password: String) = viewModelScope.launch{
         _loginState.emit(Response.Loading)
             loginUseCase.invoke(email,password){
@@ -49,8 +58,18 @@ class MainAuthViewModel @Inject constructor(
         }
     }
 
-    fun getSession( result : (Account?) -> Unit ) = viewModelScope.launch(Dispatchers.Main){
-        result.invoke(getSessionUseCase.invoke())
+    private fun getAccountSession() = viewModelScope.launch(Dispatchers.IO){
+        account = getSessionUseCase.invoke()
+    }
+
+    fun getSession(online: Boolean = false,result: (Account?) -> Unit) = viewModelScope.launch(Dispatchers.Main){
+        if (account == null || online){
+            println("Request session online")
+            result.invoke(getSessionUseCase())
+        } else {
+            println("Request session locally")
+            result.invoke(account)
+        }
     }
 
     fun logout( result : () -> Unit){

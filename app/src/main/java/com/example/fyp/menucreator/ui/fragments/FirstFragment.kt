@@ -6,10 +6,14 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.example.fyp.R
+import com.example.fyp.account_management.data.model.AccountType
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
+import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentFirstBinding
 import com.example.fyp.menucreator.ui.adapter.MenuCreatorViewPagerAdapter
 import com.google.android.material.tabs.TabLayout
@@ -26,6 +30,8 @@ class FirstFragment : Fragment() {
     private lateinit var viewPager : ViewPager2
     private lateinit var pagerAdapter : MenuCreatorViewPagerAdapter
 
+    private val accountViewModel by activityViewModels<MainAuthViewModel>()
+
     companion object Constant{
         var lastTab = 0
     }
@@ -41,7 +47,11 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setMenu()
+        accountViewModel.getSession {
+            if (it != null && (it.accountType == AccountType.Admin || it.accountType == AccountType.Manager))
+                if (this.lifecycle.currentState >= Lifecycle.State.STARTED)
+                    setMenu()
+        }
 
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

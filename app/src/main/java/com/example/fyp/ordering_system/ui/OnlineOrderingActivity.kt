@@ -22,6 +22,7 @@ import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
+import com.example.fyp.account_management.util.Response
 import com.example.fyp.ordering_system.ui.navigation.OnlineOrderingNavGraph
 import com.example.fyp.ordering_system.ui.navigation.SetupOnlineOrderingNavGraph
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
@@ -52,7 +53,7 @@ class OnlineOrderingActivity : ComponentActivity() {
             var loading by remember { mutableStateOf(true) }
 
             authViewModel.getSession {
-                if (it != null){
+                if (it != null) {
                     account = it
                     loading = false
                 }
