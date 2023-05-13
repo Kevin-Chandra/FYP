@@ -174,7 +174,7 @@ class AddEditModifierViewModel @Inject constructor(
             }
             return@launch
         } else {
-            _addEditModifierState.value.copy(
+            _addEditModifierState.value = _addEditModifierState.value.copy(
                 productIdError = null,
                 nameError = null
             )

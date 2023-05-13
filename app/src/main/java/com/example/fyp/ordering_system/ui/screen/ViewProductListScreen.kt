@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
@@ -29,10 +31,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.util.UiState
@@ -41,6 +47,11 @@ import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.skydoves.landscapist.ImageOptions
+import com.skydoves.landscapist.animation.circular.CircularRevealPlugin
+import com.skydoves.landscapist.coil.CoilImage
+import com.skydoves.landscapist.components.rememberImageComponent
+import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 
 @OptIn(ExperimentalFoundationApi::class)
 @RootNavGraph(true)
@@ -51,7 +62,6 @@ fun ViewProductListScreen(
     productViewModel: ProductViewModel,
     cartViewModel: CartViewModel
 ) {
-    val foodList = productViewModel.allFoods.collectAsStateWithLifecycle()
     val filteredFoodList = productViewModel.filteredFoods.collectAsStateWithLifecycle()
     val foodCategory = productViewModel.foodCategories.collectAsStateWithLifecycle()
     val selectedCategory = productViewModel.selectedCategory.collectAsStateWithLifecycle()
@@ -61,7 +71,7 @@ fun ViewProductListScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        if (foodList.value is UiState.Success) {
+        if (filteredFoodList.value is UiState.Success) {
             LazyColumn(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -124,7 +134,9 @@ fun CategoryList(
     onSelected: (FoodCategory?) -> Unit,
 ) {
     LazyRow(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.Start,
         contentPadding = PaddingValues(8.dp)
     ){
@@ -163,43 +175,69 @@ fun ProductCard(
             },
         elevation = CardDefaults.elevatedCardElevation(),
     ) {
-
-        Column(
-            modifier = Modifier.padding(16.dp)
+        
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = food.name,
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                if (!food.availability) {
-                    AssistChip(
-                        onClick = { },
-                        label = {
-                            Text(
-                                text = "Unavailable",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
+            CoilImage(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(10.dp)),
+                imageModel = {food.imageUri?: R.mipmap.ic_launcher},
+                imageOptions = ImageOptions(
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center,
+                    contentDescription = "Food Image",
+                    colorFilter = null,
+                ),
+                previewPlaceholder = R.mipmap.ic_launcher,
+                component = rememberImageComponent {
+                    +ShimmerPlugin(
+                        baseColor = Color.Gray,
+                        highlightColor = Color.White
                     )
-                } else {
+                },
+            )
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        text = food.price.toString(),
+                        text = food.name,
                         modifier = Modifier.align(Alignment.CenterVertically),
                         style = MaterialTheme.typography.headlineSmall
                     )
+                    if (!food.availability) {
+                        AssistChip(
+                            onClick = { },
+                            label = {
+                                Text(
+                                    text = "Unavailable",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        )
+                    } else {
+                        Text(
+                            text = food.price.toString(),
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
                 }
-            }
 
-            Text(
-                text = food.description,
-                modifier = Modifier.align(Alignment.Start),
-                style = MaterialTheme.typography.bodyLarge
-            )
+                Text(
+                    text = food.description,
+                    modifier = Modifier.align(Alignment.Start),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 }
