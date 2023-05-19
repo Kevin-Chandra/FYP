@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -87,7 +88,7 @@ fun KitchenManageOrderScreen(
                     LazyRow(){
                         items(ongoingItems.value
                             .filter { it.orderItemStatus == OrderItemStatus.Confirmed }
-                            .sortedByDescending { it.timeAdded }){ item ->
+                            .sortedBy { it.timeAdded }){ item ->
                             var showDialog by remember { mutableStateOf(false) }
                             OrderItemCard(
                                 orderItem = item,
@@ -139,7 +140,7 @@ fun KitchenManageOrderScreen(
                     LazyRow(){
                         items(ongoingItems.value
                             .filter { it.orderItemStatus == OrderItemStatus.Preparing }
-                            .sortedByDescending { it.timeAdded }){ item ->
+                            .sortedBy { it.timeAdded }){ item ->
                             var showDialog by remember { mutableStateOf(false) }
                             OrderItemCard(
                                 orderItem = item,
@@ -235,7 +236,7 @@ fun OrderItemCard(
         Column(
             modifier = Modifier
                 .padding(16.dp)
-                .widthIn(min= 300.dp,max= 340.dp),
+                .widthIn(min = 300.dp, max = 340.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
@@ -255,11 +256,12 @@ fun OrderItemCard(
                     }
                 )
             }
-
-            Divider()
+            Divider(modifier = Modifier.padding(vertical = 4.dp))
             Text(text = orderItem.orderItemId)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "[${orderItem.foodId}] ${getFood(orderItem.foodId)?.name}")
