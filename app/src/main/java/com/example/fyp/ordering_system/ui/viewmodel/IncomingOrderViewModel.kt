@@ -54,7 +54,7 @@ class IncomingOrderViewModel @Inject constructor(
     fun onEvent(event: ManageOrderEvent){
         when(event){
             is ManageOrderEvent.OnAcceptOrder -> {
-                updateStatus(event.orderId,event.list,OrderStatus.Ongoing,OrderItemStatus.Preparing)
+                updateStatus(event.orderId,event.list,OrderStatus.Ongoing,OrderItemStatus.Confirmed)
             }
             is ManageOrderEvent.OnRejectOrder -> {
                 updateStatus(event.orderId,event.list,OrderStatus.Rejected,OrderItemStatus.Cancelled)

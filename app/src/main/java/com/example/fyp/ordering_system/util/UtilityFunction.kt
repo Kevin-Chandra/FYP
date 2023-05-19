@@ -25,3 +25,11 @@ fun formatDate(date: Date): String {
         localDt.format(DateTimeFormatter.ofPattern("d MMM hh:mm:ss a"))
 
 }
+
+fun formatTime(date: Date): String {
+    val localDt = date
+        .toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+    return localDt.format(DateTimeFormatter.ofPattern("hh:mm:ss a"))
+}

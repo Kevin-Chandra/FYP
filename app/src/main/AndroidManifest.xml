@@ -8,14 +8,19 @@
         android:name=".FypApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher_foreground"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:enableOnBackInvokedCallback="true"
         tools:targetApi="33">
+        <activity
+            android:name=".pos.PosActivity"
+            android:exported="false"
+            android:label="@string/title_activity_pos"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".ordering_system.ui.OnlineOrderingActivity"
             android:exported="false"

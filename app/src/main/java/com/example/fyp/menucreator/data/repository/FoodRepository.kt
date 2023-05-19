@@ -5,6 +5,7 @@ import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.menucreator.util.MenuCreatorResponse
 import com.example.fyp.menucreator.util.UiState
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
@@ -78,6 +79,23 @@ class FoodRepository(
                 foodCollectionRef.document(doc.id).set(
                     food,
                     SetOptions.merge()
+                )
+            result.invoke(UiState.Success("Food Upload Success"))
+        } catch (e: Exception){
+            result.invoke(UiState.Failure(e))
+        }
+    }
+
+    suspend fun updateFoodAllTimeSales(id: String, valueToIncrement:Long,result: (UiState<String>) -> Unit){
+        try {
+            val query = foodCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Product Id not found!")
+            for (doc in query.documents)
+                foodCollectionRef.document(doc.id).update(
+                    FireStoreDocumentField.ALL_TIME_SALES,FieldValue.increment(valueToIncrement)
                 )
             result.invoke(UiState.Success("Food Upload Success"))
         } catch (e: Exception){

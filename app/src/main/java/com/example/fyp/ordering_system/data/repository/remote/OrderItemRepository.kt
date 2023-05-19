@@ -8,6 +8,7 @@ import com.example.fyp.menucreator.util.UiState
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.data.model.OrderType
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.toObject
@@ -16,6 +17,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.lang.Exception
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.util.Date
 import javax.inject.Inject
 
 class OrderItemRepository @Inject constructor(
@@ -51,6 +57,26 @@ class OrderItemRepository @Inject constructor(
                     SetOptions.merge()
                 )
             result.invoke(Response.Success("Order Item Updated!"))
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
+        }
+    }
+
+    suspend fun orderItemFinish(id: String,result: (Response<String>) -> Unit){
+        try {
+            val query = itemCollectionReference.whereEqualTo(FireStoreDocumentField.ORDER_ITEM_ID,id)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Order item ID not found!")
+            for (doc in query.documents)
+                itemCollectionReference.document(doc.id).update(
+                    mapOf(
+                        FireStoreDocumentField.ORDER_ITEM_STATUS to OrderItemStatus.Finished,
+                        FireStoreDocumentField.TIME_FINISHED to Date()
+                    )
+                )
+            result.invoke(Response.Success("Order Item Status Updated!"))
         } catch (e: Exception){
             result.invoke(Response.Error(e))
         }
@@ -116,6 +142,30 @@ class OrderItemRepository @Inject constructor(
                     trySend(itemsResponse)
                 }
         }
+        awaitClose {
+            snapshotListener.remove()
+        }
+    }
+
+    suspend fun getOrderItemListByStatus(statusList: List<OrderItemStatus>) = callbackFlow<Response<List<OrderItem>>> {
+        val startTime = Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant())
+        val snapshotListener = itemCollectionReference
+            .whereGreaterThanOrEqualTo(FireStoreDocumentField.TIME_ADDED,startTime)
+            .whereIn(FireStoreDocumentField.ORDER_ITEM_STATUS,statusList)
+            .orderBy(FireStoreDocumentField.TIME_ADDED)
+            .addSnapshotListener{ querySnapshot, e ->
+                if (e != null ){
+                    Response.Error(e)
+                    return@addSnapshotListener
+                }
+                querySnapshot?.let{
+                    val itemsResponse = run {
+                        val items = querySnapshot.toObjects(OrderItem::class.java)
+                        Response.Success(items)
+                    }
+                    trySend(itemsResponse)
+                }
+            }
         awaitClose {
             snapshotListener.remove()
         }

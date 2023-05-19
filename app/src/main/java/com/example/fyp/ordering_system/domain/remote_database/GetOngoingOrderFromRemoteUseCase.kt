@@ -7,10 +7,14 @@ import com.example.fyp.ordering_system.data.repository.remote.OrderRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetOrderFromRemoteByStatusUseCase @Inject constructor(
+class GetOngoingOrderFromRemoteUseCase @Inject constructor(
     private val orderRepository: OrderRepository,
     ) {
-    suspend operator fun invoke(orderStatus: OrderStatus, result: (Flow<Response<List<Order>>>) -> Unit) {
-        result.invoke(orderRepository.getOrderListByStatus(listOf(orderStatus)))
+    suspend operator fun invoke(result: (Flow<Response<List<Order>>>) -> Unit) {
+        result.invoke(orderRepository.getOrderListByStatus(listOf(
+            OrderStatus.Ongoing,
+            OrderStatus.Sent,
+            OrderStatus.Confirmed
+        )))
     }
 }

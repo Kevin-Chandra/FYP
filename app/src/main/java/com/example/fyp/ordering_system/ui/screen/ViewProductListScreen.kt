@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,22 +27,36 @@ import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.compose.FypTheme
 import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.util.UiState
+import com.example.fyp.ordering_system.ui.components.CustomerOrderBottomNavigation
 import com.example.fyp.ordering_system.ui.navigation.Screen
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
@@ -52,8 +67,9 @@ import com.skydoves.landscapist.animation.circular.CircularRevealPlugin
 import com.skydoves.landscapist.coil.CoilImage
 import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @RootNavGraph(true)
 @Destination
 @Composable
@@ -67,60 +83,106 @@ fun ViewProductListScreen(
     val selectedCategory = productViewModel.selectedCategory.collectAsStateWithLifecycle()
     val cart = cartViewModel.cart
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        if (filteredFoodList.value is UiState.Success) {
-            LazyColumn(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding()
-            ) {
-                if (foodCategory.value is UiState.Success){
-                    item{
-                        CategoryList(
-                            categoryList = (foodCategory.value as UiState.Success<List<FoodCategory>>).data,
-                            selected = selectedCategory.value?.id,
-                            onSelected = {
-                                productViewModel.filterFoodByCategory(it)
-                            })
-                    }
-                }
-                items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
-                    ProductCard(item) { it1 ->
-                        navigator.navigate(Screen.AddToCartScreen.withArgs(it1, "null"))
-                    }
-                }
-                item {
-                    Spacer(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp))
-                }
-            }
+    val bottomBarHeight = 80.dp
+    val bottomBarHeightPx = with(LocalDensity.current) { bottomBarHeight.roundToPx().toFloat() }
+    val bottomBarOffsetHeightPx = remember { mutableStateOf(0f) }
 
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+
+                val delta = available.y
+                val newOffset = bottomBarOffsetHeightPx.value + delta
+                bottomBarOffsetHeightPx.value = newOffset.coerceIn(-bottomBarHeightPx, 0f)
+
+                return Offset.Zero
+            }
         }
-        Button(
-            onClick = { navigator.navigate(Screen.ReviewOrderScreen.route) },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(16.dp),
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+    }
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    FypTheme() {
+        Surface() {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            if (foodCategory.value is UiState.Success) {
+                                CategoryList(
+                                    categoryList = (foodCategory.value as UiState.Success<List<FoodCategory>>).data,
+                                    selected = selectedCategory.value?.id,
+                                    onSelected = {
+                                        productViewModel.filterFoodByCategory(it)
+                                    })
+                            }
+                        },
+                        scrollBehavior = scrollBehavior
+                    )
+                },
+                bottomBar = {
+                    CustomerOrderBottomNavigation(
+                        navController = navigator,
+                        modifier = Modifier
+                            .height(bottomBarHeight)
+                            .offset {
+                                IntOffset(
+                                    x = 0,
+                                    y = -bottomBarOffsetHeightPx.value.roundToInt()
+                                )
+                            })
+                },
+                modifier = Modifier.nestedScroll(nestedScrollConnection).nestedScroll(scrollBehavior.nestedScrollConnection)
             ) {
-                Text(
-                    text = cart.value.size.toString(),
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                ) {
+                    if (filteredFoodList.value is UiState.Success) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding()
+                        ) {
+                            items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
+                                ProductCard(item) { it1 ->
+                                    navigator.navigate(Screen.AddToCartScreen.withArgs(it1, "null"))
+                                }
+                            }
+                        }
+
+                    }
+                    Button(
+                        onClick = { navigator.navigate(Screen.ReviewOrderScreen.route) },
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .offset {
+                                IntOffset(
+                                    x = 0,
+                                    y = -bottomBarOffsetHeightPx.value.roundToInt()
+                                )
+                            },
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = cart.value.size.toString(),
 //                            style = MaterialTheme.typography.headlineSmall
-                )
-                Text(
-                    text = "View Cart",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(text = cartViewModel.getSubTotalPrice().toString())
+                            )
+                            Text(
+                                text = "View Cart",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(text = cartViewModel.getSubTotalPrice().toString())
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -177,7 +239,9 @@ fun ProductCard(
     ) {
         
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             CoilImage(

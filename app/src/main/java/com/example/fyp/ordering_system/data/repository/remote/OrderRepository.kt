@@ -19,6 +19,9 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Date
 import javax.inject.Inject
 import kotlin.Exception
 
@@ -159,19 +162,32 @@ class OrderRepository @Inject constructor(
         }
     }
 
-//    suspend fun getOrderListByStatus(orderStatus: OrderStatus) = callbackFlow<Response<List<Order>>> {
-//        try{
-//            val query = orderCollectionRef.get().await()
-//            val orders = query.toObjects(Order::class.java)
-//            println("Success")
-//            Response.Success(orders)
-//        } catch (e: Exception){
-//            Response.Error(e)
-//        }
-//    }
-    suspend fun getOrderListByStatus(orderStatus: OrderStatus) = callbackFlow<Response<List<Order>>> {
+
+    suspend fun finishOrder(orderId: String, result: (Response<String>) -> Unit){
+        try {
+            val query = orderCollectionRef.whereEqualTo(FireStoreDocumentField.ORDER_ID,orderId)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Order Id not found!")
+            for (doc in query.documents)
+                orderCollectionRef.document(doc.id).update(
+                    mapOf(
+                        FireStoreDocumentField.ORDER_STATUS to OrderStatus.Finished,
+                        FireStoreDocumentField.ORDER_FINISH_TIME to Date()
+                    )
+                )
+            result.invoke(Response.Success("Order Finished!"))
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
+        }
+    }
+
+    suspend fun getOrderListByStatus(statusList: List<OrderStatus>, byLastHours: Long = 24) = callbackFlow<Response<List<Order>>> {
+        val startTime = Date.from(LocalDateTime.now().minusHours(byLastHours).atZone(ZoneId.systemDefault()).toInstant())
         val snapshotListener = orderCollectionRef
-            .whereEqualTo(FireStoreDocumentField.ORDER_STATUS,orderStatus)
+            .whereGreaterThanOrEqualTo(FireStoreDocumentField.ORDER_START_TIME,startTime)
+            .whereIn(FireStoreDocumentField.ORDER_STATUS,statusList)
             .orderBy(FireStoreDocumentField.ORDER_START_TIME,Query.Direction.DESCENDING)
             .addSnapshotListener { querySnapshot, e ->
             if (e != null) {

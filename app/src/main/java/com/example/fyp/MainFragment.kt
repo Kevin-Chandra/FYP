@@ -15,6 +15,7 @@ import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentMainBinding
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.ordering_system.ui.OnlineOrderingActivity
+import com.example.fyp.pos.PosActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,7 +32,7 @@ class MainFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         return binding.root
@@ -59,6 +60,10 @@ class MainFragment : Fragment() {
             val i = Intent(requireContext(), OnlineOrderingActivity::class.java)
             i.putExtra("accountType", account.accountType)
             startActivity(i)
+        }
+
+        binding.posBtn.setOnClickListener {
+            startActivity(Intent(requireContext(),PosActivity::class.java))
         }
 
         binding.menuCreatorButton.setOnClickListener {

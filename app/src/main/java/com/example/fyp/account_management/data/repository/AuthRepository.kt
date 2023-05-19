@@ -13,8 +13,10 @@ import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.menucreator.util.FirebaseStorageReference
 import com.example.fyp.menucreator.util.UiState
+import com.example.fyp.ordering_system.data.model.Order
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.toObject
@@ -149,6 +151,19 @@ class AuthRepository @Inject constructor(
 //                result.invoke(Response.Error(it))
 //            }
 //    }
+
+    suspend fun updateUserOrderHistory(userId: String,orderId: String,result: (Response<String>) -> Unit) =
+        CoroutineScope(Dispatchers.IO).launch {
+            val document = userCollectionRef.document(userId)
+            try {
+                document.update(
+                    FireStoreDocumentField.ORDER_HISTORY,FieldValue.arrayUnion(orderId)
+                ).await()
+                result.invoke(Response.Success(Constants.AuthResult.SUCCESS_FIELD_UPDATE))
+            } catch (e: Exception) {
+                result.invoke(Response.Error(e))
+            }
+        }
 
     private fun updateUserInfo(user: Account, result: (Response<String>) -> Unit) {
         val document = userCollectionRef.document(user.id)

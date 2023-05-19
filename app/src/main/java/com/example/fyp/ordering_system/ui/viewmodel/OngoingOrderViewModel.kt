@@ -8,6 +8,7 @@ import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.ordering_system.domain.local_database.DeleteAllOrderItemUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOngoingOrderByAccountUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOrderStatusFromRemoteUseCase
+import com.example.fyp.ordering_system.domain.remote_database.GetPastOrderByAccountUseCase
 import com.example.fyp.ordering_system.ui.screen.OngoingOrderScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,7 @@ class OngoingOrderViewModel @Inject constructor(
     private val getOrderStatusFromRemoteUseCase: GetOrderStatusFromRemoteUseCase,
     private val deleteAllOrderItemUseCase: DeleteAllOrderItemUseCase,
     private val getOngoingOrderByAccountUseCase: GetOngoingOrderByAccountUseCase,
+    private val getPastOrderByAccountUseCase: GetPastOrderByAccountUseCase,
 ) : ViewModel(){
 
     private val _orderingStatusState = MutableStateFlow(OngoingOrderScreenState(loading = true))
@@ -33,6 +35,12 @@ class OngoingOrderViewModel @Inject constructor(
 
     private val _ongoingOrderList = MutableStateFlow<List<Order>>(emptyList())
     val ongoingOrderList = _ongoingOrderList.asStateFlow()
+
+    private val _pastOrderState = MutableStateFlow(OngoingOrderScreenState(loading = true))
+    val pastOrderState = _pastOrderState.asStateFlow()
+
+    private val _pastOrderList = MutableStateFlow<List<Order>>(emptyList())
+    val pastOrderList = _pastOrderList.asStateFlow()
 
     fun getOrderStatus(id: String) = viewModelScope.launch{
         _orderingStatusState.update { OngoingOrderScreenState(loading = true) }
@@ -86,6 +94,27 @@ class OngoingOrderViewModel @Inject constructor(
                     is Response.Success -> {
                         _ongoingOrderListStatusState.update { OngoingOrderScreenState(success = true) }
                         _ongoingOrderList.update { res.data }
+                    }
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
+
+    fun getPastOrderList(accountId: String) = viewModelScope.launch{
+        _pastOrderState.update { OngoingOrderScreenState(loading = true) }
+        getPastOrderByAccountUseCase(accountId){
+            it.onEach{ res ->
+                when(res){
+                    is Response.Error -> {
+//                        res.exception.printStackTrace()
+                        _pastOrderState.update { OngoingOrderScreenState(errorMessage = res.exception.message) }
+                    }
+                    Response.Loading -> {
+                        _pastOrderState.update { OngoingOrderScreenState(loading = true) }
+                    }
+                    is Response.Success -> {
+                        _pastOrderState.update { OngoingOrderScreenState(success = true) }
+                        _pastOrderList.update { res.data }
                     }
                 }
             }.launchIn(viewModelScope)

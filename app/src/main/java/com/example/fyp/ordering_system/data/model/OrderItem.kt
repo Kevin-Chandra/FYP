@@ -27,6 +27,7 @@ data class OrderItem (
 enum class OrderItemStatus{
     Created,
     Sent,
+    Confirmed,
     Preparing,
     Finished,
     Cancelled

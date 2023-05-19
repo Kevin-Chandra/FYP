@@ -10,8 +10,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.ordering_system.ui.screen.AddToCartScreen
-import com.example.fyp.ordering_system.ui.screen.MainOnlineOrderingScreenCustomer
+import com.example.fyp.ordering_system.ui.screen.OngoingOrderListScreen
 import com.example.fyp.ordering_system.ui.screen.OngoingOrderScreen
+import com.example.fyp.ordering_system.ui.screen.OrderHistoryScreen
 import com.example.fyp.ordering_system.ui.screen.ReviewOrderScreen
 import com.example.fyp.ordering_system.ui.screen.ViewProductListScreen
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
@@ -28,13 +29,7 @@ fun SetupOnlineOrderingNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.CustomerMainOnlineOrderingScreen .route){
-
-        composable(
-            route = Screen.CustomerMainOnlineOrderingScreen.route
-        ){
-            MainOnlineOrderingScreenCustomer(navController,productViewModel,cartViewModel,ongoingOrderViewModel,account)
-        }
+        startDestination = Screen.ProductListScreen.route){
         composable(
             route = Screen.ProductListScreen.route
         ){
@@ -78,6 +73,16 @@ fun SetupOnlineOrderingNavGraph(
         ){ entry ->
             val id = entry.arguments?.getString("id") ?: ""
             OngoingOrderScreen(navigator = navController, id = id, viewModel = ongoingOrderViewModel)
+        }
+        composable(
+            route = Screen.OngoingOrderListScreen.route
+        ){
+            OngoingOrderListScreen(navController,ongoingOrderViewModel, account)
+        }
+        composable(
+            route = Screen.OrderHistoryScreen.route,
+        ){
+            OrderHistoryScreen(navigator = navController, accountId = account.id, viewModel = ongoingOrderViewModel)
         }
     }
 }
