@@ -1,5 +1,7 @@
 package com.example.fyp.ordering_system.ui.screen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Chip
@@ -156,7 +160,7 @@ fun OngoingOrderListScreen(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun OngoingOrderCard(
     order: Order,
@@ -181,6 +185,8 @@ fun OngoingOrderCard(
             ) {
                 Text(
                     text = order.orderId,
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth(0.7f).basicMarquee()
                 )
                 AssistChip(
                     onClick = { },
@@ -188,7 +194,7 @@ fun OngoingOrderCard(
                         Text(
                             text = order.orderStatus.name,
                         )
-                    }
+                    },
                 )
             }
         }

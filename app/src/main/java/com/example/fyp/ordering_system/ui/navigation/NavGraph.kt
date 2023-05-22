@@ -72,7 +72,7 @@ fun SetupOnlineOrderingNavGraph(
             )
         ){ entry ->
             val id = entry.arguments?.getString("id") ?: ""
-            OngoingOrderScreen(navigator = navController, id = id, viewModel = ongoingOrderViewModel)
+            OngoingOrderScreen(navigator = navController, id = id, viewModel = ongoingOrderViewModel,productViewModel= productViewModel)
         }
         composable(
             route = Screen.OngoingOrderListScreen.route

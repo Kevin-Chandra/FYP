@@ -1,5 +1,7 @@
 package com.example.fyp.pos.ui.screen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,24 +13,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +38,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,9 +51,7 @@ import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
-import com.example.fyp.ordering_system.ui.viewmodel.IncomingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
-import com.example.fyp.ordering_system.util.formatDate
 import com.example.fyp.ordering_system.util.formatTime
 import com.example.fyp.pos.ui.theme.FYPTheme
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
@@ -74,16 +74,23 @@ fun KitchenManageOrderScreen(
         confirmedOrders.addAll(ongoingItems.value.filter { it.orderItemStatus == OrderItemStatus.Confirmed })
     }
 
+    val scroll = rememberScrollState()
+
     FYPTheme() {
         Surface() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(scroll),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
+                horizontalAlignment = Alignment.Start,
             ) {
-                Text(text = "Confirmed Order", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    text = "Confirmed Order",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(16.dp)
+                )
                 if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Confirmed }){
                     LazyRow(){
                         items(ongoingItems.value
@@ -98,18 +105,26 @@ fun KitchenManageOrderScreen(
                                 getModifierItem = { id ->
                                     productViewModel.getModifierItem(id)
                                 },
+                                getModifier = { id ->
+                                    productViewModel.getModifier(id)
+                                },
                                 onNextButtonClick = {
                                     viewModel.onEvent(KitchenManageOrderItemEvent.OnPrepareOrderItem(item.orderItemId))
                                 },
-                                modifier = Modifier.clickable {
-                                    showDialog = true
-                                }
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .clickable {
+                                        showDialog = true
+                                    }
                             )
                             if (showDialog){
                                 OrderItemDialog(
                                     item = item,
                                     getFood = { id ->
                                         productViewModel.getFood(id)
+                                    },
+                                    getModifier = { id ->
+                                        productViewModel.getModifier(id)
                                     },
                                     getModifierItem = { id ->
                                         productViewModel.getModifierItem(id)
@@ -133,9 +148,13 @@ fun KitchenManageOrderScreen(
                         textAlign = TextAlign.Center
                     )
                 }
-                Divider()
+//                Divider()
 
-                Text(text = "Preparing Order", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    text = "Preparing Order",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(16.dp)
+                )
                 if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Preparing }){
                     LazyRow(){
                         items(ongoingItems.value
@@ -147,21 +166,29 @@ fun KitchenManageOrderScreen(
                                 getFood = { id ->
                                     productViewModel.getFood(id)
                                 },
+                                getModifier = { id ->
+                                    productViewModel.getModifier(id)
+                                },
                                 getModifierItem = { id ->
                                     productViewModel.getModifierItem(id)
                                 },
                                 onNextButtonClick = {
                                     viewModel.onEvent(KitchenManageOrderItemEvent.OnFinishOrderItem(item.orderItemId))
                                 },
-                                modifier = Modifier.clickable {
-                                    showDialog = true
-                                }
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .clickable {
+                                        showDialog = true
+                                    }
                             )
                             if (showDialog){
                                 OrderItemDialog(
                                     item = item,
                                     getFood = { id ->
                                         productViewModel.getFood(id)
+                                    },
+                                    getModifier = { id ->
+                                        productViewModel.getModifier(id)
                                     },
                                     getModifierItem = { id ->
                                         productViewModel.getModifierItem(id)
@@ -185,9 +212,13 @@ fun KitchenManageOrderScreen(
                         textAlign = TextAlign.Center
                     )
                 }
-                Divider()
+//                Divider()
 
-                Text(text = "Finished Order", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    text = "Finished Order",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(16.dp)
+                )
                 if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Finished }){
                     LazyRow{
                         items(ongoingItems.value
@@ -199,10 +230,14 @@ fun KitchenManageOrderScreen(
                                 getFood = { id ->
                                     productViewModel.getFood(id)
                                 },
+                                getModifier = { id ->
+                                    productViewModel.getModifier(id)
+                                },
                                 getModifierItem = { id ->
                                     productViewModel.getModifierItem(id)
                                 },
                                 onNextButtonClick = {},
+                                modifier = Modifier.padding(8.dp)
                             )
                         }
                     }
@@ -225,13 +260,13 @@ fun KitchenManageOrderScreen(
 fun OrderItemCard(
     orderItem: OrderItem,
     getFood: (String) -> Food?,
+    getModifier: (String) -> com.example.fyp.menucreator.data.model.Modifier?,
     getModifierItem: (String) -> ModifierItem?,
     onNextButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
-            .padding(8.dp)
     ){
         Column(
             modifier = Modifier
@@ -239,6 +274,7 @@ fun OrderItemCard(
                 .widthIn(min = 300.dp, max = 340.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            Text(text = orderItem.orderItemId)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -247,7 +283,8 @@ fun OrderItemCard(
                 if (orderItem.orderItemStatus == OrderItemStatus.Finished){
                     Text(text = "Time finished: ${formatTime(orderItem.timeFinished)}")
                 } else {
-                    Text(text = formatTime(orderItem.timeAdded))
+                    Text(text = formatTime(orderItem.timeAdded),
+                        style = MaterialTheme.typography.headlineSmall)
                 }
                 AssistChip(
                     onClick = {},
@@ -257,24 +294,63 @@ fun OrderItemCard(
                 )
             }
             Divider(modifier = Modifier.padding(vertical = 4.dp))
-            Text(text = orderItem.orderItemId)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "[${orderItem.foodId}] ${getFood(orderItem.foodId)?.name}")
-                Text(text = orderItem.quantity.toString())
+                Text(
+                    text = "${orderItem.quantity}x ",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Column(
+                    Modifier
+                        .height(100.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(vertical = 8.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "[${orderItem.foodId}] ${getFood(orderItem.foodId)?.name}",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineSmall,
+                        //                        modifier = Modifier.padding(8.dp)
+                    )
+                    if (!orderItem.modifierItems.isNullOrEmpty()) {
+                        orderItem.modifierItems.forEach {
+                            Text(
+                                text = "[${it.key}] ${getModifier(it.key)?.name}",
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                            it.value.forEach { id ->
+                                Text(
+                                    text = "[$id] ${getModifierItem(id)?.name}",
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
-            Column(
-                Modifier
-                    .height(100.dp)
-                    .verticalScroll(rememberScrollState())
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-            ) {
-                orderItem.modifierItems?.forEach{
-                    Text(text = "[${it}] ${getModifierItem(it)?.name}")
+            //Note Row
+            Row{
+                Icon(imageVector = Icons.Filled.Description, contentDescription = null, modifier = Modifier.padding(horizontal = 8.dp))
+                Column() {
+                    Text(text = "Note", fontWeight = FontWeight.Bold)
+                    if (orderItem.note.isNullOrEmpty()){
+                        Text(text = "No note", fontStyle = FontStyle.Italic, fontWeight = FontWeight.Light)
+                        Spacer(modifier = Modifier.height(30.dp))
+                    }
+                    else
+                        Text(text = orderItem.note, modifier = Modifier
+                            .height(50.dp)
+                            .verticalScroll(
+                                rememberScrollState()
+                            ))
                 }
             }
             if (orderItem.orderItemStatus != OrderItemStatus.Finished){
@@ -289,11 +365,12 @@ fun OrderItemCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun OrderItemDialog(
     item: OrderItem,
     getFood: (String) -> Food?,
+    getModifier: (String) -> com.example.fyp.menucreator.data.model.Modifier?,
     getModifierItem: (String) -> ModifierItem?,
     onNextButtonClick: () -> Unit,
     showDialog: (Boolean) -> Unit
@@ -309,7 +386,7 @@ fun OrderItemDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .width(300.dp)
+                    .width(350.dp)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.Start
@@ -322,13 +399,16 @@ fun OrderItemDialog(
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineMedium
                 )
-                Divider()
+                Divider(Modifier.padding(vertical = 8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = formatTime(item.timeAdded))
+                    Text(
+                        text = formatTime(item.timeAdded),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
                     AssistChip(
                         onClick = {},
                         label = {
@@ -336,24 +416,79 @@ fun OrderItemDialog(
                         }
                     )
                 }
-                Text(text = "Order Item Id")
-                Text(text = item.orderItemId)
-                Divider()
-                Text("Food & Add-ons")
-                Text(text = "${item.foodId} ${getFood(item.foodId)?.name}")
-                if (!item.modifierItems.isNullOrEmpty()){
-                    Column(
-                        modifier = Modifier
-                            .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        item.modifierItems.forEach {
-                            val modifierItem = getModifierItem(it)
-                            Text(text = "[$it] ${modifierItem?.name}")
+                Text(
+                    text = "Order Item Id",
+                    fontWeight = FontWeight.Bold,
+//                    style = MaterialTheme.typography.headlineSmall
+                )
+                Text(
+                    text = item.orderItemId,
+                    maxLines = 1,
+                    modifier = Modifier.basicMarquee()
+                )
+                Divider(Modifier.padding(vertical = 8.dp))
+//                Text("Food & Add-ons")
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${item.quantity}x",
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Column(Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "[${item.foodId}] ${getFood(item.foodId)?.name}",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                        if (!item.modifierItems.isNullOrEmpty()){
+                            Column(
+                                modifier = Modifier
+                                    .verticalScroll(rememberScrollState())
+                                    .padding(start = 16.dp, bottom = 8.dp)
+                            ) {
+                                item.modifierItems.forEach {
+                                    Text(
+                                        text = "[${it.key}] ${getModifier(it.key)?.name}",
+//                                        style = MaterialTheme.typography.headlineMedium
+                                    )
+                                    it.value.forEach { id ->
+                                        Text(text = "[$id] ${getModifierItem(id)?.name}", modifier = Modifier.padding(horizontal = 16.dp))
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+                Divider(Modifier.padding(vertical = 8.dp))
+                Row {
+                    Icon(
+                        imageVector = Icons.Filled.Description,
+                        contentDescription = null,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    Column() {
+                        Text(text = "Note", fontWeight = FontWeight.Bold)
+                        if (item.note.isNullOrEmpty()) {
+                            Text(
+                                text = "No note",
+                                fontStyle = FontStyle.Italic,
+                                fontWeight = FontWeight.Light
+                            )
+                        } else
+                            Text(
+                                text = item.note, modifier = Modifier
+                                    .height(50.dp)
+                                    .verticalScroll(
+                                        rememberScrollState()
+                                    )
+                            )
+                    }
+                }
                 if (item.orderItemStatus != OrderItemStatus.Finished){
+                    Divider(Modifier.padding(vertical = 8.dp))
                     Button(onClick = {
                         onNextButtonClick()
                         showDialog(false)
@@ -373,6 +508,7 @@ fun OrderItemCardPreview() {
         orderItem = OrderItem(Date(), orderItemId = "udwihbh", quantity = 12),
         getFood = { Food(name = "ABC", productId = "F-1") },
         getModifierItem = { ModifierItem(name = "!@#") },
+        getModifier = {com.example.fyp.menucreator.data.model.Modifier()},
         onNextButtonClick = {}
     )
 }

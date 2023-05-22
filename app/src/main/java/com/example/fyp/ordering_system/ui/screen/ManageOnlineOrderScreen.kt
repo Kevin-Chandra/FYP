@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -158,6 +159,9 @@ fun ManageOrderScreen(
                                         getModifierItem = { id ->
                                             productViewModel.getModifierItem(id)
                                         },
+                                        getModifier = { id ->
+                                            productViewModel.getModifier(id)
+                                        },
                                         showAcceptRejectButtons = incomingType,
                                         accountViewModel = accountViewModel,
                                         incomingOrderViewModel = incomingOrderViewModel
@@ -229,6 +233,7 @@ fun OrderCard(
     onCLickRejectOrder: (String, List<String>)-> Unit,
     getFood: (String) -> Food?,
     getModifierItem: (String) -> ModifierItem?,
+    getModifier: (String) -> com.example.fyp.menucreator.data.model.Modifier?,
     showAcceptRejectButtons: Boolean,
     accountViewModel: AccountViewModel,
     incomingOrderViewModel: IncomingOrderViewModel
@@ -285,7 +290,8 @@ fun OrderCard(
                     order.orderId,
                     incomingOrderViewModel,
                     getFood,
-                    getModifierItem
+                    getModifierItem,
+                    getModifier
                 )
             }
             if (showAcceptRejectButtons) {
@@ -317,7 +323,8 @@ fun ViewOrderDetails(
     orderId :String,
     incomingOrderViewModel: IncomingOrderViewModel,
     getFood: (String) -> Food?,
-    getModifierItem: (String) -> ModifierItem?
+    getModifierItem: (String) -> ModifierItem?,
+    getModifier: (String) -> com.example.fyp.menucreator.data.model.Modifier?
 ) {
     var state by remember {
         mutableStateOf(UiState())
@@ -357,7 +364,8 @@ fun ViewOrderDetails(
                 ViewOrderDetails(
                     orderList = it,
                     getFood = getFood ,
-                    getModifierItem = getModifierItem
+                    getModifierItem = getModifierItem,
+                    getModifier = getModifier
                 )
             }
         }
@@ -368,7 +376,8 @@ fun ViewOrderDetails(
 fun ViewOrderDetails(
     orderList: List<OrderItem>,
     getFood : (String) -> Food?,
-    getModifierItem: (String) -> ModifierItem?
+    getModifierItem: (String) -> ModifierItem?,
+    getModifier: (String) -> com.example.fyp.menucreator.data.model.Modifier?
 ) {
     Column(Modifier.padding(8.dp)) {
         Divider()
@@ -412,10 +421,17 @@ fun ViewOrderDetails(
                         .padding(horizontal = 28.dp, vertical = 4.dp)
                 ) {
                     orderItem.modifierItems!!.forEach { i ->
-                        val modifierItem = getModifierItem(i)
-                        Text(
-                            text = modifierItem?.name ?: ""
-                        )
+                        val modifier = getModifier(i.key)
+                        modifier?.name?.let {
+                            Text(text = it, fontWeight = FontWeight.Bold)
+                        }
+                        i.value.forEach { it1 ->
+                            val modifierItem = getModifierItem(it1)
+                            Text(
+                                text = modifierItem?.name ?: "",
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -488,7 +504,7 @@ fun ViewOrderPreview() {
             Food(name = "ABC")
         },{ it ->
             ModifierItem(name = "Meow")
-        })
+        },{com.example.fyp.menucreator.data.model.Modifier()})
 }
 
 

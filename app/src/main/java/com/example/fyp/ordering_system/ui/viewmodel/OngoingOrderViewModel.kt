@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.ordering_system.data.model.Order
+import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.ordering_system.domain.local_database.DeleteAllOrderItemUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOngoingOrderByAccountUseCase
+import com.example.fyp.ordering_system.domain.remote_database.GetOrderFromRemoteByOrderIdUseCase
+import com.example.fyp.ordering_system.domain.remote_database.GetOrderItemFromRemoteByOrderIdUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOrderStatusFromRemoteUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetPastOrderByAccountUseCase
 import com.example.fyp.ordering_system.ui.screen.OngoingOrderScreenState
@@ -25,6 +28,7 @@ class OngoingOrderViewModel @Inject constructor(
     private val deleteAllOrderItemUseCase: DeleteAllOrderItemUseCase,
     private val getOngoingOrderByAccountUseCase: GetOngoingOrderByAccountUseCase,
     private val getPastOrderByAccountUseCase: GetPastOrderByAccountUseCase,
+    private val getOrderItemFromRemoteByOrderIdUseCase: GetOrderItemFromRemoteByOrderIdUseCase,
 ) : ViewModel(){
 
     private val _orderingStatusState = MutableStateFlow(OngoingOrderScreenState(loading = true))
@@ -42,6 +46,12 @@ class OngoingOrderViewModel @Inject constructor(
     private val _pastOrderList = MutableStateFlow<List<Order>>(emptyList())
     val pastOrderList = _pastOrderList.asStateFlow()
 
+    private val _currentOrder = MutableStateFlow<Response<Order>>(Response.Loading)
+    val currentOrder = _currentOrder.asStateFlow()
+
+    private val _currentOrderItem = MutableStateFlow<Response<List<OrderItem>>>(Response.Loading)
+    val currentOrderItem = _currentOrderItem.asStateFlow()
+
     fun getOrderStatus(id: String) = viewModelScope.launch{
         _orderingStatusState.update { OngoingOrderScreenState(loading = true) }
         getOrderStatusFromRemoteUseCase(id){
@@ -54,6 +64,7 @@ class OngoingOrderViewModel @Inject constructor(
                         _orderingStatusState.update { OngoingOrderScreenState(loading = true) }
                     }
                     is Response.Success -> {
+                        _currentOrder.update { Response.Success(res.data) }
                         _orderingStatusState.update {
                             when (res.data.orderStatus) {
                                 OrderStatus.Rejected -> {
@@ -79,6 +90,34 @@ class OngoingOrderViewModel @Inject constructor(
             }.launchIn(viewModelScope)
         }
     }
+
+    fun getOrderItemList(orderId: String) = viewModelScope.launch{
+        getOrderItemFromRemoteByOrderIdUseCase(orderId){
+            it.onEach { it1 ->
+                _currentOrderItem.value = it1
+            }.launchIn(viewModelScope)
+        }
+    }
+
+//    fun getOngoingOrderItemList(orderId: String) = viewModelScope.launch{
+//        _orderingStatusState.update { OngoingOrderScreenState(loading = true) }
+//        getOngoingOrderByAccountUseCase(accountId){
+//            it.onEach{ res ->
+//                when(res){
+//                    is Response.Error -> {
+//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(errorMessage = res.exception.message) }
+//                    }
+//                    Response.Loading -> {
+//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(loading = true) }
+//                    }
+//                    is Response.Success -> {
+//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(success = true) }
+//                        _ongoingOrderList.update { res.data }
+//                    }
+//                }
+//            }.launchIn(viewModelScope)
+//        }
+//    }
 
     fun getOngoingOrderList(accountId: String) = viewModelScope.launch{
         _orderingStatusState.update { OngoingOrderScreenState(loading = true) }

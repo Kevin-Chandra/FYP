@@ -22,8 +22,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Chip
+import androidx.compose.material.ChipDefaults
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.PlusOne
@@ -33,8 +35,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ChipElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -67,6 +71,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -226,7 +231,7 @@ fun AddToCartScreen (
                             OutlinedTextField(
                                 value = cartState.value.note,
                                 label = { Text(text = "Note") },
-                                leadingIcon = { Icon(imageVector = Icons.Filled.Note, contentDescription = "Note Icon") },
+                                leadingIcon = { Icon(imageVector = Icons.Filled.Description, contentDescription = "Note Icon") },
                                 onValueChange = {
                                     addToCartViewModel.onEvent(AddToCartEvent.NoteChanged(it))
                                 },
@@ -297,21 +302,37 @@ fun ModifierSelection(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = thisModifier.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.weight(4f).padding(end = 8.dp).basicMarquee(),
-                        maxLines = 1
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ){
+                        Text(
+                            text = thisModifier.name,
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier
+//                                .weight(4f)
+                                .padding(end = 8.dp)
+                                .basicMarquee(),
+                            maxLines = 1,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (thisModifier.multipleChoice && cartState.value.modifierList[thisModifier]!= null){
+                            ElevatedAssistChip(
+                                onClick = {},
+                                label = {
+                                    Text(text = "${cartState.value.modifierList[thisModifier]?.size} items selected")
+                                },
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
+                    }
                     AssistChip(
                         label = {
                             Text(text = if (thisModifier.required) "Required" else "Optional",
                                 maxLines = 1
-//                            textAlign = TextAlign.Center,
-//                            modifier = Modifier.fillMaxWidth()
                             )},
                         onClick = {},
-                        modifier = Modifier.weight(1f)
+//                        modifier = Modifier.weight(1f)
                     )
                 }
 
@@ -331,13 +352,13 @@ fun ModifierSelection(
                         }
                     )
                 } else {
-                    var selectedItem = if (!cartState.value.modifierList[thisModifier].isNullOrEmpty()) cartState.value.modifierList[thisModifier]?.get(0) else null
+                    val selectedItem = remember { mutableStateOf(cartState.value.modifierList[thisModifier]?.firstOrNull()) }
 
                     RadioSelection(
                         items = list,
-                        selectedItem = selectedItem,
+                        selectedItem = selectedItem.value,
                         onClick = { item ->
-                            selectedItem = item
+                            selectedItem.value = item
                             addToCartViewModel.onEvent(AddToCartEvent.ModifierItemListChanged(thisModifier,listOf(item)))
                         }
                     )
@@ -368,7 +389,6 @@ fun RadioSelection(
                         .align(Alignment.Start),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
-
                 ) {
                     RadioButton(
                         selected = item == selectedItem,
@@ -383,7 +403,9 @@ fun RadioSelection(
                     )
                     Text(
                         text = item.price.toString(),
-                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                         textAlign = TextAlign.End,
                     )
                 }
@@ -413,7 +435,7 @@ fun CheckboxSelection(
         if (item.availability) {
             Row(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp)
                     .fillMaxWidth()
                     .clickable {
                         if (!selectedItems.contains(item)) {
@@ -444,7 +466,9 @@ fun CheckboxSelection(
                 )
                 Text(
                     text = item.price.toString(),
-                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     textAlign = TextAlign.End,
                 )
             }

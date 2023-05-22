@@ -9,6 +9,7 @@ import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.data.model.OrderStatus
+import com.example.fyp.ordering_system.data.model.OrderType
 import com.example.fyp.ordering_system.domain.remote_database.DeleteOrderFromRemoteByOrderUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOrderFromRemoteByStatusUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOrderItemFromRemoteByOrderIdUseCase
@@ -115,7 +116,7 @@ class IncomingOrderViewModel @Inject constructor(
                                 loading = false
                             )
                         }
-                        _incomingOrders.update { res.data }
+                        _incomingOrders.update { res.data.filter { it.orderType == OrderType.Online } }
                     }
                 }
             }.launchIn(viewModelScope)
@@ -144,7 +145,7 @@ class IncomingOrderViewModel @Inject constructor(
                                 loading = false
                             )
                         }
-                        _ongoingOrders.update { res.data }
+                        _ongoingOrders.update { res.data.filter { it.orderType == OrderType.Online } }
                     }
                 }
             }.launchIn(viewModelScope)
@@ -160,7 +161,9 @@ class IncomingOrderViewModel @Inject constructor(
     fun getOrderItemByOrderId(orderId: String, result:(Response<List<OrderItem>>) -> Unit) = viewModelScope.launch {
         result.invoke(Response.Loading)
         getOrderItemFromRemoteByOrderIdUseCase(orderId){ it1 ->
-            result.invoke(it1)
+            it1.onEach { it2 ->
+                result.invoke(it2)
+            }.launchIn(viewModelScope)
         }
     }
 

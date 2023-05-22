@@ -8,6 +8,7 @@ import com.example.fyp.menucreator.domain.productSettings.GetServiceChargeUseCas
 import com.example.fyp.menucreator.domain.productSettings.GetTaxUseCase
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
+import com.example.fyp.ordering_system.data.model.OrderType
 import com.example.fyp.ordering_system.domain.local_database.DeleteItemFromCartUseCase
 import com.example.fyp.ordering_system.domain.local_database.GetCartUseCase
 import com.example.fyp.ordering_system.domain.remote_database.SubmitOrderUseCase
@@ -108,7 +109,9 @@ class CartViewModel @Inject constructor(
         serviceChargePercentage = serviceCharge,
         subTotal = orderItemList.sumOf { it.price },
         grandTotal =  String.format("%.2f",getGrandTotal()).toDouble(),
-        orderBy = accountId
+        orderBy = accountId,
+        orderType = OrderType.Online,
+        paidStatus = true
     )
 
     private fun submitOrder(accountId: String) = viewModelScope.launch {

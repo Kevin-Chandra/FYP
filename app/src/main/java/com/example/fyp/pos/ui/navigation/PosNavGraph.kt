@@ -8,15 +8,18 @@ import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.pos.ui.screen.MainPosScreen
 import com.example.fyp.pos.ui.screen.KitchenManageOrderScreen
 import com.example.fyp.pos.ui.screen.ManageOrderScreen
+import com.example.fyp.pos.ui.screen.ManageTableScreen
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.ui.viewmodel.ManageOrderViewModel
+import com.example.fyp.pos.ui.viewmodel.ManageTableViewModel
 
 @Composable
 fun PosNavGraph(
     navController : NavHostController,
     productViewModel: ProductViewModel,
     incomingOrderItemViewModel: IncomingOrderItemViewModel,
-    manageOrderViewModel: ManageOrderViewModel
+    manageOrderViewModel: ManageOrderViewModel,
+    manageTableViewModel: ManageTableViewModel
 ) {
     NavHost(
         navController = navController,
@@ -40,6 +43,11 @@ fun PosNavGraph(
             route = PosScreen.ManageOrderScreen.route
         ){
             ManageOrderScreen(productViewModel = productViewModel, manageOrderViewModel = manageOrderViewModel)
+        }
+        composable(
+            route = PosScreen.ManageTableScreen.route
+        ){
+            ManageTableScreen(navigator = navController, viewModel = manageTableViewModel)
         }
     }
 }

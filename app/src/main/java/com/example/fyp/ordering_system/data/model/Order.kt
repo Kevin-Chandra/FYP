@@ -15,7 +15,9 @@ data class Order(
     val subTotal: Double = 0.0,
     val grandTotal: Double = 0.0,
     val orderBy: String = "",
-//    val pax: Int = 0
+    val pax: Int = 0,
+    val tableNumber: String = "Online",
+    val paidStatus: Boolean = false,
 )
 
 enum class OrderType{

@@ -9,6 +9,7 @@ object FireStoreCollection{
     const val ADMIN_SETTINGS = "AdminSettings"
     const val ORDER_ITEM = "OrderItem"
     const val ORDER = "Order"
+    const val TABLE = "Table"
 }
 
 object FireStoreDocumentField{
@@ -20,9 +21,12 @@ object FireStoreDocumentField{
     const val ORDER_ITEM_ID = "orderItemId"
     const val ORDER_ITEM_STATUS = "orderItemStatus"
     const val ORDER_STATUS = "orderStatus"
+    const val PAID_STATUS = "paidStatus"
+    const val ORDER_LIST = "orderList"
     const val ORDER_BY = "orderBy"
     const val ORDER_START_TIME = "orderStartTime"
     const val ORDER_FINISH_TIME = "orderFinishTime"
+    const val CURRENT_ORDER = "currentOrder"
     const val SERVICE_CHARGE = "serviceCharge"
     const val TAX = "tax"
     const val DATE = "date"
@@ -41,6 +45,9 @@ object FireStoreDocumentField{
     const val PRODUCT_IMAGE_URI = "imageUri"
     const val MODIFIER_ITEM_LIST = "modifierItemList"
     const val SETTINGS = "Settings"
+    const val TABLE_STATUS = "tableStatus"
+    const val TABLE_Name = "tableName"
+    const val PAX = "pax"
 }
 
 object NavigationCommand{

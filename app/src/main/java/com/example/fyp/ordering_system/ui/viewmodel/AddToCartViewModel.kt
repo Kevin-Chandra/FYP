@@ -66,6 +66,17 @@ class AddToCartViewModel @Inject constructor(
     private fun loadItemToState() = viewModelScope.launch {
         _addToCartUiState.emit(AddToCartUiState(loading = true))
 
+        val map = mutableMapOf<Modifier,MutableList<ModifierItem>>()
+        val list = mutableListOf<MutableList<Deferred<ModifierItem?>>>()
+
+        item.modifierItems?.forEach {
+            val internalList = mutableListOf<Deferred<ModifierItem?>>()
+            it.value.forEach { it1 ->
+                internalList.add(async { getModifierItemByReturnUseCase(it1) })
+            }
+            list.add(internalList)
+        }
+
         onEvent(AddToCartEvent.QuantityChanged(item.quantity))
         item.note?.let { AddToCartEvent.NoteChanged(it) }?.let { onEvent(it) }
 
@@ -78,27 +89,37 @@ class AddToCartViewModel @Inject constructor(
             }.launchIn(viewModelScope)
         }
 
-        val map = mutableMapOf<Modifier,MutableList<ModifierItem>>()
 
-        val list = mutableListOf<Deferred<ModifierItem?>>()
-        item.modifierItems?.let {
-            it.forEach{ it1 ->
-                val item = async {
-                    getModifierItemByReturnUseCase(it1)
+//        item.modifierItems?.let {
+//            it.forEach{ it1 ->
+//                val item = async {
+//                    getModifierItemByReturnUseCase(it1)
+//                }
+//                list.add(item)
+//            }
+//        }
+
+        list.forEach {
+            it.awaitAll().forEach { it1->
+                it1 ?: return@forEach
+                val modifierParent = modifierMap[it1.modifierParent]?: return@forEach
+                if (map[modifierParent] == null){
+                    map[modifierParent] = mutableListOf(it1)
+                } else {
+                    map[modifierParent]?.add(it1)
                 }
-                list.add(item)
             }
         }
 
-        list.awaitAll().forEach {
-            it ?: return@forEach
-            val modifierParent = modifierMap[it.modifierParent]?: return@forEach
-            if (map[modifierParent] == null){
-                map[modifierParent] = mutableListOf(it)
-            } else {
-                map[modifierParent]?.add(it)
-            }
-        }
+//        list.awaitAll().forEach {
+//            it ?: return@forEach
+//            val modifierParent = modifierMap[it.modifierParent]?: return@forEach
+//            if (map[modifierParent] == null){
+//                map[modifierParent] = mutableListOf(it)
+//            } else {
+//                map[modifierParent]?.add(it)
+//            }
+//        }
 
         map.forEach{
             onEvent(AddToCartEvent.ModifierItemListChanged(it.key,it.value.toList()))
@@ -163,7 +184,7 @@ class AddToCartViewModel @Inject constructor(
     private fun getOrderItem(
         orderItemId: String? = null,
         foodId: String,
-        modifierItemList: List<String>?,
+        modifierItemList: Map<String,List<String>>?,
         quantity: Int,
         note: String?,
         price: Double
@@ -193,7 +214,7 @@ class AddToCartViewModel @Inject constructor(
             return@launch
         }
 
-        val list = mutableListOf<String>()
+        val map = mutableMapOf<String,List<String>>()
         val validationResultList = mutableListOf<OrderValidationResult>()
 
         _addToCartState.value.modifierList.forEach{
@@ -211,12 +232,8 @@ class AddToCartViewModel @Inject constructor(
             return@launch
         }
 
-        _addToCartState.value.modifierList.values.forEach {
-            if (it != null) {
-                list.addAll(it.map { item ->
-                    item.productId
-                })
-            }
+        _addToCartState.value.modifierList.forEach {
+            map[it.key.productId] = it.value?.map { it1 -> it1.productId }!!
         }
 
         if (edit){
@@ -224,7 +241,7 @@ class AddToCartViewModel @Inject constructor(
                 getOrderItem(
                     item.orderItemId,
                     _addToCartState.value.foodId,
-                    list,
+                    map,
                     _addToCartState.value.quantity,
                     _addToCartState.value.note,
                     _addToCartState.value.price
@@ -235,7 +252,7 @@ class AddToCartViewModel @Inject constructor(
                 getOrderItem(
                     null,
                     _addToCartState.value.foodId,
-                    list,
+                    map,
                     _addToCartState.value.quantity,
                     _addToCartState.value.note,
                     _addToCartState.value.price

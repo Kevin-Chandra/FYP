@@ -6,10 +6,10 @@ import com.example.fyp.ordering_system.data.repository.remote.OrderItemRepositor
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetOrderItemFromRemoteByOrderIdUseCase @Inject constructor(
+class GetOrderItemFromRemoteByOrderIdByReturnUseCase @Inject constructor(
     private val repository: OrderItemRepository,
     ) {
-    suspend operator fun invoke(orderId: String, result: (Flow<Response<List<OrderItem>>>) -> Unit) {
-        result.invoke(repository.getOrderItemListByOrderId(orderId))
+    suspend operator fun invoke(orderId: String) : Response<List<OrderItem>> {
+        return repository.getOrderItemListByOrderIdByReturn(orderId)
     }
 }

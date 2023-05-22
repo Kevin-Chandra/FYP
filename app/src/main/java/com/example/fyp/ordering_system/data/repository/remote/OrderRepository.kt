@@ -9,6 +9,7 @@ import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.data.model.OrderStatus
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
@@ -58,6 +59,41 @@ class OrderRepository @Inject constructor(
                 orderCollectionRef.document(doc.id).set(
                     order,
                     SetOptions.merge()
+                )
+            result.invoke(Response.Success("Order Updated!"))
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
+        }
+    }
+
+    suspend fun updateOrder(orderId: String,data: Map<String,Any?> ,result: (Response<String>) -> Unit){
+        try {
+            val query = orderCollectionRef.whereEqualTo(FireStoreDocumentField.ORDER_ID,orderId)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Order Id not found!")
+            for (doc in query.documents)
+                orderCollectionRef.document(doc.id).update(
+                    data
+                )
+            result.invoke(Response.Success("Order Updated!"))
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
+        }
+    }
+
+    suspend fun addOrderItem(orderId: String,orderItemIdList: List<String>,result: (Response<String>) -> Unit){
+        try {
+            val query = orderCollectionRef.whereEqualTo(FireStoreDocumentField.ORDER_ID,orderId)
+                .get()
+                .await()
+            if (query.documents.isEmpty())
+                throw Exception("Order Id not found!")
+            for (doc in query.documents)
+                orderCollectionRef.document(doc.id).update(
+                    FireStoreDocumentField.ORDER_LIST,
+                    FieldValue.arrayUnion(orderItemIdList)
                 )
             result.invoke(Response.Success("Order Updated!"))
         } catch (e: Exception){

@@ -101,7 +101,7 @@ fun OrderHistoryScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Ongoing Order",
+                            text = "Order History",
                             style = MaterialTheme.typography.titleLarge
                         )
                     },
@@ -140,8 +140,8 @@ fun OrderHistoryScreen(
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
-                    LazyColumn(){
-                        items(pastOrders.value){ item ->
+                    LazyColumn {
+                        items(pastOrders.value.sortedByDescending { it1 -> it1.orderFinishTime }){ item ->
                             PastOrderRow(order = item)
                         }
                     }

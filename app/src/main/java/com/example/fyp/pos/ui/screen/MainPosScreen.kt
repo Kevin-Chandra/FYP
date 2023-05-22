@@ -24,6 +24,9 @@ fun MainPosScreen(
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Button(onClick = { navigator.navigate(PosScreen.ManageTableScreen.route) }) {
+                    Text(text = "Manage Table")
+                }
                 Button(onClick = { navigator.navigate(PosScreen.KitchenManageOrderItemScreen.route) }) {
                     Text(text = "Kitchen Manage Incoming Order")
                 }
