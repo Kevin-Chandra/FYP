@@ -199,9 +199,7 @@ fun TableDialog(
                     Button(onClick = {  }) {
                         Text(text = "Checkout")
                     }
-                    Button(onClick = {  }) {
-                        Text(text = "Checkout")
-                    }
+
                 }
             }
         }
