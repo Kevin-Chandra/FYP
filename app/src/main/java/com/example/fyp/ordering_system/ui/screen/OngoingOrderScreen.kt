@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
@@ -41,7 +41,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.compose.FypTheme
+import com.example.fyp.R
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ModifierItem
@@ -63,9 +69,16 @@ fun OngoingOrderScreen(
         viewModel.getOrderStatus(id)
         viewModel.getOrderItemList(id)
     }
+
     val statusState = viewModel.orderingStatusState.collectAsStateWithLifecycle()
     val currentOrder = viewModel.currentOrder.collectAsStateWithLifecycle()
     val currentOrderItem = viewModel.currentOrderItem.collectAsStateWithLifecycle()
+
+    val currentAnim = remember {
+        mutableStateOf(R.raw.order_sent_anim)
+    }
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(currentAnim.value))
+    val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
 
     FypTheme() {
         Scaffold() {
@@ -96,12 +109,22 @@ fun OngoingOrderScreen(
                 var message by remember { mutableStateOf("") }
                 if (statusState.value.success) {
                     if (currentOrder.value is Response.Success) {
-                        message =
                             when ((currentOrder.value as Response.Success<Order>).data.orderStatus) {
-                                Sent -> "Order is being processed!"
-                                Rejected -> "Unfortunately, the restaurant is busy"
-                                Confirmed, Ongoing -> "Restaurant is preparing your order!"
-                                Finished -> "Order is finished!"
+                                Sent -> {
+                                    currentAnim.value = R.raw.order_sent_anim
+                                    message = "Order is being processed!"
+                                }
+                                Rejected -> {
+                                    message = "Unfortunately, the restaurant is busy"
+                                }
+                                Confirmed, Ongoing -> {
+                                    currentAnim.value = R.raw.order_preparing_anim
+                                    message = "Restaurant is preparing your order!"
+                                }
+                                Finished -> {
+                                    currentAnim.value = R.raw.order_completed_anim
+                                    message = "Order is finished!"
+                                }
                             }
                         if ((currentOrder.value as Response.Success<Order>).data.orderStatus == Rejected) {
                             AlertDialog(
@@ -128,8 +151,10 @@ fun OngoingOrderScreen(
                         Column(modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.Center),
-                            verticalArrangement = Arrangement.Center
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            LottieAnimation(composition = composition, progress = { animProgress}, modifier = Modifier.size(400.dp) )
                             Text(
                                 text = message,
                                 textAlign = TextAlign.Center,

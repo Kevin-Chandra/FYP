@@ -172,6 +172,9 @@ dependencies {
     //Gson
     implementation 'com.google.code.gson:gson:2.10'
 
+    //Lottie animation
+    implementation "com.airbnb.android:lottie-compose:6.0.0"
+
     //coil with animation
     def landscapist_version = "2.1.10"
     implementation "com.github.skydoves:landscapist-coil:$landscapist_version"
