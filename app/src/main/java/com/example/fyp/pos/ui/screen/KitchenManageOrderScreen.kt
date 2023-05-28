@@ -130,7 +130,7 @@ fun KitchenManageOrderScreen(
                                         productViewModel.getModifierItem(id)
                                     },
                                     onNextButtonClick = {
-                                        viewModel.onEvent(KitchenManageOrderItemEvent.OnFinishOrderItem(item.orderItemId))
+                                        viewModel.onEvent(KitchenManageOrderItemEvent.OnPrepareOrderItem(item.orderItemId))
                                     },
                                     showDialog = {
                                         showDialog = it

@@ -60,8 +60,6 @@ import com.example.fyp.ordering_system.ui.components.CustomerOrderBottomNavigati
 import com.example.fyp.ordering_system.ui.navigation.Screen
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.animation.circular.CircularRevealPlugin
 import com.skydoves.landscapist.coil.CoilImage
@@ -69,9 +67,7 @@ import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
-@RootNavGraph(true)
-@Destination
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewProductListScreen(
     navigator: NavController,
@@ -146,7 +142,7 @@ fun ViewProductListScreen(
                         ) {
                             items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
                                 ProductCard(item) { it1 ->
-                                    navigator.navigate(Screen.AddToCartScreen.withArgs(it1, "null"))
+                                    navigator.navigate(Screen.AddToCartScreen.withArgs(it1, "null","1"))
                                 }
                             }
                         }

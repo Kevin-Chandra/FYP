@@ -1,4 +1,4 @@
-package com.example.fyp.ordering_system.ui.viewmodel
+package com.example.fyp.pos.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +17,8 @@ import com.example.fyp.ordering_system.domain.validation.ValidateModifierUseCase
 import com.example.fyp.ordering_system.ui.state.AddToCartUiState
 import com.example.fyp.ordering_system.util.AddToCartEvent
 import com.example.fyp.ordering_system.util.AddToCartState
+import com.example.fyp.pos.domain.table_ordering.PosUpdateOrderItemUseCase
+import com.example.fyp.pos.domain.table_ordering.PosUpsertToCartUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -33,9 +35,10 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class AddToCartViewModel @Inject constructor(
-    private val upsertToCartUseCase: UpsertToCartUseCase,
-    private val updateOrderItemUseCase: UpdateOrderItemUseCase,
+class PosAddToCartViewModel @Inject constructor(
+    private val upsertToCartUseCase: PosUpsertToCartUseCase,
+    private val updateOrderItemUseCase: PosUpdateOrderItemUseCase,
+    //--------------------------------
     private val getOrderItemByIdUseCase: GetOrderItemByIdUseCase,
     private val getModifierItemByReturnUseCase: GetModifierItemByReturnUseCase,
     private val getModifierListUseCase: GetModifierListUseCase,

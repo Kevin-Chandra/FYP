@@ -1,12 +1,8 @@
 package com.example.fyp.pos.domain.table
 
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
-import com.example.fyp.ordering_system.data.model.OrderType
-import com.example.fyp.ordering_system.domain.remote_database.SubmitOrderUseCase
 import com.example.fyp.pos.data.model.Table
-import com.example.fyp.pos.data.repository.TableRepository
 import javax.inject.Inject
 
 class AddOrderItemToTableUseCase @Inject constructor(

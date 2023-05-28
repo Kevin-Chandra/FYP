@@ -21,6 +21,7 @@ object FireStoreDocumentField{
     const val ORDER_ITEM_ID = "orderItemId"
     const val ORDER_ITEM_STATUS = "orderItemStatus"
     const val ORDER_STATUS = "orderStatus"
+    const val ORDER_TYPE = "orderType"
     const val PAID_STATUS = "paidStatus"
     const val ORDER_LIST = "orderList"
     const val ORDER_BY = "orderBy"

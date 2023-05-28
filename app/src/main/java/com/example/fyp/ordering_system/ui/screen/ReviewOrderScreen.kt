@@ -169,7 +169,8 @@ fun ReviewOrderScreen(
                                                 navigator.navigate(
                                                     Screen.AddToCartScreen.withArgs(
                                                         item.foodId,
-                                                        item.orderItemId
+                                                        item.orderItemId,
+                                                        item.quantity.toString()
                                                     )
                                                 )
                                             },

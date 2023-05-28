@@ -6,13 +6,31 @@ sealed class PosScreen(val route: String) {
     object MainPosScreen: PosScreen(route = "main_pos_screen")
     object ManageOrderScreen: PosScreen(route = "pos_manage_order_screen")
     object ManageTableScreen: PosScreen(route = "manage_table_screen")
+    object PosOrderScreen: PosScreen(route = "pos_order_screen")
+    object PosCheckoutScreen: PosScreen(route = "pos_checkout_screen")
+    object PosRootGraph: PosScreen(route = "pos_root_graph")
+    object PosTableOrderGraph: PosScreen(route = "pos_table_order_screen"){
+        fun passId(id:String):String{
+            return "pos_table_order_screen?tableId=$id"
+        }
+    }
 
-    fun withArgs(vararg args: String): String{
+    object PosOrderSummaryScreen : PosScreen(route = "pos_order_summary_screen")
+    object PosAddToCartScreen : PosScreen(route = "pos_add_to_cart_screen")
+
+    fun withRequiredArgs(vararg args: String): String{
         return buildString {
             append(route)
             args.forEach { arg ->
                 append("/$arg")
             }
+        }
+    }
+
+    fun withOptionalArg(argName: String,arg:String): String{
+        return buildString {
+            append(route)
+            append("?$argName=$arg")
         }
     }
 }

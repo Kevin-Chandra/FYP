@@ -17,6 +17,7 @@ data class Order(
     val orderBy: String = "",
     val pax: Int = 0,
     val tableNumber: String = "Online",
+    val tableId: String? = null,
     val paidStatus: Boolean = false,
 )
 

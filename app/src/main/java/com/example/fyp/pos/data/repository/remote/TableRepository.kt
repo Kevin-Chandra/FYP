@@ -1,19 +1,11 @@
-package com.example.fyp.pos.data.repository
+package com.example.fyp.pos.data.repository.remote
 
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
-import com.example.fyp.menucreator.util.UiState
-import com.example.fyp.ordering_system.data.model.Order
-import com.example.fyp.ordering_system.data.model.OrderItem
-import com.example.fyp.ordering_system.data.model.OrderItemStatus
-import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.pos.data.model.Table
 import com.example.fyp.pos.data.model.TableStatus
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
@@ -21,9 +13,6 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.Date
 import javax.inject.Inject
 import kotlin.Exception
 

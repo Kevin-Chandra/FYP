@@ -1,5 +1,7 @@
 package com.example.fyp.ordering_system.ui.screen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -152,7 +154,7 @@ fun OrderHistoryScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PastOrderRow(
     order: Order
@@ -165,7 +167,7 @@ fun PastOrderRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = order.orderId)
+            Text(text = order.orderId,modifier = Modifier.fillMaxWidth(0.75f).basicMarquee())
             Text(
                 text = order.grandTotal.toString(),
                 style = MaterialTheme.typography.headlineSmall

@@ -1,45 +1,37 @@
 package com.example.fyp.pos.ui.screen
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedAssistChip
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -48,23 +40,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -72,26 +59,27 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.fyp.menucreator.data.model.Food
-import com.example.fyp.menucreator.data.model.ModifierItem
+import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
-import com.example.fyp.ordering_system.util.formatTime
+import com.example.fyp.ordering_system.util.LinearProgressAnimated
 import com.example.fyp.pos.data.model.Table
 import com.example.fyp.pos.data.model.TableStatus
 import com.example.fyp.pos.data.model.TableStatus.*
+import com.example.fyp.pos.ui.navigation.PosScreen
 import com.example.fyp.pos.ui.theme.FYPTheme
-import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.ui.viewmodel.ManageTableViewModel
-import com.example.fyp.pos.util.KitchenManageOrderItemEvent
+import com.example.fyp.pos.ui.viewmodel.TableOngoingOrderViewModel
 import com.example.fyp.pos.util.ManageTableEvent
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageTableScreen(
     navigator : NavController,
-    viewModel: ManageTableViewModel
+    viewModel: ManageTableViewModel,
+    tableOngoingOrderViewModel: TableOngoingOrderViewModel,
+    productViewModel: ProductViewModel
 ) {
     val tables = viewModel.tables.collectAsStateWithLifecycle()
 
@@ -99,7 +87,7 @@ fun ManageTableScreen(
         mutableStateOf(false)
     }
 
-    var clickedTable = remember {
+    val clickedTable = remember {
         mutableStateOf<Table?>(null)
     }
 
@@ -123,9 +111,35 @@ fun ManageTableScreen(
                             showDialog = bool
                         })
                     }
-                    TableDialog(showDialog = clickedTable) {
-                        clickedTable.value = null
-                    }
+                    TableDialog(showDialog = clickedTable,
+                        onAddOrderClick = {
+                            navigator.navigate(PosScreen.PosTableOrderGraph.passId(clickedTable.value!!.id))
+//                            navigator.navigate(PosScreen.PosTableOrderGraph.route)
+                        },
+                        onClose = {
+                            clickedTable.value = null
+                        },
+                        getFood = { id ->
+                            productViewModel.getFood(id)
+                        },
+                        getOngoingOrder = {
+                            clickedTable.value?.currentOrder?.let { it1 ->
+                                tableOngoingOrderViewModel.getOrder(
+                                    it1
+                                )
+                            }
+                        },
+                        getOrderItem = { id ->
+                            tableOngoingOrderViewModel.getOrderItem(id)
+                        },
+                        onCheckout = { id ->
+                            navigator.navigate(PosScreen.PosCheckoutScreen.withRequiredArgs(id,clickedTable.value?.id ?: ""))
+                        },
+                        onFinishTable = {
+                            viewModel.onEvent(ManageTableEvent.OnFinishTable(clickedTable.value?.id ?: ""))
+                            clickedTable.value = null
+                        }
+                    )
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(200.dp),
                         modifier = Modifier.align(Alignment.TopCenter)){
@@ -170,10 +184,17 @@ fun AddTableDialog(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TableDialog(
     showDialog: MutableState<Table?>,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    onAddOrderClick: () -> Unit,
+    getOngoingOrder: () -> Order?,
+    getOrderItem: (String) -> OrderItem?,
+    getFood: (String) -> Food?,
+    onCheckout: (String) -> Unit,
+    onFinishTable: () -> Unit,
 ) {
     if (showDialog.value != null){
         val table = showDialog.value!!
@@ -185,21 +206,88 @@ fun TableDialog(
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    IconButton(
-                        onClick = { onClose() },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
-                    }
-                    Text(text = "Table Number: ${table.tableNumber}")
-                    Text(text = "Status: ${table.tableStatus}")
-                    Button(onClick = {  }) {
-                        Text(text = "Add Order")
-                    }
-                    Button(onClick = {  }) {
-                        Text(text = "Checkout")
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        Text(
+                            text = "Table Number: ${table.tableNumber}",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                        IconButton(
+                            onClick = { onClose() },
+                        ) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                        }
                     }
 
+                    AssistChip(
+                        onClick = {},
+                        label = {
+                            Text(text = "${table.tableStatus}")
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+
+
+                    if (table.tableStatus in ( listOf(
+//                            Occupied,
+                            Ongoing,
+                            Finished
+                    ))){
+                        val currentOrder = getOngoingOrder()
+                        currentOrder?.let {
+                            Text(text = "Current Order")
+                            Text(
+                                text = currentOrder.orderId,
+                                modifier = Modifier.basicMarquee(),
+                                maxLines = 1
+                            )
+                            Divider(Modifier.padding(vertical = 4.dp))
+                            LazyColumn(Modifier.heightIn(min = 0.dp, max = 250.dp)){
+                                items(currentOrder.orderList){
+                                    val orderItem = getOrderItem(it) ?: return@items
+                                    Row(
+                                        Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ){
+                                        Text(text = getFood(orderItem.foodId)?.name ?: "")
+                                        AssistChip(onClick = {}, label = {
+                                            Text(text = orderItem.orderItemStatus.name)
+                                        })
+                                    }
+                                }
+                            }
+                            Divider(Modifier.padding(vertical = 8.dp))
+                        }
+                    }
+
+                    when(table.tableStatus){
+                        Vacant,Occupied -> {
+                            Button(onClick = onAddOrderClick) {
+                                Text(text = "Add Order")
+                            }
+                        }
+                        Ongoing -> {
+                            Button(onClick = onAddOrderClick) {
+                                Text(text = "Add Order")
+                            }
+                            Button(
+                                onClick = { if (!table.currentOrder.isNullOrEmpty()) onCheckout(table.currentOrder) },
+                                enabled = !table.currentOrder.isNullOrEmpty()
+                            ) {
+                                Text(text = "Checkout")
+                            }
+                        }
+                        Finished -> {
+                            Button(onClick = onFinishTable) {
+                                Text(text = "Finish Table")
+                            }
+                        }
+                        Unavailable -> {}
+                    }
                 }
             }
         }
@@ -266,10 +354,24 @@ fun TablePreview() {
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
 @Composable
 fun TableDialogPreview() {
-    TableDialog(showDialog = mutableStateOf(Table(tableNumber = "2", tableStatus = Occupied))) {
-        
-    }
+    TableDialog(
+        showDialog = mutableStateOf(Table(tableNumber = "2", tableStatus = Ongoing, currentOrder = "jdshbcksnkdsnndabkj")),
+        onAddOrderClick = {},
+        onClose = {},
+        getOngoingOrder = {
+            Order(orderList = listOf("a","b"))
+        },
+        getOrderItem = {
+            OrderItem(foodId = "kjd", orderItemStatus = OrderItemStatus.Preparing)
+        },
+        getFood = {
+            Food(name = "ABc")
+        },
+        onCheckout = {},
+        onFinishTable = {}
+    )
 }

@@ -36,7 +36,7 @@ fun SetupOnlineOrderingNavGraph(
             ViewProductListScreen(navController,productViewModel,cartViewModel)
         }
         composable(
-            route = Screen.AddToCartScreen.route + "/{id}/{orderItemId}",
+            route = Screen.AddToCartScreen.route + "/{id}/{orderItemId}/{quantity}",
             arguments = listOf(
                 navArgument("id"){
                     type = NavType.StringType
@@ -46,15 +46,21 @@ fun SetupOnlineOrderingNavGraph(
                     type = NavType.StringType
                     defaultValue = "null"
                 },
+                navArgument("quantity"){
+                    type = NavType.IntType
+                    defaultValue = 1
+                },
             )
         ) { entry ->
             val foodId = entry.arguments?.getString("id") ?: ""
+            val quantity = entry.arguments?.getInt("quantity",1) ?: 1
             val orderItemId = if (entry.arguments?.getString("orderItemId") == "null") null else entry.arguments?.getString("orderItemId")
             AddToCartScreen(
                 navigator = navController,
                 productViewModel = productViewModel,
                 foodId = foodId,
-                orderItemId = orderItemId
+                orderItemId = orderItemId,
+                quantity = quantity
             )
         }
         composable(

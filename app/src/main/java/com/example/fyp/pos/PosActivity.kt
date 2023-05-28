@@ -20,6 +20,7 @@ import com.example.fyp.pos.ui.theme.FYPTheme
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.ui.viewmodel.ManageOrderViewModel
 import com.example.fyp.pos.ui.viewmodel.ManageTableViewModel
+import com.example.fyp.pos.ui.viewmodel.TableOngoingOrderViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -35,6 +36,7 @@ class PosActivity : ComponentActivity() {
             val incomingOrderItemViewModel = hiltViewModel<IncomingOrderItemViewModel>()
             val manageOrderViewModel = hiltViewModel<ManageOrderViewModel>()
             val manageTableViewModel = hiltViewModel<ManageTableViewModel>()
+            val tableOngoingOrderViewModel = hiltViewModel<TableOngoingOrderViewModel>()
 
             navController = rememberNavController()
 
@@ -49,7 +51,8 @@ class PosActivity : ComponentActivity() {
                         productViewModel = productViewModel,
                         incomingOrderItemViewModel = incomingOrderItemViewModel,
                         manageOrderViewModel = manageOrderViewModel,
-                        manageTableViewModel = manageTableViewModel
+                        manageTableViewModel = manageTableViewModel,
+                        tableOngoingOrderViewModel = tableOngoingOrderViewModel
                     )
                 }
             }

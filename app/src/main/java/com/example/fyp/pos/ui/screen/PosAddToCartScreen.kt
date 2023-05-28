@@ -1,4 +1,4 @@
-package com.example.fyp.ordering_system.ui.screen
+package com.example.fyp.pos.ui.screen
 
 import android.content.Context
 import android.widget.RadioGroup
@@ -93,6 +93,7 @@ import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.AddToCartEvent
 import com.example.fyp.ordering_system.util.AddToCartState
 import com.example.fyp.ordering_system.util.errorToast
+import com.example.fyp.pos.ui.viewmodel.PosAddToCartViewModel
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.animation.circular.CircularRevealPlugin
 import com.skydoves.landscapist.coil.CoilImage
@@ -101,7 +102,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddToCartScreen (
+fun PosAddToCartScreen (
     navigator: NavController,
     productViewModel: ProductViewModel = hiltViewModel(),
     foodId: String,
@@ -110,7 +111,7 @@ fun AddToCartScreen (
 ) {
     val context = LocalContext.current
 
-    val addToCartViewModel = hiltViewModel<AddToCartViewModel>()
+    val addToCartViewModel = hiltViewModel<PosAddToCartViewModel>()
 
     val cartState = addToCartViewModel.addToCartState.collectAsStateWithLifecycle()
     val uiState = addToCartViewModel.addToCartUiState.collectAsStateWithLifecycle(AddToCartUiState())
@@ -217,7 +218,7 @@ fun AddToCartScreen (
                                                 productViewModel.getModifierItem(id1)?.let { it2 -> list.add(it2) }
                                             }
                                             if (list.any { item -> item.availability }){
-                                                ModifierSelection(
+                                                PosModifierSelection(
                                                     addToCartViewModel,
                                                     list,
                                                     it1
@@ -280,8 +281,8 @@ fun AddToCartScreen (
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ModifierSelection(
-    addToCartViewModel: AddToCartViewModel,
+fun PosModifierSelection(
+    addToCartViewModel: PosAddToCartViewModel,
     list: List<ModifierItem>,
     thisModifier: com.example.fyp.menucreator.data.model.Modifier
 ) {
@@ -355,10 +356,12 @@ fun ModifierSelection(
                         }
                     )
                 } else {
+
                     val selectedItem = remember {
                         mutableStateOf<ModifierItem?>(null)
                     }
                     selectedItem.value = cartState.value.modifierList[thisModifier]?.get(0)
+
                     RadioSelection(
                         items = list,
                         selectedItem = selectedItem.value,
@@ -375,3 +378,5 @@ fun ModifierSelection(
     }
 
 }
+
+

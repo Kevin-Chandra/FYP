@@ -15,6 +15,7 @@ import com.example.fyp.pos.domain.GetOrderItemByStatusUseCase
 import com.example.fyp.pos.domain.UpdateFoodAllTimeSalesUseCase
 import com.example.fyp.pos.domain.UpdateOrderHistoryUseCase
 import com.example.fyp.pos.domain.table.AddTableUseCase
+import com.example.fyp.pos.domain.table.FinishTableUseCase
 import com.example.fyp.pos.domain.table.GetTablesUseCase
 import com.example.fyp.pos.util.ManageOrderUiState
 import com.example.fyp.pos.util.ManageTableEvent
@@ -33,6 +34,7 @@ import javax.inject.Inject
 class ManageTableViewModel @Inject constructor(
     private val getTablesUseCase: GetTablesUseCase,
     private val addTableUseCase: AddTableUseCase,
+    private val finishTableUseCase: FinishTableUseCase,
 ) : ViewModel() {
 
     private val _manageTableState = MutableStateFlow<Response<String>>(Response.Success(""))
@@ -51,6 +53,9 @@ class ManageTableViewModel @Inject constructor(
             is ManageTableEvent.OnAddTable -> {
                 addTable(event.table)
             }
+            is ManageTableEvent.OnFinishTable -> {
+                finishTable(event.id)
+            }
         }
     }
 
@@ -58,6 +63,16 @@ class ManageTableViewModel @Inject constructor(
         addTableUseCase.invoke(table){
             _manageTableState.update { it }
         }
+    }
+
+    private fun finishTable(id: String) = viewModelScope.launch {
+        finishTableUseCase.invoke(id){
+            _manageTableState.update { it }
+        }
+    }
+
+    fun getTable(id: String): Table? {
+        return _tables.value.find { it.id == id }
     }
 
 //
@@ -108,7 +123,7 @@ class ManageTableViewModel @Inject constructor(
 //                        _manageOrderItemUiState.update { _manageOrderItemUiState.value.copy(loading = true) }
                     }
                     is Response.Success -> {
-                        _tables.value = res.data
+                        _tables.value = res.data.sortedBy { it.tableNumber }
                     }
                 }
             }.launchIn(viewModelScope)

@@ -49,7 +49,7 @@ import com.example.fyp.pos.util.PosManageOrderEvent
 @Composable
 fun ManageOrderScreen(
     manageOrderViewModel: ManageOrderViewModel,
-    productViewModel: ProductViewModel
+    productViewModel: ProductViewModel,
 ) {
 
     val ongoingOrders = manageOrderViewModel.ongoingOrder.collectAsStateWithLifecycle()

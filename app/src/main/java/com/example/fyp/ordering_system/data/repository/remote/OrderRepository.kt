@@ -1,5 +1,6 @@
 package com.example.fyp.ordering_system.data.repository.remote
 
+import android.util.Log
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.util.FireStoreCollection
@@ -9,6 +10,7 @@ import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.data.model.OrderStatus
+import com.example.fyp.ordering_system.data.model.OrderType
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -93,9 +95,9 @@ class OrderRepository @Inject constructor(
             for (doc in query.documents)
                 orderCollectionRef.document(doc.id).update(
                     FireStoreDocumentField.ORDER_LIST,
-                    FieldValue.arrayUnion(orderItemIdList)
+                    FieldValue.arrayUnion(*(orderItemIdList.toTypedArray()))
                 )
-            result.invoke(Response.Success("Order Updated!"))
+            result.invoke(Response.Success("Order Item Added!"))
         } catch (e: Exception){
             result.invoke(Response.Error(e))
         }
@@ -166,6 +168,35 @@ class OrderRepository @Inject constructor(
                                 Response.Error(Exception("Order Deleted"))
                             }
                         }
+                    trySend(orderResponse)
+                }
+            }
+        awaitClose {
+            snapshotListener.remove()
+        }
+    }
+
+    suspend fun getOrderByTable(statusList: List<OrderStatus>) = callbackFlow {
+        val snapshotListener = orderCollectionRef
+            .whereEqualTo(FireStoreDocumentField.ORDER_TYPE,OrderType.DineIn)
+            .whereIn(FireStoreDocumentField.ORDER_STATUS,statusList)
+            .orderBy(FireStoreDocumentField.ORDER_START_TIME)
+            .addSnapshotListener { querySnapshot, e ->
+                if (e != null) {
+                    e.printStackTrace()
+                    Response.Error(e)
+                    return@addSnapshotListener
+                }
+                querySnapshot?.let {
+                    val orderResponse = run {
+                        try {
+                            val orders = querySnapshot.toObjects<Order>()
+                            Response.Success(orders)
+                        }catch (e:Exception){
+                            e.printStackTrace()
+                            Response.Error(e)
+                        }
+                    }
                     trySend(orderResponse)
                 }
             }

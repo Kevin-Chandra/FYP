@@ -45,6 +45,7 @@ class SubmitOrderUseCase @Inject constructor(
             Reservation -> order
             Takeaway -> order
         }
+        println("add order")
         orderRepository.addOrder(newOrder,result)
     }
 }

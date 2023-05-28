@@ -26,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val deleteItemFromCartUseCase: DeleteItemFromCartUseCase,
-    private val getCartUseCase: GetCartUseCase,
+    getCartUseCase: GetCartUseCase,
     private val submitOrderUseCase: SubmitOrderUseCase,
     private val getTaxUseCase: GetTaxUseCase,
     private val getServiceChargeUseCase: GetServiceChargeUseCase,
