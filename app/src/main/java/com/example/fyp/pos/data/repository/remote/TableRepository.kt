@@ -43,7 +43,7 @@ class TableRepository @Inject constructor(
             if (table == null){
                 result.invoke(Response.Error(Exception("Table Not Found!")))
             } else {
-                if (!(table.tableStatus == TableStatus.Finished || table.tableStatus == TableStatus.Vacant)) {
+                if (!(table.tableStatus == TableStatus.Finished || table.tableStatus == TableStatus.Available)) {
                     result.invoke(Response.Error(Exception("Table Not Found!")))
                 }
                 if (!table.currentOrder.isNullOrEmpty()) {
@@ -81,12 +81,13 @@ class TableRepository @Inject constructor(
         }
     }
 
-    suspend fun assignSeat(tableId: String, pax: Int, result: (Response<String>) -> Unit ){
+    suspend fun assignSeat(tableId: String, pax: Int,label : String? = null, result: (Response<String>) -> Unit ){
         try {
             tableCollectionRef.document(tableId).update(
                 mapOf(
                     FireStoreDocumentField.PAX to pax,
-                    FireStoreDocumentField.TABLE_STATUS to TableStatus.Occupied
+                    FireStoreDocumentField.TABLE_STATUS to TableStatus.Occupied,
+                    FireStoreDocumentField.TABLE_LABEL to label
                 )
             ).addOnSuccessListener {
                 result.invoke(Response.Success("Seat Assigned!"))
@@ -130,7 +131,7 @@ class TableRepository @Inject constructor(
         try {
             tableCollectionRef.document(tableId).update(
                 mapOf(
-                    FireStoreDocumentField.TABLE_STATUS to TableStatus.Vacant,
+                    FireStoreDocumentField.TABLE_STATUS to TableStatus.Available,
                     FireStoreDocumentField.CURRENT_ORDER to null
                 )
             ).addOnSuccessListener {

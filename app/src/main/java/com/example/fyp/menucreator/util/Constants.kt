@@ -48,6 +48,7 @@ object FireStoreDocumentField{
     const val SETTINGS = "Settings"
     const val TABLE_STATUS = "tableStatus"
     const val TABLE_Name = "tableName"
+    const val TABLE_LABEL = "label"
     const val PAX = "pax"
 }
 

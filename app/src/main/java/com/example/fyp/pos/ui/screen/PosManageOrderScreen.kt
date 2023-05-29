@@ -121,11 +121,11 @@ fun ErrorDialog(
         title = {
             Text(text = title)
         },
-        dismissButton = {
-            TextButton(onClick = { showDialog(false) }) {
-                Text(text = "Cancel")
-            }
-        },
+//        dismissButton = {
+//            TextButton(onClick = { showDialog(false) }) {
+//                Text(text = "Cancel")
+//            }
+//        },
         text = {
             Text(text = msg)
         }

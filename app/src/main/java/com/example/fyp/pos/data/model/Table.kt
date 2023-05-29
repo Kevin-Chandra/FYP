@@ -7,10 +7,11 @@ data class Table(
     val id: String = "",
     val tableNumber: String = "",
     val name: String = "",
+    val label: String? = null,
     val pax: Int = 0,
     val paxCapacity: Int = 0,
     val currentOrder: String? = null,
-    val tableStatus: TableStatus = TableStatus.Vacant
+    val tableStatus: TableStatus = TableStatus.Available
 ) {
 
 }

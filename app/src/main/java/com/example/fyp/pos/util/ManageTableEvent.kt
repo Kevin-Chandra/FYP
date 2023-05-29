@@ -5,4 +5,6 @@ import com.example.fyp.pos.data.model.Table
 sealed class ManageTableEvent {
     data class OnAddTable(val table: Table) : ManageTableEvent()
     data class OnFinishTable(val id: String) : ManageTableEvent()
+    data class AssignTable(val id: String, val pax: Int, val label :String? = null) : ManageTableEvent()
+    data class OnResetTable(val id: String) : ManageTableEvent()
 }

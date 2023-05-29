@@ -2,12 +2,14 @@ package com.example.fyp.pos.ui.screen
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -19,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -31,8 +34,11 @@ import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -43,7 +49,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,21 +56,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
-import com.example.fyp.ordering_system.util.LinearProgressAnimated
 import com.example.fyp.pos.data.model.Table
-import com.example.fyp.pos.data.model.TableStatus
 import com.example.fyp.pos.data.model.TableStatus.*
 import com.example.fyp.pos.ui.navigation.PosScreen
 import com.example.fyp.pos.ui.theme.FYPTheme
@@ -83,10 +89,12 @@ fun ManageTableScreen(
 ) {
     val tables = viewModel.tables.collectAsStateWithLifecycle()
 
-    var showDialog by rememberSaveable {
+    var showDialog by remember {
         mutableStateOf(false)
     }
-
+    var showAssignDialog by remember {
+        mutableStateOf(false)
+    }
     val clickedTable = remember {
         mutableStateOf<Table?>(null)
     }
@@ -111,10 +119,21 @@ fun ManageTableScreen(
                             showDialog = bool
                         })
                     }
-                    TableDialog(showDialog = clickedTable,
+                    AssignTableDialog(
+                        showAssignDialog = showAssignDialog,
+                        table = clickedTable.value,
+                        onDismiss = {
+                            showAssignDialog = false
+                        },
+                        onAssignClick = { pax, label ->
+                            viewModel.onEvent(ManageTableEvent.AssignTable(clickedTable.value!!.id,pax.toInt(),label))
+                            showAssignDialog = false
+                        }
+                    )
+                    TableDialog(
+                        table = clickedTable.value,
                         onAddOrderClick = {
                             navigator.navigate(PosScreen.PosTableOrderGraph.passId(clickedTable.value!!.id))
-//                            navigator.navigate(PosScreen.PosTableOrderGraph.route)
                         },
                         onClose = {
                             clickedTable.value = null
@@ -136,7 +155,14 @@ fun ManageTableScreen(
                             navigator.navigate(PosScreen.PosCheckoutScreen.withRequiredArgs(id,clickedTable.value?.id ?: ""))
                         },
                         onFinishTable = {
-                            viewModel.onEvent(ManageTableEvent.OnFinishTable(clickedTable.value?.id ?: ""))
+                            viewModel.onEvent(ManageTableEvent.OnResetTable(clickedTable.value?.id ?: ""))
+                            clickedTable.value = null
+                        },
+                        onAssignClick = {
+                            showAssignDialog = true
+                        },
+                        onResetTable = {
+                            viewModel.onEvent(ManageTableEvent.OnResetTable(clickedTable.value?.id ?: ""))
                             clickedTable.value = null
                         }
                     )
@@ -147,10 +173,115 @@ fun ManageTableScreen(
                             PosTable(
                                 table = table,
                                 onClick = {
+                                    Log.i("GGG", "ManageTableScreen: $table")
                                     clickedTable.value = table
                                 }
                             )
+                            if (clickedTable.value?.id == table.id){
+                                clickedTable.value = table
+                            }
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AssignTableDialog(
+    showAssignDialog: Boolean,
+    table: Table?,
+    onDismiss: (Boolean) -> Unit,
+    onAssignClick: (String,String) -> Unit
+) {
+    var label by remember {
+        mutableStateOf("")
+    }
+    if (showAssignDialog) {
+        Dialog(
+            onDismissRequest = { onDismiss(false) },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.large,
+                tonalElevation = AlertDialogDefaults.TonalElevation
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Table Number: ${table?.tableNumber}",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+
+                    val options = (1..10).map { it.toString() }
+                    var expanded by remember { mutableStateOf(false) }
+                    var pax by remember { mutableStateOf(options[0]) }
+
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = {
+                            expanded = !expanded
+                        },
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    ) {
+                        OutlinedTextField(
+                            readOnly = true,
+                            value = pax,
+                            onValueChange = { },
+                            label = { Text("Pax") },
+                            trailingIcon = {
+//                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = true)
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = expanded
+                                )
+                            },
+                            modifier = Modifier.menuAnchor(),
+                            colors = ExposedDropdownMenuDefaults.textFieldColors()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = {
+                                expanded = false
+                            }
+                        ) {
+                            options.forEach { selectionOption ->
+                                DropdownMenuItem(
+                                    onClick = {
+                                        pax = selectionOption
+                                        expanded = false
+                                    },
+                                    text = {
+                                        Text(text = selectionOption)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    OutlinedTextField(
+                        value = label,
+                        onValueChange = {
+                            label = it
+                        },
+                        modifier = Modifier
+                            .padding(vertical = 8.dp),
+                        label = {
+                            Text(text = "Label")
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    )
+                    Button(
+                        onClick = {
+                            onAssignClick(pax, label)
+                            pax = ""
+                            label = ""
+                        },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text(text = "Assign")
                     }
                 }
             }
@@ -187,7 +318,7 @@ fun AddTableDialog(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TableDialog(
-    showDialog: MutableState<Table?>,
+    table: Table?,
     onClose: () -> Unit,
     onAddOrderClick: () -> Unit,
     getOngoingOrder: () -> Order?,
@@ -195,9 +326,11 @@ fun TableDialog(
     getFood: (String) -> Food?,
     onCheckout: (String) -> Unit,
     onFinishTable: () -> Unit,
+    onAssignClick: () -> Unit,
+    onResetTable: () -> Unit,
 ) {
-    if (showDialog.value != null){
-        val table = showDialog.value!!
+    if (table != null){
+        Log.i("ManageTableScreen", "TableDialog: $table")
         Dialog(onDismissRequest = { onClose() } ) {
             Surface(
                 shape = MaterialTheme.shapes.large,
@@ -230,9 +363,11 @@ fun TableDialog(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
 
+                    if (table.tableStatus != Available && table.tableStatus != Unavailable){
+                        Text(text = "Pax : ${table.pax}")
+                    }
 
                     if (table.tableStatus in ( listOf(
-//                            Occupied,
                             Ongoing,
                             Finished
                     ))){
@@ -262,12 +397,31 @@ fun TableDialog(
                             }
                             Divider(Modifier.padding(vertical = 8.dp))
                         }
+                    } else {
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-
                     when(table.tableStatus){
-                        Vacant,Occupied -> {
+                        Available -> {
+                            Spacer(modifier = Modifier.height(52.dp))
+                            Button(onClick = onAssignClick) {
+                                Text(text = "Assign Seat")
+                            }
+//                            Spacer(modifier = Modifier.height(20.dp))
+                        }
+                        Occupied ->{
                             Button(onClick = onAddOrderClick) {
                                 Text(text = "Add Order")
+                            }
+                            IconButton(
+                                onClick = onResetTable,
+//                                colors = IconButtonDefaults.iconButtonColors(Color.Red),
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_reset),
+                                    contentDescription = null,
+                                    tint = Color.Red
+                                )
                             }
                         }
                         Ongoing -> {
@@ -302,45 +456,58 @@ fun PosTable(
     table: Table,
     onClick: () -> Unit
 ) {
-    val icon = when(table.tableStatus){
-        Vacant -> Icons.Filled.Check
+    val icon = when (table.tableStatus) {
+        Available -> Icons.Filled.Check
         Occupied -> Icons.Filled.Groups
         Ongoing -> Icons.Filled.RestaurantMenu
         Finished -> Icons.Filled.CheckCircle
         Unavailable -> Icons.Filled.Close
     }
-    Column(
+
+    Box(
         modifier = Modifier
             .width(125.dp)
-            .height(200.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+            .height(250.dp),
     ) {
-        ElevatedAssistChip(
-        onClick = {},
-        leadingIcon = {
-            Icon(imageVector = Icons.Filled.Group, contentDescription = null)
-        },
-        label = {
-            Text(
-                text = table.pax.toString(),
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
-        })
-        Button(
-            onClick = onClick,
-            modifier = Modifier
-                .size(100.dp),
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            Icon(imageVector = icon, contentDescription = null)
-        }
-        Text(text = table.tableNumber,
-        style = MaterialTheme.typography.headlineMedium,
-        modifier = Modifier
+            ElevatedAssistChip(
+                onClick = {},
+                leadingIcon = {
+                    Icon(imageVector = Icons.Filled.Group, contentDescription = null)
+                },
+                label = {
+                    Text(
+                        text = table.pax.toString(),
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                })
+            Button(
+                onClick = onClick,
+                modifier = Modifier
+                    .size(100.dp),
+            ) {
+                Icon(imageVector = icon, contentDescription = null)
+            }
+            if (!table.label.isNullOrEmpty())
+                ElevatedAssistChip(
+                    onClick = { },
+                    label = {
+                        Text(text = table.label,)
+                    },
+//                    modifier = Modifier.padding(bottom = 40.dp)
+                )
+            Text(
+                text = table.tableNumber,
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier
 //            .padding(8.dp)
-        )
+            )
+        }
     }
-
 }
 
 
@@ -349,9 +516,15 @@ fun PosTable(
 )
 @Composable
 fun TablePreview() {
-    PosTable(table = Table(tableStatus = Ongoing, pax = 2, tableNumber = "21") ) {
+    PosTable(table = Table(tableStatus = Ongoing, pax = 2, tableNumber = "21", label = "AHBJJJKSB") ) {
 
     }
+}
+
+@Preview
+@Composable
+fun AssignTablePreview() {
+    AssignTableDialog(showAssignDialog = true,table = Table(), onDismiss = {}, onAssignClick = {a,b -> })
 }
 
 @SuppressLint("UnrememberedMutableState")
@@ -359,7 +532,7 @@ fun TablePreview() {
 @Composable
 fun TableDialogPreview() {
     TableDialog(
-        showDialog = mutableStateOf(Table(tableNumber = "2", tableStatus = Ongoing, currentOrder = "jdshbcksnkdsnndabkj")),
+        table = Table(tableNumber = "2", tableStatus = Occupied, currentOrder = "jdshbcksnkdsnndabkj"),
         onAddOrderClick = {},
         onClose = {},
         getOngoingOrder = {
@@ -372,6 +545,31 @@ fun TableDialogPreview() {
             Food(name = "ABc")
         },
         onCheckout = {},
-        onFinishTable = {}
+        onFinishTable = {},
+        onAssignClick = {},
+        onResetTable = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TableDialogAvailablePreview() {
+    TableDialog(
+        table = Table(tableNumber = "2", tableStatus = Available, currentOrder = "jdshbcksnkdsnndabkj"),
+        onAddOrderClick = {},
+        onClose = {},
+        getOngoingOrder = {
+            Order(orderList = listOf("a","b"))
+        },
+        getOrderItem = {
+            OrderItem(foodId = "kjd", orderItemStatus = OrderItemStatus.Preparing)
+        },
+        getFood = {
+            Food(name = "ABc")
+        },
+        onCheckout = {},
+        onFinishTable = {},
+        onAssignClick = {},
+        onResetTable = {}
     )
 }

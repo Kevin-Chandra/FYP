@@ -123,7 +123,7 @@ fun CheckoutScreen(
                     when(snackbarHostState.showSnackbar("Table checkout success. Finish Table?","Yes",false,SnackbarDuration.Short)){
                         Dismissed -> {}
                         ActionPerformed -> {
-                            tableViewModel.onEvent(ManageTableEvent.OnFinishTable(tableId))
+                            tableViewModel.onEvent(ManageTableEvent.OnResetTable(tableId))
                         }
                     }
                 }

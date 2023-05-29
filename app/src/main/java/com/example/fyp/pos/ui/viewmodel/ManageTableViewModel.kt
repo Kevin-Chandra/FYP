@@ -15,8 +15,10 @@ import com.example.fyp.pos.domain.GetOrderItemByStatusUseCase
 import com.example.fyp.pos.domain.UpdateFoodAllTimeSalesUseCase
 import com.example.fyp.pos.domain.UpdateOrderHistoryUseCase
 import com.example.fyp.pos.domain.table.AddTableUseCase
+import com.example.fyp.pos.domain.table.AssignTableUseCase
 import com.example.fyp.pos.domain.table.FinishTableUseCase
 import com.example.fyp.pos.domain.table.GetTablesUseCase
+import com.example.fyp.pos.domain.table.ResetTableUseCase
 import com.example.fyp.pos.util.ManageOrderUiState
 import com.example.fyp.pos.util.ManageTableEvent
 import com.example.fyp.pos.util.ManageTableState
@@ -35,6 +37,9 @@ class ManageTableViewModel @Inject constructor(
     private val getTablesUseCase: GetTablesUseCase,
     private val addTableUseCase: AddTableUseCase,
     private val finishTableUseCase: FinishTableUseCase,
+    private val assignTableUseCase: AssignTableUseCase,
+    private val resetTableUseCase: ResetTableUseCase,
+    private val updatTab: ResetTableUseCase,
 ) : ViewModel() {
 
     private val _manageTableState = MutableStateFlow<Response<String>>(Response.Success(""))
@@ -56,11 +61,29 @@ class ManageTableViewModel @Inject constructor(
             is ManageTableEvent.OnFinishTable -> {
                 finishTable(event.id)
             }
+            is ManageTableEvent.AssignTable -> {
+                assignTable(event.id,event.pax,event.label)
+            }
+            is ManageTableEvent.OnResetTable ->{
+                resetTable(event.id)
+            }
         }
     }
 
     private fun addTable(table: Table) = viewModelScope.launch {
         addTableUseCase.invoke(table){
+            _manageTableState.update { it }
+        }
+    }
+
+    private fun resetTable(id: String) = viewModelScope.launch {
+        resetTableUseCase(id){
+            _manageTableState.update { it }
+        }
+    }
+
+    private fun assignTable(id: String, pax: Int, label: String?) = viewModelScope.launch {
+        assignTableUseCase(id,pax,label){
             _manageTableState.update { it }
         }
     }
@@ -74,42 +97,6 @@ class ManageTableViewModel @Inject constructor(
     fun getTable(id: String): Table? {
         return _tables.value.find { it.id == id }
     }
-
-//
-//    private fun prepareOrderItem(itemId: String) = viewModelScope.launch{
-//        updateOrderItemStatusUseCase(itemId,OrderItemStatus.Preparing){}
-//    }
-//
-//    private fun finishOrderItem(itemId: String) = viewModelScope.launch{
-//        orderItemFinishUseCase(itemId){}
-//    }
-
-//    private fun deleteOrder(order: Order) = viewModelScope.launch{
-//        deleteOrderFromRemoteByOrderUseCase(order){
-//            when(it){
-//                is Response.Error -> {
-//                    _manageOrderUiState.update { it1 -> it1.copy(
-//                        errorMessage = it.exception.message,
-//                        success = false,
-//                        loading = false) }
-//                }
-//                Response.Loading -> {
-//                    _manageOrderUiState.update { _manageOrderUiState.value.copy(loading = true) }
-//                }
-//                is Response.Success -> {
-//                    if (it.data == "Order deleted successfully!"){
-//                        _manageOrderUiState.update {
-//                            _manageOrderUiState.value.copy(
-//                                errorMessage = null,
-//                                success = true,
-//                                loading = false
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     private fun getTables() = viewModelScope.launch {
 //        _manageOrderItemUiState.update { ManageOrderUiState(loading = true) }

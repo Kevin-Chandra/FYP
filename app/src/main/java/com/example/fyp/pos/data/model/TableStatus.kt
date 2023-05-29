@@ -1,7 +1,7 @@
 package com.example.fyp.pos.data.model
 
 enum class TableStatus {
-    Vacant,
+    Available,
     Occupied,
     Ongoing,
     Finished,
