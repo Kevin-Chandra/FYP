@@ -19,3 +19,21 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.example.fyp.account_management.data.model.* { *; }
+-keep class com.example.fyp.account_management.data.repository.* { *; }
+-keep class com.example.fyp.menucreator.data.model.* { *; }
+-keep class com.example.fyp.ordering_system.data.model.* { *; }
+-keep class com.example.fyp.pos.data.model.* { *; }
+
+-keep class com.google.android.gms.internal.** { *; }
+
+-dontwarn org.bouncycastle.jsse.BCSSLParameters
+-dontwarn org.bouncycastle.jsse.BCSSLSocket
+-dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.ConscryptHostnameVerifier
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE

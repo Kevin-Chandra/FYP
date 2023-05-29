@@ -14,7 +14,7 @@
         android:weightSum="10"
         app:layout_constraintHorizontal_weight="6"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/remove_button"
+        app:layout_constraintEnd_toStartOf="@+id/modifier_remove_button"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/modifier_id_textView"
         app:layout_constraintTop_toTopOf="parent" />
