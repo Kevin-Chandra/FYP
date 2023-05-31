@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -30,9 +31,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.RestaurantMenu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedAssistChip
@@ -48,8 +51,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -57,6 +63,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,6 +72,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.compose.FypTheme
 import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.ordering_system.data.model.Order
@@ -73,11 +81,17 @@ import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.pos.data.model.Table
 import com.example.fyp.pos.data.model.TableStatus.*
+import com.example.fyp.pos.ui.component.CustomAlertDialog
 import com.example.fyp.pos.ui.navigation.PosScreen
 import com.example.fyp.pos.ui.theme.FYPTheme
 import com.example.fyp.pos.ui.viewmodel.ManageTableViewModel
 import com.example.fyp.pos.ui.viewmodel.TableOngoingOrderViewModel
 import com.example.fyp.pos.util.ManageTableEvent
+import org.burnoutcrew.reorderable.NoDragCancelledAnimation
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyGridState
+import org.burnoutcrew.reorderable.reorderable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,32 +106,68 @@ fun ManageTableScreen(
     var showDialog by remember {
         mutableStateOf(false)
     }
-    var showAssignDialog by remember {
-        mutableStateOf(false)
-    }
+    var showResetDialog by remember { mutableStateOf(false) }
+    var showAssignDialog by remember { mutableStateOf(false) }
+
     val clickedTable = remember {
         mutableStateOf<Table?>(null)
     }
 
-    FYPTheme() {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    FypTheme() {
         Surface() {
             Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(onClick = { showDialog = true }) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                    }
+//                floatingActionButton = {
+//                    FloatingActionButton(onClick = { showDialog = true }) {
+//                        Icon(imageVector = Icons.Default.Add, contentDescription = null)
+//                    }
+//                },
+//                floatingActionButtonPosition = FabPosition.End,
+                topBar = {
+                    TopAppBar(
+                        actions = {
+                            IconButton(onClick = {
+                                navigator.navigate(PosScreen.TableSettingScreen.route)
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Settings, contentDescription = "Table settings"
+                                )
+                            }
+                        },
+                        title = {
+                            Text(text = "Tables")
+                        },
+                        scrollBehavior = scrollBehavior
+                    )
                 },
-                floatingActionButtonPosition = FabPosition.End,
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             ) {
                 Box(modifier = Modifier.padding(it)){
-                    if (showDialog){
-                        AddTableDialog( onClick = { it1 ->
-                            showDialog = false
-                            viewModel.onEvent(ManageTableEvent.OnAddTable(it1))
-                        },
-                        onDismiss = { bool ->
-                            showDialog = bool
-                        })
+//                    if (showDialog){
+////                        AddTableDialog( onClick = { it1 ->
+////                            showDialog = false
+////                            viewModel.onEvent(ManageTableEvent.OnAddTable(it1))
+////                        },
+////                        onDismiss = { bool ->
+////                            showDialog = bool
+////                        })
+//                        //TODO assign seating
+//                    }
+
+                    if (showResetDialog){
+                        CustomAlertDialog(
+                            onDismiss = { showResetDialog = false },
+                            onConfirm = {
+                                viewModel.onEvent(ManageTableEvent.OnResetTable(clickedTable.value?.id ?: ""))
+                                clickedTable.value = null
+                                showResetDialog = false
+                            },
+                            confirmButtonText = "Reset",
+                            dismissButtonText = "Cancel",
+                            title = "Reset Table",
+                            text = "Reset table will return table state to initial state. Do you wish to reset?"
+                        )
                     }
                     AssignTableDialog(
                         showAssignDialog = showAssignDialog,
@@ -162,8 +212,7 @@ fun ManageTableScreen(
                             showAssignDialog = true
                         },
                         onResetTable = {
-                            viewModel.onEvent(ManageTableEvent.OnResetTable(clickedTable.value?.id ?: ""))
-                            clickedTable.value = null
+                            showResetDialog = true
                         }
                     )
                     LazyVerticalGrid(
@@ -173,7 +222,6 @@ fun ManageTableScreen(
                             PosTable(
                                 table = table,
                                 onClick = {
-                                    Log.i("GGG", "ManageTableScreen: $table")
                                     clickedTable.value = table
                                 }
                             )
@@ -307,7 +355,7 @@ fun AddTableDialog(
                 tableName = it
             })
             Button(onClick = {
-                onClick(Table(tableNumber = tableName))
+                onClick(Table(tableNumber = tableName.toInt()))
             }){
                 Text(text = "Save")
             }
@@ -330,14 +378,14 @@ fun TableDialog(
     onResetTable: () -> Unit,
 ) {
     if (table != null){
-        Log.i("ManageTableScreen", "TableDialog: $table")
         Dialog(onDismissRequest = { onClose() } ) {
             Surface(
                 shape = MaterialTheme.shapes.large,
                 tonalElevation = AlertDialogDefaults.TonalElevation
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
                         Modifier.fillMaxWidth(),
@@ -364,7 +412,10 @@ fun TableDialog(
                     )
 
                     if (table.tableStatus != Available && table.tableStatus != Unavailable){
-                        Text(text = "Pax : ${table.pax}")
+                        Text(
+                            text = "Pax : ${table.pax}",
+                            modifier = Modifier.align(Alignment.Start)
+                        )
                     }
 
                     if (table.tableStatus in ( listOf(
@@ -489,8 +540,12 @@ fun PosTable(
                 onClick = onClick,
                 modifier = Modifier
                     .size(100.dp),
+                colors = ButtonDefaults.buttonColors(
+                    if (table.tableStatus == Unavailable) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary
+                )
             ) {
-                Icon(imageVector = icon, contentDescription = null)
+                Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(40.dp))
             }
             if (!table.label.isNullOrEmpty())
                 ElevatedAssistChip(
@@ -501,7 +556,7 @@ fun PosTable(
 //                    modifier = Modifier.padding(bottom = 40.dp)
                 )
             Text(
-                text = table.tableNumber,
+                text = table.tableNumber.toString(),
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
 //            .padding(8.dp)
@@ -516,7 +571,7 @@ fun PosTable(
 )
 @Composable
 fun TablePreview() {
-    PosTable(table = Table(tableStatus = Ongoing, pax = 2, tableNumber = "21", label = "AHBJJJKSB") ) {
+    PosTable(table = Table(tableStatus = Unavailable, pax = 2, tableNumber = 21, label = "AHBJJJKSB") ) {
 
     }
 }
@@ -524,7 +579,7 @@ fun TablePreview() {
 @Preview
 @Composable
 fun AssignTablePreview() {
-    AssignTableDialog(showAssignDialog = true,table = Table(), onDismiss = {}, onAssignClick = {a,b -> })
+    AssignTableDialog(showAssignDialog = true,table = Table(), onDismiss = {}, onAssignClick = { _, _ -> })
 }
 
 @SuppressLint("UnrememberedMutableState")
@@ -532,7 +587,7 @@ fun AssignTablePreview() {
 @Composable
 fun TableDialogPreview() {
     TableDialog(
-        table = Table(tableNumber = "2", tableStatus = Occupied, currentOrder = "jdshbcksnkdsnndabkj"),
+        table = Table(tableNumber = 1, tableStatus = Occupied, currentOrder = "jdshbcksnkdsnndabkj"),
         onAddOrderClick = {},
         onClose = {},
         getOngoingOrder = {
@@ -555,7 +610,7 @@ fun TableDialogPreview() {
 @Composable
 fun TableDialogAvailablePreview() {
     TableDialog(
-        table = Table(tableNumber = "2", tableStatus = Available, currentOrder = "jdshbcksnkdsnndabkj"),
+        table = Table(tableNumber = 2, tableStatus = Ongoing, currentOrder = "jdshbcksnkdsnndabkj"),
         onAddOrderClick = {},
         onClose = {},
         getOngoingOrder = {

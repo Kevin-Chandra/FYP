@@ -176,7 +176,9 @@ fun OngoingOrderCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column() {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(0.7f),
+                    ) {
                         Text(
                             text = item?.orderItemId ?: "[Unknown]",
                             maxLines = 1,

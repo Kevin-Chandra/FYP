@@ -6,6 +6,7 @@ import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.pos.data.model.Table
 import com.example.fyp.pos.data.model.TableStatus
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
@@ -24,6 +25,7 @@ class TableRepository @Inject constructor(
 
     suspend fun addTable(table: Table, result: (Response<String>) -> Unit){
         try {
+            println(table)
             tableCollectionRef.add(table)
                 .addOnSuccessListener {
                     result.invoke(Response.Success("Table Added!"))
@@ -43,8 +45,8 @@ class TableRepository @Inject constructor(
             if (table == null){
                 result.invoke(Response.Error(Exception("Table Not Found!")))
             } else {
-                if (!(table.tableStatus == TableStatus.Finished || table.tableStatus == TableStatus.Available)) {
-                    result.invoke(Response.Error(Exception("Table Not Found!")))
+                if (!(table.tableStatus == TableStatus.Finished || table.tableStatus == TableStatus.Available || table.tableStatus == TableStatus.Unavailable)) {
+                    result.invoke(Response.Error(Exception("Current table state is unfit to be removed!")))
                 }
                 if (!table.currentOrder.isNullOrEmpty()) {
                     result.invoke(Response.Error(Exception("Please remove any order associated before removing table")))
@@ -113,6 +115,20 @@ class TableRepository @Inject constructor(
         }
     }
 
+    suspend fun updateTable(table: Table, result: (Response<String>) -> Unit ){
+        try {
+            tableCollectionRef.document(table.id).set(
+                table
+            ).addOnSuccessListener {
+                result.invoke(Response.Success("Table Updated!"))
+            }.addOnFailureListener {
+                result.invoke(Response.Error(it))
+            }.await()
+        } catch (e: Exception){
+            result.invoke(Response.Error(e))
+        }
+    }
+
     suspend fun checkoutTable(tableId: String, result: (Response<String>) -> Unit){
         try {
             tableCollectionRef.document(tableId).update(
@@ -146,7 +162,7 @@ class TableRepository @Inject constructor(
 
     suspend fun getTables() = callbackFlow<Response<List<Table>>>{
         val snapshotListener = tableCollectionRef
-//            .orderBy(FireStoreDocumentField.T,Query.Direction.DESCENDING)
+            .orderBy(FireStoreDocumentField.TABLE_NUMBER,Query.Direction.ASCENDING)
             .addSnapshotListener { querySnapshot, e ->
                 if (e != null) {
                     e.printStackTrace()

@@ -86,11 +86,24 @@ fun KitchenManageOrderScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start,
             ) {
-                Text(
-                    text = "Confirmed Order",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                ) {
+
+                    Text(
+                        text = "Confirmed Order",
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                    Text(
+                        text = ongoingItems.value
+                            .filter { it.orderItemStatus == OrderItemStatus.Confirmed}
+                            .size
+                            .toString() + " Item",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
                 if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Confirmed }){
                     LazyRow(){
                         items(ongoingItems.value
@@ -148,13 +161,26 @@ fun KitchenManageOrderScreen(
                         textAlign = TextAlign.Center
                     )
                 }
-//                Divider()
 
-                Text(
-                    text = "Preparing Order",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                ) {
+                    Text(
+                        text = "Preparing Order",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Text(
+                        text = ongoingItems.value
+                            .filter { it.orderItemStatus == OrderItemStatus.Preparing}
+                            .size
+                            .toString() + " Item",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+
                 if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Preparing }){
                     LazyRow(){
                         items(ongoingItems.value
@@ -212,13 +238,25 @@ fun KitchenManageOrderScreen(
                         textAlign = TextAlign.Center
                     )
                 }
-//                Divider()
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                ) {
 
-                Text(
-                    text = "Finished Order",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
+                    Text(
+                        text = "Finished Order",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Text(
+                        text = ongoingItems.value
+                            .filter { it.orderItemStatus == OrderItemStatus.Finished}
+                            .size
+                            .toString() + " Item",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
                 if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Finished }){
                     LazyRow{
                         items(ongoingItems.value

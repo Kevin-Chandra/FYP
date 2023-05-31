@@ -31,6 +31,7 @@ object FireStoreDocumentField{
     const val SERVICE_CHARGE = "serviceCharge"
     const val TAX = "tax"
     const val DATE = "date"
+    const val DATE_CREATED = "dateCreated"
     const val ALL_TIME_SALES = "allTimeSales"
     const val TIME_ADDED = "timeAdded"
     const val TIME_FINISHED = "timeFinished"
@@ -47,7 +48,7 @@ object FireStoreDocumentField{
     const val MODIFIER_ITEM_LIST = "modifierItemList"
     const val SETTINGS = "Settings"
     const val TABLE_STATUS = "tableStatus"
-    const val TABLE_Name = "tableName"
+    const val TABLE_NUMBER = "tableNumber"
     const val TABLE_LABEL = "label"
     const val PAX = "pax"
 }

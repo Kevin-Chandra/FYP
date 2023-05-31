@@ -16,7 +16,7 @@ class InitializeTableNewOrderUseCase @Inject constructor(
         val newOrder = order.copy(
             orderType = OrderType.DineIn,
             tableId = table.id,
-            tableNumber = table.tableNumber
+            tableNumber = table.tableNumber.toString()
         )
         tableRepository.newOrder(table.id,newOrder.orderId,result)
         submitOrderUseCase(newOrder,null,result)

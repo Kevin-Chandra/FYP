@@ -6,6 +6,7 @@ sealed class PosScreen(val route: String) {
     object MainPosScreen: PosScreen(route = "main_pos_screen")
     object ManageOrderScreen: PosScreen(route = "pos_manage_order_screen")
     object ManageTableScreen: PosScreen(route = "manage_table_screen")
+    object TableSettingScreen: PosScreen(route = "table_setting_screen")
     object PosOrderScreen: PosScreen(route = "pos_order_screen")
     object PosCheckoutScreen: PosScreen(route = "pos_checkout_screen")
     object PosRootGraph: PosScreen(route = "pos_root_graph")

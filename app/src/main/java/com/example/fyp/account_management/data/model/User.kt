@@ -36,11 +36,3 @@ enum class StaffPosition{
 enum class SpecialAccess (){
         MANAGE_STAFF
 }
-
-//sealed class AccountTypeSealed {
-//        object Customer : AccountTypeSealed()
-//        object Admin : AccountTypeSealed()
-//        object Staff : AccountTypeSealed()
-//        object KitchenStaff : AccountTypeSealed()
-//        object Manager : AccountTypeSealed()
-//}

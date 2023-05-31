@@ -26,6 +26,9 @@
 -keep class com.example.fyp.ordering_system.data.model.* { *; }
 -keep class com.example.fyp.pos.data.model.* { *; }
 
+-keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
+-keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
+
 -keep class com.google.android.gms.internal.** { *; }
 
 -dontwarn org.bouncycastle.jsse.BCSSLParameters

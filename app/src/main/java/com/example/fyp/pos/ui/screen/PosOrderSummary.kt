@@ -142,14 +142,28 @@ fun PosOrderSummary(
                 },
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 bottomBar = {
-                    Button(
-                        onClick = { tableOrderViewModel.onEvent(TableOrderEvent.SubmitOrder) },
-                        enabled = cart.value.isNotEmpty(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(text = "Submit Order")
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "Total item",style = MaterialTheme.typography.titleLarge)
+                            Text(
+                                text = cart.value.sumOf { it.quantity }.toString(),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Button(
+                            onClick = { tableOrderViewModel.onEvent(TableOrderEvent.SubmitOrder) },
+                            enabled = cart.value.isNotEmpty(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        ) {
+                            Text(text = "Submit Order")
+                        }
                     }
                 }
             ) {

@@ -59,7 +59,7 @@ class GetCheckoutTableOrderUseCase @Inject constructor(
             taxPercentage = tax,
             serviceChargePercentage = serviceCharge,
             grandTotal = subTotal * (1 + tax + serviceCharge),
-            tableNumber = table.tableNumber,
+            tableNumber = table.tableNumber.toString(),
             pax = table.pax,
         )
         result(Response.Success(order!!))
