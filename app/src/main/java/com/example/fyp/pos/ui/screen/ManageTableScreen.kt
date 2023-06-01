@@ -291,7 +291,6 @@ fun AssignTableDialog(
                                 )
                             },
                             modifier = Modifier.menuAnchor(),
-                            colors = ExposedDropdownMenuDefaults.textFieldColors()
                         )
                         ExposedDropdownMenu(
                             expanded = expanded,

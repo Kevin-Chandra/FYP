@@ -15,7 +15,6 @@ class InitializeTableNewOrderUseCase @Inject constructor(
     suspend operator fun invoke(order : Order = Order(), table: Table, result: (Response<String>) -> Unit) {
         val newOrder = order.copy(
             orderType = OrderType.DineIn,
-            tableId = table.id,
             tableNumber = table.tableNumber.toString()
         )
         tableRepository.newOrder(table.id,newOrder.orderId,result)
