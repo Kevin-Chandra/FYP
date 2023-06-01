@@ -83,7 +83,7 @@ fun KitchenManageOrderScreen(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
                     .verticalScroll(scroll),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
                 Row(
@@ -170,7 +170,6 @@ fun KitchenManageOrderScreen(
                     Text(
                         text = "Preparing Order",
                         style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(16.dp)
                     )
                     Text(
                         text = ongoingItems.value
@@ -247,7 +246,6 @@ fun KitchenManageOrderScreen(
                     Text(
                         text = "Finished Order",
                         style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(16.dp)
                     )
                     Text(
                         text = ongoingItems.value
@@ -394,7 +392,7 @@ fun OrderItemCard(
             if (orderItem.orderItemStatus != OrderItemStatus.Finished){
                 Row() {
                     Button(onClick = onNextButtonClick) {
-                        Text(text = "Next")
+                        Text(text = if (orderItem.orderItemStatus == OrderItemStatus.Preparing) "Finish order" else "Prepare order")
                     }
                 }
 
@@ -403,7 +401,7 @@ fun OrderItemCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OrderItemDialog(
     item: OrderItem,
@@ -543,7 +541,7 @@ fun OrderItemDialog(
 @Composable
 fun OrderItemCardPreview() {
     OrderItemCard(
-        orderItem = OrderItem(Date(), orderItemId = "udwihbh", quantity = 12),
+        orderItem = OrderItem(Date(), orderItemId = "udwihbh", quantity = 12, orderItemStatus = OrderItemStatus.Confirmed),
         getFood = { Food(name = "ABC", productId = "F-1") },
         getModifierItem = { ModifierItem(name = "!@#") },
         getModifier = {com.example.fyp.menucreator.data.model.Modifier()},

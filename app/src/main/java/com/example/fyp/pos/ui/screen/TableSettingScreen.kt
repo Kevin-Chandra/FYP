@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -23,14 +26,20 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TableBar
+import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -63,6 +72,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -293,7 +303,7 @@ fun TableOverview(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                Text(text = "Pax Capacity: ${table.paxCapacity}")
+                Text(text = "Pax Capacity: ${table.paxCapacity}",style = MaterialTheme.typography.titleLarge)
 
                 val interactionSource = remember { MutableInteractionSource() }
                 Row(
@@ -314,7 +324,7 @@ fun TableOverview(
 
                 ) {
 
-                    Text(text = "Availability")
+                    Text(text = "Availability",style = MaterialTheme.typography.titleLarge)
                     Spacer(modifier = Modifier.padding(start = 8.dp))
                     Switch(
                         enabled = buttonEnabled,
@@ -325,25 +335,34 @@ fun TableOverview(
                     )
 
                 }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
+                Button(
+                    onClick = onEdit,
+                    enabled = buttonEnabled,
+                    modifier = Modifier.padding( vertical = 8.dp)
                 ) {
-                    Button(
-                        onClick = onDelete,
-                        enabled = buttonEnabled
-                    ) {
-                        Text(text = "Delete Table")
-                    }
-
-                    Button(
-                        onClick = onEdit,
-                        enabled = buttonEnabled
-                    ) {
-                        Text(text = "Edit Table")
-                    }
-
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        Modifier.size(28.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Edit Table", style = MaterialTheme.typography.titleMedium)
                 }
+                Button(
+                    onClick = onDelete,
+                    enabled = buttonEnabled,
+                    modifier = Modifier.padding( vertical = 8.dp),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        Modifier.size(28.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Delete Table", style = MaterialTheme.typography.titleMedium)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -421,6 +440,9 @@ fun AddEditTableBottomSheetContent(
                 onValueChange = {
                     onTableNumberChanged(it)
                 },
+                leadingIcon = {
+                      Icon(imageVector = Icons.Default.Tag, contentDescription = null)
+                },
                 label = {
                     Text(text = "Table Number")
                 },
@@ -453,6 +475,9 @@ fun AddEditTableBottomSheetContent(
                 label = {
                     Text(text = "Table Name")
                 },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.TableBar, contentDescription = null)
+                },
                 isError = tableNameError != null,
                 trailingIcon = {
                     if (tableNameError != null)
@@ -479,7 +504,23 @@ fun AddEditTableBottomSheetContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Pax Capacity")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Icon(
+                        imageVector = Icons.Default.Group,
+                        contentDescription = "Pax capacity icon",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(28.dp)
+                    )
+                    Text(
+                        text = "Pax Capacity",
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.border(
@@ -524,6 +565,7 @@ fun AddEditTableBottomSheetContent(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
         if (showLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -551,15 +593,18 @@ fun TableManagementDialogPreview() {
 )
 @Composable
 fun TableBottomSheetPreview() {
-    AddEditTableBottomSheetContent(
-        onTableNumberChanged = {},
-        onPaxCapacityChanged = {},
-        onTableNameChanged = {},
+    Surface() {
+        AddEditTableBottomSheetContent(
+            onTableNumberChanged = {},
+            onPaxCapacityChanged = {},
+            onTableNameChanged = {},
 //        onClose = {},
-        onSave = {},
+            onSave = {},
 //        showSheet = true,
-        tableNameError = "aww",
-        tableNumberError = "no!",
-        showLoading = false
-    )
+            tableNameError = "aww",
+            tableNumberError = "no!",
+            showLoading = false
+        )
+
+    }
 }

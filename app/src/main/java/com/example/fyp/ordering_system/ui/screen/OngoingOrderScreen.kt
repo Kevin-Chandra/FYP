@@ -1,5 +1,6 @@
 package com.example.fyp.ordering_system.ui.screen
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +32,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -75,7 +78,7 @@ fun OngoingOrderScreen(
     val currentOrderItem = viewModel.currentOrderItem.collectAsStateWithLifecycle()
 
     val currentAnim = remember {
-        mutableStateOf(R.raw.order_sent_anim)
+        mutableIntStateOf(R.raw.order_sent_anim)
     }
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(currentAnim.value))
     val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
@@ -168,6 +171,8 @@ fun OngoingOrderScreen(
                             var expandOrderItem by rememberSaveable {
                                 mutableStateOf(false)
                             }
+                            
+                            val height by animateDpAsState(targetValue = if (expandOrderItem) 140.dp else 50.dp )
 
                             Card(
                                 modifier = Modifier
@@ -199,7 +204,7 @@ fun OngoingOrderScreen(
                                         }
                                     }
                                     if (expandOrderItem) {
-                                        LazyColumn() {
+                                        LazyColumn( modifier = Modifier.height(height) ) {
                                             item {
                                                 Divider()
                                             }

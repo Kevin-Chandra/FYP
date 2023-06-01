@@ -96,6 +96,18 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun getAccount(id: String) : Account?{
+        return try {
+            val account  = userCollectionRef.document(id)
+                .get()
+                .await()
+                .toObject<Account>()
+            account
+        } catch (e: Exception){
+            null
+        }
+    }
+
     fun updatePassword(oldPass: String, newPass: String, result: (Response<String>) -> Unit){
         val user = auth.currentUser!!
         val credential = EmailAuthProvider.getCredential(user.email!!,oldPass)

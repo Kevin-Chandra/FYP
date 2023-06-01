@@ -12,16 +12,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Chip
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -30,6 +37,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,12 +50,19 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.compose.FypTheme
+import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.menucreator.ui.viewmodel.ModifierListingViewModel_Factory
 import com.example.fyp.ordering_system.data.model.Order
@@ -123,26 +138,64 @@ fun OngoingOrderListScreen(
                         scrollBehavior = scrollBehavior
                     )
                 },
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection).nestedScroll(nestedScrollConnection)
+                modifier = Modifier
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                    .nestedScroll(nestedScrollConnection)
             ) {
                 Box(modifier = Modifier
                     .fillMaxSize()
                     .padding(it)) {
                     if (uiState.value.success){
                         if (orderList.value.isEmpty()){
-                            Text(
-                                text = "No ongoing order now...",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                        LazyColumn(
-                            modifier = Modifier.align(Alignment.TopCenter)
-                        ){
-                            items(
-                                orderList.value
-                            ) { item ->
-                                OngoingOrderCard(order = item) {
-                                    navigator.navigate(Screen.OngoingOrderScreen.withArgs(item.orderId))
+                            val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.order_food))
+                            val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
+
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                LottieAnimation(
+                                    composition = composition,
+                                    progress = { animProgress },
+                                    modifier = Modifier
+                                        .size(400.dp)
+                                )
+                                Text(
+                                    text = "No ongoing order now...",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp)
+                                )
+                                AssistChip(
+                                    modifier = Modifier.padding(16.dp),
+                                    onClick = { navigator.navigate(Screen.ProductListScreen.route)},
+                                    label = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+                                            Text(
+                                                text = "Order now",
+                                                modifier = Modifier.padding(horizontal = 8.dp),
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.align(Alignment.TopCenter)
+                            ){
+                                items(
+                                    orderList.value
+                                ) { item ->
+                                    OngoingOrderCard(order = item) {
+                                        navigator.navigate(Screen.OngoingOrderScreen.withArgs(item.orderId))
+                                    }
                                 }
                             }
                         }
@@ -186,7 +239,9 @@ fun OngoingOrderCard(
                 Text(
                     text = order.orderId,
                     maxLines = 1,
-                    modifier = Modifier.fillMaxWidth(0.7f).basicMarquee()
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .basicMarquee()
                 )
                 AssistChip(
                     onClick = { },

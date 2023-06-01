@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -172,9 +173,9 @@ fun PosOrderSummary(
                     .padding(it)){
                     if (cart.value.isNotEmpty()){
                             LazyColumn(){
-                                items(cart.value){
+                                items(cart.value){ orderItem->
                                     OrderItemRow(
-                                        orderItem = it,
+                                        orderItem = orderItem,
                                         getFood = { id ->
                                             productViewModel.getFood(id)
                                         },
@@ -185,13 +186,13 @@ fun PosOrderSummary(
                                             productViewModel.getModifierItem(id)
                                         },
                                         onDelete = {
-                                            tableOrderViewModel.onEvent(TableOrderEvent.OnDeleteOrderItem(it.orderItemId))
+                                            tableOrderViewModel.onEvent(TableOrderEvent.OnDeleteOrderItem(orderItem.orderItemId))
                                         },
                                         onDecrement = { qty ->
-                                            tableOrderViewModel.onEvent(TableOrderEvent.OnIncrementQuantity(it,qty))
+                                            tableOrderViewModel.onEvent(TableOrderEvent.OnIncrementQuantity(orderItem,qty))
                                         },
                                         onIncrement = { qty ->
-                                            tableOrderViewModel.onEvent(TableOrderEvent.OnIncrementQuantity(it,qty))
+                                            tableOrderViewModel.onEvent(TableOrderEvent.OnIncrementQuantity(orderItem,qty))
                                         }
                                     )
                                 }
@@ -252,7 +253,7 @@ fun OrderItemRow(
             ) {
                 CoilImage(
                     modifier = Modifier
-                        .size(150.dp)
+                        .size(120.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .padding(8.dp),
                     imageModel = { food.imageUri ?: R.mipmap.ic_launcher },
@@ -273,7 +274,7 @@ fun OrderItemRow(
 //                Image(
 //                    imageVector = Icons.Default.Panorama, contentDescription = null,
 //                    modifier = Modifier
-//                        .size(150.dp)
+//                        .size(100.dp)
 //                        .clip(RoundedCornerShape(10.dp))
 //                )
                 Column(
@@ -316,7 +317,14 @@ fun OrderItemRow(
                 }
             }
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(8.dp).border(
+                    border = BorderStroke(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = RoundedCornerShape(50)
+                )
             ) {
                 IconButton(
                     onClick = { onIncrement(orderItem.quantity + 1) },
@@ -332,7 +340,7 @@ fun OrderItemRow(
                     text = "${orderItem.quantity}",
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(4.dp)
                 )
                 IconButton(
@@ -354,7 +362,7 @@ fun OrderItemRow(
                     onClick = onDelete,
                     modifier = Modifier
                         .size(40.dp)
-                        .padding(start = 16.dp)
+                        .padding(start = 0.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Delete,

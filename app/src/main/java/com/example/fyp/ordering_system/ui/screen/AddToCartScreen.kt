@@ -3,8 +3,10 @@ package com.example.fyp.ordering_system.ui.screen
 import android.content.Context
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -162,6 +164,7 @@ fun AddToCartScreen (
                             .fillMaxWidth()
                             .align(Alignment.Center)
                             .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 //                        item {
                             CoilImage(
@@ -244,7 +247,12 @@ fun AddToCartScreen (
                             )
 
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.padding(8.dp).border(
+                                    border = BorderStroke(
+                                        width = 2.dp,
+                                        color = MaterialTheme.colorScheme.primary
+                                    ),
+                                    shape = RoundedCornerShape(50)),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
@@ -256,7 +264,9 @@ fun AddToCartScreen (
                                 }
                                 Text(
                                     text = cartState.value.quantity.toString(),
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                                 IconButton(onClick = {
                                     addToCartViewModel.onEvent(AddToCartEvent.QuantityChanged(cartState.value.quantity.inc()))

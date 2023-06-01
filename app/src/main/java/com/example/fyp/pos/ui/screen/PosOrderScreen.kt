@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -141,7 +143,6 @@ fun PosOrderScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PosOrderScreenContent(
     categoryList: List<FoodCategory>,
@@ -182,12 +183,11 @@ fun PosOrderScreenContent(
 //                .fillMaxHeight(0.95f)
 //                .align(Alignment.BottomCenter)
             ,
+            shape = RoundedCornerShape(7),
 
         ) {
             Column(
-                Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp)
+                Modifier.padding(16.dp)
             ) {
                 val categoryText = currentCategory?.name?: "All Foods"
                 Text(
@@ -200,7 +200,7 @@ fun PosOrderScreenContent(
                 LazyVerticalGrid(columns = GridCells.Adaptive(175.dp)){
                     items(foodList) { food ->
                         var quantity by rememberSaveable {
-                            mutableStateOf(0)
+                            mutableIntStateOf(0)
                         }
                         ProductItem(
                             food = food,
@@ -276,6 +276,14 @@ fun ProductItem(
 //                    .width(150.dp)
 //                    .clip(RoundedCornerShape(10.dp))
 //            )
+            Text(
+                text = food.name,
+                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.headlineSmall,
+                maxLines = 1,
+                modifier = Modifier
+                    .basicMarquee()
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -284,26 +292,20 @@ fun ProductItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = food.name,
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.headlineSmall,
-                    maxLines = 1,
-                    modifier = Modifier.fillMaxWidth(0.6f).basicMarquee()
+                    text = food.productId,
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .padding(horizontal = 8.dp),
+                    textAlign = TextAlign.Start
                 )
                 Text(
                     text = food.price.toString(),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth(0.6f).basicMarquee()
+                    modifier = Modifier
+                        .basicMarquee()
                 )
             }
-            Text(
-                text = food.productId,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                textAlign = TextAlign.Start
-            )
             Row(
                 modifier = Modifier.padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
@@ -50,7 +51,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.compose.FypTheme
+import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.account_management.util.Response
@@ -128,10 +135,35 @@ fun ManageOrderScreen(
                     if (uiState.value.success) {
                         val orderList = orders.value
                         if (orderList.isEmpty()) {
-                            Text(
-                                text = if (incomingType) "No incoming Order at the moment" else "No ongoing order at the moment",
-                                modifier = Modifier.align(Alignment.Center)
+
+                            val composition by rememberLottieComposition(
+                                spec = LottieCompositionSpec.RawRes(
+                                    if (incomingType) R.raw.no_incoming_order
+                                    else R.raw.no_ongoing_order
+                                )
                             )
+                            val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
+
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                LottieAnimation(
+                                    composition = composition,
+                                    progress = { animProgress },
+                                    modifier = Modifier
+                                        .size(400.dp)
+                                )
+                                Text(
+                                    text = if (incomingType) "No incoming Order at the moment" else "No ongoing order at the moment",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp)
+                                )
+                            }
                         } else {
                             LazyColumn(
                                 modifier = Modifier

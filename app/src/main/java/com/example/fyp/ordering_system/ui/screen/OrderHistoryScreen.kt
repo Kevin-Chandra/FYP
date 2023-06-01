@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -27,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,13 +38,20 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.compose.FypTheme
+import com.example.fyp.R
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderStatus
@@ -137,14 +146,36 @@ fun OrderHistoryScreen(
                 }
                 if (statusState.value.success){
                     if (pastOrders.value.isEmpty()){
-                        Text(
-                            text = "No order history in this account...",
-                            modifier = Modifier.align(Alignment.Center)
+                        val composition by rememberLottieComposition(
+                            spec = LottieCompositionSpec.RawRes(R.raw.no_order_history)
                         )
-                    }
-                    LazyColumn {
-                        items(pastOrders.value.sortedByDescending { it1 -> it1.orderFinishTime }){ item ->
-                            PastOrderRow(order = item)
+                        val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
+
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            LottieAnimation(
+                                composition = composition,
+                                progress = { animProgress },
+                                modifier = Modifier
+                                    .size(400.dp)
+                            )
+                            Text(
+                                text = "No order history in this account...",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.headlineMedium,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp)
+                            )
+                        }
+                    } else {
+                        LazyColumn {
+                            items(pastOrders.value.sortedByDescending { it1 -> it1.orderFinishTime }){ item ->
+                                PastOrderRow(order = item)
+                            }
                         }
                     }
                 }

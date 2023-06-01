@@ -54,7 +54,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +67,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -414,8 +417,11 @@ fun TableDialog(
                     if (table.tableStatus != Available && table.tableStatus != Unavailable){
                         Text(
                             text = "Pax : ${table.pax}",
-                            modifier = Modifier.align(Alignment.Start)
+                            modifier = Modifier.align(Alignment.Start),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
                         )
+                        Divider(Modifier.padding(vertical = 8.dp))
                     }
 
                     if (table.tableStatus in ( listOf(
@@ -424,27 +430,54 @@ fun TableDialog(
                     ))){
                         val currentOrder = getOngoingOrder()
                         currentOrder?.let {
-                            Text(text = "Current Order")
+                            var totalItem by remember { mutableIntStateOf(0)}
+                            Text(
+                                text = "Current Order",
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.align(Alignment.Start),style = MaterialTheme.typography.titleMedium,
+                            )
                             Text(
                                 text = currentOrder.orderId,
-                                modifier = Modifier.basicMarquee(),
+                                modifier = Modifier
+                                    .basicMarquee()
+                                    .align(Alignment.Start),
                                 maxLines = 1
                             )
                             Divider(Modifier.padding(vertical = 4.dp))
                             LazyColumn(Modifier.heightIn(min = 0.dp, max = 250.dp)){
                                 items(currentOrder.orderList){
                                     val orderItem = getOrderItem(it) ?: return@items
+                                    LaunchedEffect(key1 = true){
+                                        totalItem += orderItem.quantity
+                                    }
                                     Row(
                                         Modifier.fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ){
-                                        Text(text = getFood(orderItem.foodId)?.name ?: "")
+                                        Text(text = getFood(orderItem.foodId)?.name ?: "", modifier = Modifier.fillMaxWidth(0.5f))
+                                        Text(text = "${orderItem.quantity}x")
                                         AssistChip(onClick = {}, label = {
                                             Text(text = orderItem.orderItemStatus.name)
                                         })
                                     }
                                 }
+                            }
+                            Divider(Modifier.padding(vertical = 8.dp))
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ){
+                                Text(
+                                    text = "Total item",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = totalItem.toString(),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                             }
                             Divider(Modifier.padding(vertical = 8.dp))
                         }

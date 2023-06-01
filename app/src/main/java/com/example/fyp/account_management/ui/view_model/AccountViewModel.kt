@@ -9,6 +9,7 @@ import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
-    private val getAccountUseCase: GetAccountUseCase
+    private val getAccountUseCase: GetAccountUseCase,
+    private val getAccountByReturnUseCase: GetAccountByReturnUseCase,
 ) : ViewModel() {
 
     suspend fun getAccount( id:String , result: (Response<Account?>) -> Unit) {
@@ -28,4 +30,5 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    suspend fun getAccount(id :String) = getAccountByReturnUseCase(id)
 }
