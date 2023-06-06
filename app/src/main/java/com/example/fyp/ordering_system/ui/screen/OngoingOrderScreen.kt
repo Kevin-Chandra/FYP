@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
@@ -172,7 +173,7 @@ fun OngoingOrderScreen(
                                 mutableStateOf(false)
                             }
                             
-                            val height by animateDpAsState(targetValue = if (expandOrderItem) 140.dp else 50.dp )
+//                            val height by animateDpAsState(targetValue = if (expandOrderItem) 140.dp else 50.dp )
 
                             Card(
                                 modifier = Modifier
@@ -204,7 +205,7 @@ fun OngoingOrderScreen(
                                         }
                                     }
                                     if (expandOrderItem) {
-                                        LazyColumn( modifier = Modifier.height(height) ) {
+                                        LazyColumn( modifier = Modifier.heightIn(max = 150.dp) ) {
                                             item {
                                                 Divider()
                                             }

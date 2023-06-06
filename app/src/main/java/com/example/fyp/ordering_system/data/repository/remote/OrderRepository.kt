@@ -250,8 +250,10 @@ class OrderRepository @Inject constructor(
         }
     }
 
-    suspend fun getOrderListByStatus(statusList: List<OrderStatus>, byLastHours: Long = 24) = callbackFlow<Response<List<Order>>> {
-        val startTime = Date.from(LocalDateTime.now().minusHours(byLastHours).atZone(ZoneId.systemDefault()).toInstant())
+    suspend fun getOrderListByStatus(statusList: List<OrderStatus>, byLastHours: Long = 0) = callbackFlow<Response<List<Order>>> {
+        val startTime =
+            if (byLastHours <= 0) Date(0L)
+            else Date.from(LocalDateTime.now().minusHours(byLastHours).atZone(ZoneId.systemDefault()).toInstant())
         val snapshotListener = orderCollectionRef
             .whereGreaterThanOrEqualTo(FireStoreDocumentField.ORDER_START_TIME,startTime)
             .whereIn(FireStoreDocumentField.ORDER_STATUS,statusList)

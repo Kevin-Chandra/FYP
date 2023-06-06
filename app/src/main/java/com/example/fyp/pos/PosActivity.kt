@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.IncomingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.pos.ui.navigation.PosNavGraph
@@ -37,6 +38,7 @@ class PosActivity : ComponentActivity() {
             val manageOrderViewModel = hiltViewModel<ManageOrderViewModel>()
             val manageTableViewModel = hiltViewModel<ManageTableViewModel>()
             val tableOngoingOrderViewModel = hiltViewModel<TableOngoingOrderViewModel>()
+            val authViewModel = hiltViewModel<MainAuthViewModel>()
 
             navController = rememberNavController()
 
@@ -52,7 +54,8 @@ class PosActivity : ComponentActivity() {
                         incomingOrderItemViewModel = incomingOrderItemViewModel,
                         manageOrderViewModel = manageOrderViewModel,
                         manageTableViewModel = manageTableViewModel,
-                        tableOngoingOrderViewModel = tableOngoingOrderViewModel
+                        tableOngoingOrderViewModel = tableOngoingOrderViewModel,
+                        authViewModel = authViewModel
                     )
                 }
             }

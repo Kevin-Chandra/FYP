@@ -90,11 +90,6 @@ import com.example.fyp.pos.ui.theme.FYPTheme
 import com.example.fyp.pos.ui.viewmodel.ManageTableViewModel
 import com.example.fyp.pos.ui.viewmodel.TableOngoingOrderViewModel
 import com.example.fyp.pos.util.ManageTableEvent
-import org.burnoutcrew.reorderable.NoDragCancelledAnimation
-import org.burnoutcrew.reorderable.ReorderableItem
-import org.burnoutcrew.reorderable.detectReorderAfterLongPress
-import org.burnoutcrew.reorderable.rememberReorderableLazyGridState
-import org.burnoutcrew.reorderable.reorderable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

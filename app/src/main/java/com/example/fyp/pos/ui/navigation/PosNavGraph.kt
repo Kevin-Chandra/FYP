@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.pos.ui.screen.CheckoutScreen
 import com.example.fyp.pos.ui.screen.FinishedOrderDetailedScreen
@@ -40,7 +41,8 @@ fun PosNavGraph(
     incomingOrderItemViewModel: IncomingOrderItemViewModel,
     manageOrderViewModel: ManageOrderViewModel,
     manageTableViewModel: ManageTableViewModel,
-    tableOngoingOrderViewModel: TableOngoingOrderViewModel
+    tableOngoingOrderViewModel: TableOngoingOrderViewModel,
+    authViewModel: MainAuthViewModel
 ) {
     NavHost(
         navController = navController,
@@ -50,7 +52,7 @@ fun PosNavGraph(
         composable(
             route = PosScreen.MainPosScreen.route
         ){
-            MainPosScreen(navigator = navController)
+            MainPosScreen(navigator = navController,authViewModel = authViewModel)
         }
         composable(
             route = PosScreen.KitchenManageOrderItemScreen.route

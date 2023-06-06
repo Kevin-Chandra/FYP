@@ -519,6 +519,7 @@ fun OrderByView(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OrderByView(
     name: String,
@@ -535,7 +536,7 @@ fun OrderByView(
         Text(
             text = email,
             textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).basicMarquee()
         )
     }
 }

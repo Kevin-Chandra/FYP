@@ -59,7 +59,6 @@ class PastOrderViewModel @Inject constructor(
             flow.onEach { res ->
                 if (res is Response.Success){
                     compactOrderItem(res.data){ after ->
-                        println(after)
                         _orderItemListResponse.update { Response.Success(after) }
                     }
                 } else {

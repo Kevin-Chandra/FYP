@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -48,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -159,6 +161,14 @@ fun ReviewOrderScreen(
                                 style = MaterialTheme.typography.titleSmall
                             )
                         } else {
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Text(text = "Name", modifier = Modifier.weight(1.5f))
+                                Text(text = "Qty", modifier = Modifier.weight(1f))
+                                Text(text = "Price", modifier = Modifier.weight(1f))
+                                Text(text = "Total", modifier = Modifier.weight(1f))
+                                Spacer(modifier = Modifier.weight(0.5f))
+                            }
+                            Divider(modifier = Modifier.padding(vertical = 8.dp))
                             Column(
                                 Modifier.fillMaxWidth()
                             ){

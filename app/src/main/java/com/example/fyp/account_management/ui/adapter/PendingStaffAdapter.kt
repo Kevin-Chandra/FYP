@@ -47,7 +47,7 @@ class PendingStaffAdapter(
                 .centerCrop()
             if (account.profileUri != null){
                 Glide.with(binding.imageView)
-                    .load(account.profileUri!!.toUri())
+                    .load(account.profileUri.toUri())
                     .apply(myOptions)
                     .into(binding.imageView)
             }

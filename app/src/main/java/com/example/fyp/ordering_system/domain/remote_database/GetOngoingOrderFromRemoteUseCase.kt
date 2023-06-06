@@ -15,6 +15,6 @@ class GetOngoingOrderFromRemoteUseCase @Inject constructor(
             OrderStatus.Ongoing,
             OrderStatus.Sent,
             OrderStatus.Confirmed
-        )))
+        ),24))
     }
 }

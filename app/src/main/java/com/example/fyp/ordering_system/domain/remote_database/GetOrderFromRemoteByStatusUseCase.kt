@@ -11,6 +11,6 @@ class GetOrderFromRemoteByStatusUseCase @Inject constructor(
     private val orderRepository: OrderRepository,
     ) {
     suspend operator fun invoke(orderStatus: OrderStatus, result: (Flow<Response<List<Order>>>) -> Unit) {
-        result.invoke(orderRepository.getOrderListByStatus(listOf(orderStatus)))
+        result.invoke(orderRepository.getOrderListByStatus(listOf(orderStatus),24))
     }
 }

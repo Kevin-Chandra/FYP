@@ -34,6 +34,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -46,11 +48,17 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.compose.FypTheme
 import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.Food
@@ -81,7 +89,7 @@ fun ViewProductListScreen(
 
     val bottomBarHeight = 80.dp
     val bottomBarHeightPx = with(LocalDensity.current) { bottomBarHeight.roundToPx().toFloat() }
-    val bottomBarOffsetHeightPx = remember { mutableStateOf(0f) }
+    val bottomBarOffsetHeightPx = remember { mutableFloatStateOf(0f) }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -135,18 +143,45 @@ fun ViewProductListScreen(
                         .padding(it)
                 ) {
                     if (filteredFoodList.value is UiState.Success) {
-                        LazyColumn(
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding()
-                        ) {
-                            items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
-                                ProductCard(item) { it1 ->
-                                    navigator.navigate(Screen.AddToCartScreen.withArgs(it1, "null","1"))
+                        if ((filteredFoodList.value as UiState.Success<List<Food>>).data.isEmpty()){
+                            val composition by rememberLottieComposition(
+                                spec = LottieCompositionSpec.RawRes(R.raw.empty_food)
+                            )
+                            val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
+
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                LottieAnimation(
+                                    composition = composition,
+                                    progress = { animProgress },
+                                    modifier = Modifier
+                                        .size(400.dp)
+                                )
+                                Text(
+                                    text = "No food in this category...",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp)
+                                )
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .padding()
+                            ) {
+                                items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
+                                    ProductCard(item) { it1 ->
+                                        navigator.navigate(Screen.AddToCartScreen.withArgs(it1, "null","1"))
+                                    }
                                 }
                             }
                         }
-
                     }
                     Button(
                         onClick = { navigator.navigate(Screen.ReviewOrderScreen.route) },
