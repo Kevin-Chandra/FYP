@@ -247,10 +247,10 @@ fun AddToCartScreen (
                             )
 
                             Row(
-                                modifier = Modifier.padding(8.dp).border(
+                                modifier = Modifier.padding(16.dp).border(
                                     border = BorderStroke(
                                         width = 2.dp,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = MaterialTheme.colorScheme.onSurface
                                     ),
                                     shape = RoundedCornerShape(50)),
                                 verticalAlignment = Alignment.CenterVertically,

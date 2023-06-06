@@ -12,10 +12,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.example.fyp.ordering_system.ui.navigation.Screen
-import com.example.fyp.ordering_system.ui.screen.AddToCartScreen
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.pos.ui.screen.CheckoutScreen
+import com.example.fyp.pos.ui.screen.FinishedOrderDetailedScreen
+import com.example.fyp.pos.ui.screen.FinishedOrderScreen
+import com.example.fyp.pos.ui.screen.InvoiceScreen
 import com.example.fyp.pos.ui.screen.MainPosScreen
 import com.example.fyp.pos.ui.screen.KitchenManageOrderScreen
 import com.example.fyp.pos.ui.screen.ManageOrderScreen
@@ -24,9 +25,11 @@ import com.example.fyp.pos.ui.screen.PosAddToCartScreen
 import com.example.fyp.pos.ui.screen.PosOrderScreen
 import com.example.fyp.pos.ui.screen.PosOrderSummary
 import com.example.fyp.pos.ui.screen.TableSettingScreen
+import com.example.fyp.pos.ui.viewmodel.CheckoutViewModel
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.ui.viewmodel.ManageOrderViewModel
 import com.example.fyp.pos.ui.viewmodel.ManageTableViewModel
+import com.example.fyp.pos.ui.viewmodel.PastOrderViewModel
 import com.example.fyp.pos.ui.viewmodel.TableOngoingOrderViewModel
 import com.example.fyp.pos.ui.viewmodel.TableOrderCartViewModel
 
@@ -78,17 +81,38 @@ fun PosNavGraph(
         ){
             TableSettingScreen(navController,manageTableViewModel)
         }
+
         composable(
-            route = PosScreen.PosCheckoutScreen.route + "/{orderId}/{tableId}",
+            route = PosScreen.PosInvoiceScreen.route +  "/{orderId}",
             arguments = listOf(
-                navArgument("orderId"){
+                navArgument("orderId") {
                     type = NavType.StringType
                     nullable = false
                 },
-                navArgument("tableId"){
+            )
+        ){
+            val orderId = it.arguments?.getString("orderId") ?: ""
+            InvoiceScreen(
+                navigator = navController,
+                orderId = orderId,
+                productViewModel = productViewModel,
+                tableOngoingOrderViewModel =  tableOngoingOrderViewModel
+            )
+        }
+
+        composable(
+            route = PosScreen.PosCheckoutScreen.route + "/{orderId}/{tableId}",
+            arguments = listOf(
+                navArgument("orderId") {
                     type = NavType.StringType
-                    nullable = false
-                }
+                    defaultValue = ""
+                    nullable = true
+                },
+                navArgument("tableId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                    nullable = true
+                },
             )
         ){
             val orderId = it.arguments?.getString("orderId")
@@ -101,6 +125,32 @@ fun PosNavGraph(
                 orderId = orderId ?: "",
                 tableId = tableId ?: "",
             )
+        }
+
+        // order history nav graph
+        navigation(
+            startDestination = PosScreen.OrderHistoryScreen.route,
+            route = PosScreen.OrderHistoryRootGraph.route,
+        ){
+            composable(
+                route = PosScreen.OrderHistoryScreen.route
+            ){
+                val orderHistoryViewModel = it.sharedViewModel<PastOrderViewModel>(navController)
+                FinishedOrderScreen(navigator = navController, pastOrderViewModel = orderHistoryViewModel)
+            }
+
+            composable(
+                route = PosScreen.OrderHistoryDetailedScreen.route + "/{orderId}"
+            ){
+                val orderHistoryViewModel = it.sharedViewModel<PastOrderViewModel>(navController)
+                val orderId = it.arguments?.getString("orderId")
+                FinishedOrderDetailedScreen(
+                    navigator = navController,
+                    pastOrderViewModel = orderHistoryViewModel,
+                    productViewModel = productViewModel,
+                    orderId = orderId
+                )
+            }
         }
 
         //Add/view order nested nav graph
@@ -121,7 +171,6 @@ fun PosNavGraph(
                 val viewModel = entry.sharedViewModel<TableOrderCartViewModel>(navController)
                 val parentEntry = remember(entry) { navController.getBackStackEntry(PosScreen.PosTableOrderGraph.route + "?tableId={tableId}") }
                 val tableId = parentEntry.arguments?.getString("tableId") ?: ""
-                println("before init")
                 viewModel.initTable(manageTableViewModel.getTable(tableId)!!)
                 PosOrderScreen(
                     navController = navController,

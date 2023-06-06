@@ -10,6 +10,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.example.fyp.account_management.AccountActivity
 import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.data.model.AccountType
+import com.example.fyp.account_management.data.model.AccountType.*
+import com.example.fyp.account_management.data.model.StaffPosition
+import com.example.fyp.account_management.data.model.StaffPosition.*
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentMainBinding
@@ -80,7 +84,28 @@ class MainFragment : Fragment() {
             binding.shimmerHello.visibility = View.GONE
             binding.helloTv.visibility = View.VISIBLE
             binding.helloTv.text = "Hello, ${account.first_name}"
-            binding.onlineOrderingBtn.isEnabled = true
+
+            when(it.accountType){
+                Customer -> {
+                    binding.posBtn.visibility = View.GONE
+                    binding.onlineOrderingBtn.visibility = View.VISIBLE
+                    binding.onlineOrderingBtn.isEnabled = true
+                }
+                Admin,Manager -> {
+                    binding.posBtn.visibility = View.VISIBLE
+                    binding.onlineOrderingBtn.visibility = View.VISIBLE
+                    binding.onlineOrderingBtn.isEnabled = true
+                }
+                Staff -> {
+                    if (it.staffPosition != Disabled && it.staffPosition != Pending && it.staffPosition != null){
+                        binding.posBtn.visibility = View.VISIBLE
+                        binding.onlineOrderingBtn.visibility = View.GONE
+                    } else {
+                        binding.infoTv.text = "Your staff account is currently ${it.staffPosition}. Please contact admin for more details"
+                        binding.infoTv.visibility = View.VISIBLE
+                    }
+                }
+            }
         }
     }
 

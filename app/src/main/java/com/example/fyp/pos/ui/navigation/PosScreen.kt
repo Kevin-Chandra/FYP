@@ -8,12 +8,16 @@ sealed class PosScreen(val route: String) {
     object ManageTableScreen: PosScreen(route = "manage_table_screen")
     object TableSettingScreen: PosScreen(route = "table_setting_screen")
     object PosOrderScreen: PosScreen(route = "pos_order_screen")
+    object OrderHistoryRootGraph: PosScreen(route = "order_history_root")
+    object OrderHistoryScreen: PosScreen(route = "order_history_screen")
+    object OrderHistoryDetailedScreen: PosScreen(route = "order_history_detailed_screen")
     object PosCheckoutScreen: PosScreen(route = "pos_checkout_screen")
+    object PosInvoiceScreen: PosScreen(route = "pos_invoice_screen")
     object PosRootGraph: PosScreen(route = "pos_root_graph")
     object PosTableOrderGraph: PosScreen(route = "pos_table_order_screen"){
-        fun passId(id:String):String{
-            return "pos_table_order_screen?tableId=$id"
-        }
+//        fun passId(id:String):String{
+//            return "pos_table_order_screen?tableId=$id"
+//        }
     }
 
     object PosOrderSummaryScreen : PosScreen(route = "pos_order_summary_screen")
@@ -28,10 +32,12 @@ sealed class PosScreen(val route: String) {
         }
     }
 
-    fun withOptionalArg(argName: String,arg:String): String{
+    fun withOptionalArg(vararg args: Pair<String,String>): String{
         return buildString {
             append(route)
-            append("?$argName=$arg")
+            args.forEach { pair->
+                append("?${pair.first}=${pair.second}")
+            }
         }
     }
 }

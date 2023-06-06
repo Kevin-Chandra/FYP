@@ -81,23 +81,4 @@ class TableOngoingOrderViewModel @Inject constructor(
 
     fun getOrderItem(id: String) = orderItemMap[id]
 
-//    fun getOngoingOrderItemList(orderId: String) = viewModelScope.launch{
-//        _orderingStatusState.update { OngoingOrderScreenState(loading = true) }
-//        getOngoingOrderByAccountUseCase(accountId){
-//            it.onEach{ res ->
-//                when(res){
-//                    is Response.Error -> {
-//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(errorMessage = res.exception.message) }
-//                    }
-//                    Response.Loading -> {
-//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(loading = true) }
-//                    }
-//                    is Response.Success -> {
-//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(success = true) }
-//                        _ongoingOrderList.update { res.data }
-//                    }
-//                }
-//            }.launchIn(viewModelScope)
-//        }
-//    }
     }

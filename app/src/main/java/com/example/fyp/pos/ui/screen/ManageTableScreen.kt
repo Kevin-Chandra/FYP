@@ -186,7 +186,7 @@ fun ManageTableScreen(
                     TableDialog(
                         table = clickedTable.value,
                         onAddOrderClick = {
-                            navigator.navigate(PosScreen.PosTableOrderGraph.passId(clickedTable.value!!.id))
+                            navigator.navigate(PosScreen.PosTableOrderGraph.withOptionalArg("tableId" to clickedTable.value!!.id))
                         },
                         onClose = {
                             clickedTable.value = null

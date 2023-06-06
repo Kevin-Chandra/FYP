@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -22,10 +24,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -280,7 +284,12 @@ fun OrderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = formatDate(order.orderStartTime))
+                Text(
+                    text = formatDate(order.orderStartTime),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleLarge
+                )
                 IconButton(
                     onClick = {
                         expanded = !expanded
@@ -331,15 +340,18 @@ fun OrderCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Button(
-                        onClick = { onCLickRejectOrder(order.orderId,order.orderList) }
+                    OutlinedButton(
+                        onClick = { onCLickRejectOrder(order.orderId,order.orderList) },
+                        modifier = Modifier.fillMaxWidth(0.5f)
                     ) {
                         Text(text = "Reject")
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
                     Button(
-                        onClick = { onCLickAcceptOrder(order.orderId,order.orderList) }
+                        onClick = { onCLickAcceptOrder(order.orderId,order.orderList) },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = "Accept")
                     }
@@ -412,60 +424,67 @@ fun ViewOrderDetails(
     getModifier: (String) -> com.example.fyp.menucreator.data.model.Modifier?
 ) {
     Column(Modifier.padding(8.dp)) {
-        Divider()
-        Row(
-           modifier = Modifier
-               .fillMaxWidth()
-               .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Name",
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Text(
-                text = "Quantity",
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        }
-        Divider()
-        orderList.forEachIndexed{ i,orderItem ->
+        Text(
+            text = "Order Items",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Divider(modifier = Modifier.padding(vertical = 6.dp))
+        orderList.forEachIndexed{ i, orderItem ->
            val food = getFood(orderItem.foodId)
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${i+1}. ${food?.name ?: ""}",
-                    style = MaterialTheme.typography.headlineSmall
+                    text = "${orderItem.quantity}x",
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
-                Text(
-                    text = orderItem.quantity.toString(),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            }
-            if (food?.modifiable == true) {
                 Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 28.dp, vertical = 4.dp)
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    orderItem.modifierItems!!.forEach { i ->
-                        val modifier = getModifier(i.key)
-                        modifier?.name?.let {
-                            Text(text = it, fontWeight = FontWeight.Bold)
-                        }
-                        i.value.forEach { it1 ->
-                            val modifierItem = getModifierItem(it1)
-                            Text(
-                                text = modifierItem?.name ?: "",
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            )
+                    Text(
+                        text = food?.name ?: "",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    if (food?.modifiable == true && !orderItem.modifierItems.isNullOrEmpty()) {
+                        Column(
+                            Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        ) {
+                            orderItem.modifierItems.forEach { i ->
+                                val modifier = getModifier(i.key)
+                                modifier?.name?.let {
+                                    Text(text = it, fontWeight = FontWeight.SemiBold)
+                                }
+                                i.value.forEach { it1 ->
+                                    val modifierItem = getModifierItem(it1)
+                                    Text(
+                                        text = modifierItem?.name ?: "",
+                                        modifier = Modifier.padding(horizontal = 8.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(text = orderItem.orderItemStatus.name)
+                    },
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+            if (i != orderList.size-1){
+                Divider(Modifier.padding(horizontal =  8.dp))
             }
         }
     }
@@ -531,12 +550,12 @@ fun OrderByViewPreview() {
 @Composable
 fun ViewOrderPreview() {
     ViewOrderDetails(
-        orderList =  listOf(OrderItem()),
-         { it ->
-            Food(name = "ABC")
+        orderList =  listOf(OrderItem(modifierItems = mapOf("ds" to listOf("ifd","sjc"),"jd" to listOf("sjd","sdkj"))),OrderItem(), OrderItem()),
+         {
+             Food(name = "ABC", modifiable = true)
         },{ it ->
             ModifierItem(name = "Meow")
-        },{com.example.fyp.menucreator.data.model.Modifier()})
+        },{com.example.fyp.menucreator.data.model.Modifier(name = "jhsdbcsj")})
 }
 
 

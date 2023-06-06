@@ -9,6 +9,7 @@ import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.pos.data.model.Table
+import com.example.fyp.pos.domain.CompactOrderItem
 import com.example.fyp.pos.domain.table.AddOrderItemToTableUseCase
 import com.example.fyp.pos.domain.table.InitializeTableNewOrderUseCase
 import com.example.fyp.pos.domain.table_ordering.DeleteItemFromPosCartUseCase
@@ -19,6 +20,8 @@ import com.example.fyp.pos.domain.table_ordering.ResetDatabaseUseCase
 import com.example.fyp.pos.util.ManageOrderUiState
 import com.example.fyp.pos.util.TableOrderEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -34,6 +37,7 @@ class TableOrderCartViewModel @Inject constructor(
     private val posUpdateOrderItemUseCase: PosUpdateOrderItemUseCase,
     private val deleteItemFromPosCartUseCase: DeleteItemFromPosCartUseCase,
     private val resetDatabaseUseCase: ResetDatabaseUseCase,
+    private val compactOrderItem: CompactOrderItem,
     posGetCartUseCase: PosGetCartUseCase,
     private val initializeTableNewOrderUseCase: InitializeTableNewOrderUseCase,
     private val addOrderItemToTableUseCase: AddOrderItemToTableUseCase,
@@ -53,8 +57,9 @@ class TableOrderCartViewModel @Inject constructor(
         }
         posGetCartUseCase().onEach{
             cart.value = it
-            println(cart.value.size)
-            println(cart)
+//            compactOrderItem(it){ compacted ->
+//                cart.value = compacted
+//            }
         }.launchIn(viewModelScope)
     }
 
@@ -68,11 +73,7 @@ class TableOrderCartViewModel @Inject constructor(
     }
 
     fun onEvent(event: TableOrderEvent){
-        println(event)
         when(event){
-            is TableOrderEvent.OnAddOrderItem -> {
-//                cart.add(event.orderItem)
-            }
             is TableOrderEvent.OnDeleteOrderItem -> {
                 deleteItem(event.id)
             }
@@ -82,7 +83,6 @@ class TableOrderCartViewModel @Inject constructor(
             is TableOrderEvent.OnAddFood -> {
                 upsertToCart(event.food, event.quantity)
             }
-
             is TableOrderEvent.OnDecrementQuantity -> {
                 updateQuantity(event.orderItem,event.quantity)
             }
@@ -108,11 +108,16 @@ class TableOrderCartViewModel @Inject constructor(
 
     private fun submitOrder() = viewModelScope.launch(){
         _posOrderUiState.value = Response.Loading
-        if (table.currentOrder.isNullOrEmpty()){
-            table = table.copy(currentOrder = orderId)
-            initializeTableNewOrderUseCase(order = Order(orderId = orderId), table = table){}
+        val job = async {
+            if (table.currentOrder.isNullOrEmpty()) {
+                table = table.copy(currentOrder = orderId)
+                initializeTableNewOrderUseCase(order = Order(orderId = orderId), table = table) {
+                }
+            }
         }
+        job.await()
         addOrderItemToTableUseCase(itemList = cart.value,table){ res ->
+            println(res)
             _posOrderUiState.update { res }
             if (res is Response.Success){
                 viewModelScope.launch {

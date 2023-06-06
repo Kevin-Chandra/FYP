@@ -7,24 +7,32 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Panorama
+import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.ArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -56,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.ui.navigateUp
 import com.example.compose.FypTheme
 import com.example.fyp.R
 import com.example.fyp.account_management.util.Response
@@ -108,6 +117,7 @@ fun CheckoutScreen(
     val coroutineScope = rememberCoroutineScope()
 
     fun popUp() =  navigator.popBackStack()
+    fun navigateInvoiceScreen() =  navigator.navigate(PosScreen.PosInvoiceScreen.withRequiredArgs(orderId))
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -139,28 +149,53 @@ fun CheckoutScreen(
         Surface() {
             Scaffold(
                 topBar = {
-                         TopAppBar(scrollBehavior = scrollBehavior, title = {
-                             Text(text = "Checkout")
-                         })
+                         TopAppBar(
+                             scrollBehavior = scrollBehavior,
+                             title = {
+                                 Text(text = "Checkout • Table ${table.value?.tableNumber}")
+                             },
+                             navigationIcon = {
+                                 IconButton(onClick = { popUp() }) {
+                                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                                 }
+                             }
+                         )
                 },
                 bottomBar = {
-                    Button(
-                        onClick = {
-                            table.value?.let {
-                                order.value?.let { it1 ->
-                                    checkoutViewModel.checkoutTable(
-                                        it,
-                                        it1
-                                    )
-                                }
+                    if (finished){
+                        OutlinedIconButton(
+                            onClick = { navigateInvoiceScreen() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp, horizontal = 8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "View invoice",
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(imageVector = Icons.Rounded.ArrowForward, contentDescription = null)
                             }
-                        },
-                        enabled = order.value != null && !finished,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp, horizontal = 8.dp)
-                    ) {
-                        Text(text = "Checkout")
+                        }
+                    } else {
+                        Button(
+                            onClick = {
+                                table.value?.let {
+                                    order.value?.let { it1 ->
+                                        checkoutViewModel.checkoutTable(
+                                            it,
+                                            it1
+                                        )
+                                    }
+                                }
+                            },
+                            enabled = order.value != null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp, horizontal = 8.dp)
+                        ) {
+                            Text(text = "Checkout")
+                        }
                     }
                 },
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
@@ -203,7 +238,7 @@ fun CheckoutScreen(
                                 .align(Alignment.BottomCenter)
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)){ finished ->
-                            if (finished) popUp()
+                            if (finished) navigateInvoiceScreen()
                         }
                     }
                     if (state.value is Response.Loading){
@@ -378,10 +413,20 @@ fun OrderItemRowCheckoutPreview() {
         getModifier = { com.example.fyp.menucreator.data.model.Modifier(name = "Sauce") },
         getModifierItem = { ModifierItem(name = "Less") },
     )
+
 }
 
 @Preview(device = "spec:width=411dp,height=891dp", showBackground = true)
 @Composable
 fun OrderSummaryPreview() {
     OrderSummary(order = Order(subTotal = 10.0, taxPercentage = 0.06))
+    OutlinedIconButton(onClick = { }, modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "View invoice",
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(imageVector = Icons.Rounded.ArrowForward, contentDescription = null)
+        }
+    }
 }

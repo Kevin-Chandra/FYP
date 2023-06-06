@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Panorama
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -100,6 +101,8 @@ fun PosOrderSummary(
 
     fun popUp() =  navigator.popBackStack(PosScreen.ManageTableScreen.route,false)
 
+    fun navigateBack() = if (finished) popUp() else navigator.navigateUp()
+
     LaunchedEffect(key1 = response.value){
         println(response.value)
         when(response.value){
@@ -128,7 +131,7 @@ fun PosOrderSummary(
     BackHandler {
         tableOrderViewModel.resetState()
         if (!loading){
-            navigator.popBackStack()
+            navigateBack()
         }
     }
 
@@ -137,9 +140,20 @@ fun PosOrderSummary(
         Surface() {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = {
-                        Text(text = "Order Summary")
-                    })
+                    TopAppBar(
+                        title = {
+                            Text(text = "Order Summary Table ${tableOrderViewModel.table.tableNumber}")
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                navigateBack()
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.ArrowBack, contentDescription = "Back"
+                                )
+                            }
+                        }
+                    )
                 },
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 bottomBar = {
@@ -237,7 +251,7 @@ fun OrderItemRow(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(175.dp)
+            .height(150.dp)
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Row(
@@ -245,15 +259,13 @@ fun OrderItemRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-//
-//                placeholder
             Row(
                 Modifier.fillMaxWidth(0.8f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CoilImage(
                     modifier = Modifier
-                        .size(120.dp)
+                        .size(100.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .padding(8.dp),
                     imageModel = { food.imageUri ?: R.mipmap.ic_launcher },

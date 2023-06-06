@@ -33,6 +33,9 @@ fun MainPosScreen(
                 Button(onClick = { navigator.navigate(PosScreen.ManageOrderScreen.route) }) {
                     Text(text = "Manage Order")
                 }
+                Button(onClick = { navigator.navigate(PosScreen.OrderHistoryRootGraph.route) }) {
+                    Text(text = "Order History")
+                }
             }
         }
     }
