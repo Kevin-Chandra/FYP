@@ -2,6 +2,7 @@ package com.example.fyp.ordering_system.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.util.UiState
@@ -55,19 +56,19 @@ class IncomingOrderViewModel @Inject constructor(
     fun onEvent(event: ManageOrderEvent){
         when(event){
             is ManageOrderEvent.OnAcceptOrder -> {
-                updateStatus(event.orderId,event.list,OrderStatus.Ongoing,OrderItemStatus.Confirmed)
+                updateStatus(event.account, event.orderId,event.list,OrderStatus.Ongoing,OrderItemStatus.Confirmed)
             }
             is ManageOrderEvent.OnRejectOrder -> {
-                updateStatus(event.orderId,event.list,OrderStatus.Rejected,OrderItemStatus.Cancelled)
+                updateStatus(event.account, event.orderId,event.list,OrderStatus.Rejected,OrderItemStatus.Cancelled)
             }
             is ManageOrderEvent.OnDeleteOrder -> {
-                deleteOrder(event.order)
+                deleteOrder(event.account, event.order)
             }
         }
     }
 
-    private fun deleteOrder(order: Order) = viewModelScope.launch{
-        deleteOrderFromRemoteByOrderUseCase(order){
+    private fun deleteOrder(account: Account, order: Order) = viewModelScope.launch{
+        deleteOrderFromRemoteByOrderUseCase(account,order){
             when(it){
                 is Response.Error -> {
                     _manageOrderUiState.update { it1 -> it1.copy(
@@ -152,12 +153,6 @@ class IncomingOrderViewModel @Inject constructor(
         }
     }
 
-//    fun getIncomingOrderItem() = viewModelScope.launch {
-//        getOrderFromRemoteByStatusUseCase(OrderStatus.Sent) {
-//            _incomingOrder.update { it }
-//        }
-//    }
-
     fun getOrderItemByOrderId(orderId: String, result:(Response<List<OrderItem>>) -> Unit) = viewModelScope.launch {
         result.invoke(Response.Loading)
         getOrderItemFromRemoteByOrderIdUseCase(orderId){ it1 ->
@@ -167,13 +162,15 @@ class IncomingOrderViewModel @Inject constructor(
         }
     }
 
-    private fun updateStatus(orderId: String, list: List<String>, orderStatus: OrderStatus, orderItemStatus: OrderItemStatus) = viewModelScope.launch{
+    private fun updateStatus(account:Account, orderId: String, list: List<String>, orderStatus: OrderStatus, orderItemStatus: OrderItemStatus) = viewModelScope.launch{
         _manageOrderUiState.update { _manageOrderUiState.value.copy (loading = true) }
-        updateOrderStatusUseCase(orderId,orderStatus){
-            if (it is Response.Success){
+        updateOrderStatusUseCase(account,orderId,orderStatus){ res ->
+            if (res is Response.Success){
                 _manageOrderUiState.update {
                     _manageOrderUiState.value.copy (successUpdate = true, loading = false)
                 }
+            } else if (res is Response.Error) {
+                _manageOrderUiState.update { state -> state.copy(errorMessage = res.exception.message, loading = false) }
             }
         }
         list.forEach { str ->

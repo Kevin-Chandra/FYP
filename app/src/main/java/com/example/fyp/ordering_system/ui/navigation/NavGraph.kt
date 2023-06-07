@@ -12,6 +12,7 @@ import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.ordering_system.ui.screen.AddToCartScreen
 import com.example.fyp.ordering_system.ui.screen.OngoingOrderListScreen
 import com.example.fyp.ordering_system.ui.screen.OngoingOrderScreen
+import com.example.fyp.ordering_system.ui.screen.OrderHistoryDetailedScreen
 import com.example.fyp.ordering_system.ui.screen.OrderHistoryScreen
 import com.example.fyp.ordering_system.ui.screen.ReviewOrderScreen
 import com.example.fyp.ordering_system.ui.screen.ViewProductListScreen
@@ -89,6 +90,24 @@ fun SetupOnlineOrderingNavGraph(
             route = Screen.OrderHistoryScreen.route,
         ){
             OrderHistoryScreen(navigator = navController, accountId = account.id, viewModel = ongoingOrderViewModel)
+        }
+        composable(
+            route = Screen.OrderHistoryDetailedScreen.route + "/{id}",
+            arguments = listOf(
+                navArgument("id"){
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ){ entry ->
+            val id = entry.arguments?.getString("id") ?: ""
+            OrderHistoryDetailedScreen(
+                navigator = navController,
+                orderId = id,
+                ongoingOrderViewModel = ongoingOrderViewModel,
+                productViewModel = productViewModel,
+                account = account
+            )
         }
     }
 }

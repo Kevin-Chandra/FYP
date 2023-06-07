@@ -2,6 +2,7 @@ package com.example.fyp.menucreator.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.domain.foodCategory.AddFoodCategoryUseCase
 import com.example.fyp.menucreator.domain.foodCategory.DeleteFoodCategoryUseCase
@@ -47,8 +48,8 @@ class FoodCategoryViewModel @Inject constructor(
         }
     }
 
-    private fun deleteFoodCategory(id: String) = viewModelScope.launch {
-        deleteFoodCategoryUseCase(id){
+    private fun deleteFoodCategory(account: Account, id: String) = viewModelScope.launch {
+        deleteFoodCategoryUseCase(account,id){
             _deleteState.value = it
         }
     }
@@ -59,8 +60,8 @@ class FoodCategoryViewModel @Inject constructor(
 //        }
 //    }
 
-    private fun addCategory(category: FoodCategory) = viewModelScope.launch {
-        addFoodCategoryUseCase(category){
+    private fun addCategory(account: Account,category: FoodCategory) = viewModelScope.launch {
+        addFoodCategoryUseCase(account,category){
             _addState.value = it
         }
     }
@@ -72,12 +73,12 @@ class FoodCategoryViewModel @Inject constructor(
         )
     }
 
-    fun addNewCategory(name: String){
+    fun addNewCategory(account: Account, name: String){
         _addState.value = UiState.Loading
         if (name.isBlank() || name.isEmpty())
             _addState.value = UiState.Failure(Exception("Name is blank!"))
         else
-            addCategory(getCategory(name = name))
+            addCategory(account,getCategory(name = name))
     }
 
 //    fun updateCategory(id : String, name : String){
@@ -85,9 +86,9 @@ class FoodCategoryViewModel @Inject constructor(
 //        updateFoodCategory(getCategory(id = id, name = name))
 //    }
 
-    fun deleteCategory(id: String){
+    fun deleteCategory(account:Account, id: String){
         _deleteState.value = UiState.Loading
-        deleteFoodCategory(id)
+        deleteFoodCategory(account, id)
     }
 
 }

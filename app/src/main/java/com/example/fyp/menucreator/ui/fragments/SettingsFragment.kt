@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +15,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.ProductSettingsViewModel
 import com.example.fyp.R
+import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentFirstBinding
 import com.example.fyp.databinding.FragmentMenuCreatorSettingsBinding
@@ -39,6 +42,10 @@ class SettingsFragment : Fragment() {
 
     private val settingsViewModel by viewModels<ProductSettingsViewModel>()
 
+    private val accountViewModel by activityViewModels<MainAuthViewModel>()
+
+//    private var account: Account? = null
+
     private var cardExpanded = false
 
     override fun onCreateView(
@@ -56,6 +63,7 @@ class SettingsFragment : Fragment() {
         observeDelete()
         observeUpdateValue()
         shrinkView()
+
         observeValue(
             updateTax = {
                 binding.taxValue.setText(String.format("%.2f",it * 100))
@@ -67,10 +75,11 @@ class SettingsFragment : Fragment() {
         settingsViewModel.getSettings()
 
         val categoryAdapter = FoodCategoryAdapter{
-            viewModel.deleteCategory(it.id)
+            accountViewModel.getSession { account ->
+                account?.let { it1 -> viewModel.deleteCategory(it1,it.id) }
+            }
         }
 
-//        binding.recyclerView.adapter = categoryAdapter
         viewLifecycleOwner.lifecycleScope.launch{
             viewModel.categories.collect() {
                 when (it) {
@@ -79,7 +88,6 @@ class SettingsFragment : Fragment() {
                     }
                     is UiState.Failure -> println(it.e)
                     is UiState.Loading ->{
-//                    binding.progressBar.visibility = View.VISIBLE
                     }
                 }
             }
@@ -97,14 +105,28 @@ class SettingsFragment : Fragment() {
         }
 
         binding.newCatEtl.setEndIconOnClickListener {
-            viewModel.addNewCategory(binding.newCatEt.text.toString())
+            accountViewModel.getSession { account ->
+                account?.let { it1 -> viewModel.addNewCategory(it1, binding.newCatEt.text.toString()) }
+            }
         }
-        onFinishEditTextView(binding.scValue, binding.scValueEtl){
-            settingsViewModel.setServiceChargePercentage(it)
+
+        onFinishEditTextView(binding.scValue, binding.scValueEtl){ it1 ->
+            accountViewModel.getSession { acc ->
+                if (acc != null) {
+                    settingsViewModel.setServiceChargePercentage(acc,it1)
+                }
+            }
         }
-        onFinishEditTextView(binding.taxValue, binding.taxValueEtl){
-            settingsViewModel.setTaxPercentage(it)
+
+        onFinishEditTextView(binding.taxValue, binding.taxValueEtl){ it1 ->
+            accountViewModel.getSession { acc ->
+                if (acc != null) {
+                    settingsViewModel.setTaxPercentage(acc,it1)
+                }
+            }
         }
+
+
     }
 
     private fun onEditTextView(tv: EditText, textInputLayout: TextInputLayout, onFinishEdit:(String) -> Unit){

@@ -80,7 +80,7 @@ class AddEditFoodFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAddEditFoodBinding.inflate(inflater, container, false)
         (activity as MenuCreatorActivity).apply{
             supportActionBar?.setDisplayHomeAsUpEnabled(false)
@@ -151,8 +151,13 @@ class AddEditFoodFragment : Fragment() {
     }
 
     private fun handleSaveClicked() {
-        account?:return
-        viewModel.onEvent(AddEditFoodEvent.Save(command == NavigationCommand.EDIT,account!!))
+        authViewModel.getSession {
+            it?.let { it1 ->
+                AddEditFoodEvent.Save(command == NavigationCommand.EDIT,
+                    it1
+                )
+            }?.let { it2 -> viewModel.onEvent(it2) }
+        }
     }
 
     private fun setImage(uri: Uri){

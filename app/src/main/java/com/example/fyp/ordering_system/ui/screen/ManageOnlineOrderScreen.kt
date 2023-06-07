@@ -64,6 +64,7 @@ import com.example.compose.FypTheme
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
+import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ModifierItem
@@ -82,7 +83,8 @@ fun ManageOrderScreen(
     orderType: String,
     incomingOrderViewModel: IncomingOrderViewModel = hiltViewModel(),
     productViewModel: ProductViewModel = hiltViewModel(),
-    accountViewModel: AccountViewModel = hiltViewModel()
+    accountViewModel: AccountViewModel = hiltViewModel(),
+    authViewModel: MainAuthViewModel
 ) {
 
     val incomingType = orderType.equals("Incoming", true)
@@ -98,6 +100,8 @@ fun ManageOrderScreen(
         mutableStateOf(SnackbarHostState())
     }
     val coroutineScope = rememberCoroutineScope()
+
+    val account = authViewModel.accountState
 
     FypTheme() {
         Surface {
@@ -131,7 +135,10 @@ fun ManageOrderScreen(
                             showDialog = null
                         },
                         onDeleteClick = { order ->
-                            incomingOrderViewModel.onEvent(ManageOrderEvent.OnDeleteOrder(order))
+                            account.value?.let { it1 ->
+                                ManageOrderEvent.OnDeleteOrder(
+                                    it1, order)
+                            }?.let { it2 -> incomingOrderViewModel.onEvent(it2) }
                             showDialog = null
                         },
                         modifier = Modifier.align(Alignment.Center)
@@ -183,10 +190,16 @@ fun ManageOrderScreen(
                                     OrderCard(
                                         order = orderList[i],
                                         onCLickAcceptOrder = { id,list ->
-                                            incomingOrderViewModel.onEvent(ManageOrderEvent.OnAcceptOrder(id,list))
+                                            account.value?.let { it1 ->
+                                                ManageOrderEvent.OnAcceptOrder(
+                                                    it1, id,list)
+                                            }?.let { it2 -> incomingOrderViewModel.onEvent(it2) }
                                         },
                                         onCLickRejectOrder = { id,list ->
-                                            incomingOrderViewModel.onEvent(ManageOrderEvent.OnRejectOrder(id,list))
+                                            account.value?.let { it1 ->
+                                                ManageOrderEvent.OnRejectOrder(
+                                                    it1,id,list)
+                                            }?.let { it2 -> incomingOrderViewModel.onEvent(it2) }
                                             showDialog = orderList[i]
                                         },
                                         getFood = { id ->

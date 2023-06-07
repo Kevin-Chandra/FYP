@@ -92,32 +92,13 @@ class OngoingOrderViewModel @Inject constructor(
     }
 
     fun getOrderItemList(orderId: String) = viewModelScope.launch{
+        _currentOrderItem.update { Response.Loading }
         getOrderItemFromRemoteByOrderIdUseCase(orderId){
             it.onEach { it1 ->
                 _currentOrderItem.value = it1
             }.launchIn(viewModelScope)
         }
     }
-
-//    fun getOngoingOrderItemList(orderId: String) = viewModelScope.launch{
-//        _orderingStatusState.update { OngoingOrderScreenState(loading = true) }
-//        getOngoingOrderByAccountUseCase(accountId){
-//            it.onEach{ res ->
-//                when(res){
-//                    is Response.Error -> {
-//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(errorMessage = res.exception.message) }
-//                    }
-//                    Response.Loading -> {
-//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(loading = true) }
-//                    }
-//                    is Response.Success -> {
-//                        _ongoingOrderListStatusState.update { OngoingOrderScreenState(success = true) }
-//                        _ongoingOrderList.update { res.data }
-//                    }
-//                }
-//            }.launchIn(viewModelScope)
-//        }
-//    }
 
     fun getOngoingOrderList(accountId: String) = viewModelScope.launch{
         _orderingStatusState.update { OngoingOrderScreenState(loading = true) }
@@ -145,7 +126,6 @@ class OngoingOrderViewModel @Inject constructor(
             it.onEach{ res ->
                 when(res){
                     is Response.Error -> {
-//                        res.exception.printStackTrace()
                         _pastOrderState.update { OngoingOrderScreenState(errorMessage = res.exception.message) }
                     }
                     Response.Loading -> {
@@ -158,6 +138,12 @@ class OngoingOrderViewModel @Inject constructor(
                 }
             }.launchIn(viewModelScope)
         }
+    }
+
+    fun getPastOrder(orderId: String) : Order? {
+        return if (_pastOrderList.value.isNotEmpty()){
+            pastOrderList.value.find { it.orderId == orderId }
+        } else null
     }
 
     private fun deleteAllOrderItem() = viewModelScope.launch {

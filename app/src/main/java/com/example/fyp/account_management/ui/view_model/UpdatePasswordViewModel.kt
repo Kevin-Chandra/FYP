@@ -30,7 +30,6 @@ class UpdatePasswordViewModel @Inject constructor(
 
     fun getSession() = viewModelScope.launch{
         _user = getSessionUseCase()
-
         if (_user == null) {
             _changePassState.value = Response.Error(Exception("Account unavailable or not logged in"))
         }

@@ -79,8 +79,7 @@
             app:layout_constraintEnd_toStartOf="@+id/pos_btn"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/menu_creator_button"
-            tools:visibility="gone" />
+            app:layout_constraintTop_toBottomOf="@+id/menu_creator_button" />
 
         <Button
             android:id="@+id/pos_btn"

@@ -98,8 +98,10 @@ class MainFragment : Fragment() {
                 }
                 Staff -> {
                     if (it.staffPosition != Disabled && it.staffPosition != Pending && it.staffPosition != null){
+                        binding.infoTv.visibility = View.GONE
                         binding.posBtn.visibility = View.VISIBLE
-                        binding.onlineOrderingBtn.visibility = View.GONE
+                        binding.onlineOrderingBtn.visibility = View.VISIBLE
+                        binding.onlineOrderingBtn.isEnabled = true
                     } else {
                         binding.infoTv.text = "Your staff account is currently ${it.staffPosition}. Please contact admin for more details"
                         binding.infoTv.visibility = View.VISIBLE

@@ -2,6 +2,7 @@ package com.example.fyp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.domain.foodCategory.AddFoodCategoryUseCase
@@ -58,12 +59,11 @@ class ProductSettingsViewModel @Inject constructor(
         }
     }
 
-    fun setServiceChargePercentage(percentage: String) = viewModelScope.launch{
+    fun setServiceChargePercentage(account: Account, percentage: String) = viewModelScope.launch{
         try {
             _updateState.update { Response.Loading }
             val value = percentage.toDouble()
-            setServiceChargeUseCase.invoke(value){
-//                println(it)
+            setServiceChargeUseCase.invoke(account,value){
                 _updateState.value = it
             }
             getServiceCharge()
@@ -72,11 +72,11 @@ class ProductSettingsViewModel @Inject constructor(
         }
     }
 
-    fun setTaxPercentage(percentage: String) = viewModelScope.launch{
+    fun setTaxPercentage(account: Account,percentage: String) = viewModelScope.launch{
         try {
             _updateState.update { Response.Loading }
             val value = percentage.toDouble()
-            setTaxUseCase.invoke(value){
+            setTaxUseCase.invoke(account,value){
                 _updateState.value = it
             }
             getTax()

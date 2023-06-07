@@ -9,6 +9,7 @@ sealed class Screen(val route: String){
     object MainOnlineOrderingScreen: Screen(route = "main_order_screen")
     object ManageOrderScreen: Screen(route = "incoming_order_screen")
     object OrderHistoryScreen: Screen(route = "order_history_screen")
+    object OrderHistoryDetailedScreen: Screen(route = "order_history_detailed_screen")
     fun withArgs(vararg args: String): String{
         return buildString {
             append(route)

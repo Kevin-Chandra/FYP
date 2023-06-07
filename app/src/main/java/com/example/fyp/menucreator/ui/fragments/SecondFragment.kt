@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -20,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType
+import com.example.fyp.account_management.data.model.AccountType.*
 import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
@@ -81,6 +84,13 @@ class SecondFragment : Fragment() {
 
     private var allowRefresh = true
 
+    private var fabClicked = false
+
+    private val rotateOpen : Animation by lazy { AnimationUtils.loadAnimation(requireContext(),R.anim.rotate_open_anim) }
+    private val rotateClose : Animation by lazy { AnimationUtils.loadAnimation(requireContext(),R.anim.rotate_close_anim) }
+    private val fromBottom : Animation by lazy { AnimationUtils.loadAnimation(requireContext(),R.anim.from_bottom_anim) }
+    private val toBottom : Animation by lazy { AnimationUtils.loadAnimation(requireContext(),R.anim.to_bottom_anim) }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -117,20 +127,15 @@ class SecondFragment : Fragment() {
 
             if (this.lifecycle.currentState >= Lifecycle.State.STARTED) {
                 when (it.accountType) {
-                    AccountType.Customer -> {}
-                    AccountType.Admin -> {
-                        setAdminAccess()
-                        setStaffAccess()
+                    Customer -> { binding.fab.visibility = View.GONE }
+                    Admin,Manager -> {
+                        binding.fab.visibility = View.VISIBLE
                     }
-
-                    AccountType.Manager -> {
-                        setAdminAccess()
-                        setStaffAccess()
-                    }
-
-                    AccountType.Staff -> {
+                    Staff -> {
                         if (it.staffPosition != StaffPosition.Disabled && it.staffPosition != StaffPosition.Pending) {
-                            setStaffAccess()
+                            binding.fab.visibility = View.VISIBLE
+                        } else {
+                            binding.fab.visibility = View.GONE
                         }
                     }
                 }
@@ -152,11 +157,13 @@ class SecondFragment : Fragment() {
         }
 
         bottomSheetBinding.saveButton.setOnClickListener {
-            if (account == null) {
-                errorDialog("Account not yet loaded!")
-                return@setOnClickListener
+            authViewModel.getSession {
+                if (it == null) {
+                    errorDialog("Account not yet loaded!")
+                    return@getSession
+                }
+                viewModel.onEvent(SetAvailabilityEvent.Save(it))
             }
-            viewModel.onEvent(SetAvailabilityEvent.Save(account!!))
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -176,27 +183,52 @@ class SecondFragment : Fragment() {
         binding.editFab.setOnClickListener {
             action?.let { it1 -> findNavController().navigate(it1) }
         }
+        binding.fab.setOnClickListener {
+            onAddButtonClicked()
+        }
     }
 
-//    private fun setShimmerFood(b: Boolean) {
-//        if (b) {
-//            foodBinding.shimmerLayout.showShimmer(true)
-//            foodBinding.createdByTv.visibility = View.INVISIBLE
-//            foodBinding.createdByCv.visibility = View.INVISIBLE
-//            foodBinding.lastUpdatedByTv.visibility = View.INVISIBLE
-//            foodBinding.lastUpdatedCv.visibility = View.INVISIBLE
-//        } else {
-//            foodBinding.shimmerLayout.hideShimmer()
-//            foodBinding.cvShimmer1.visibility = View.GONE
-//            foodBinding.cvShimmer2.visibility = View.GONE
-//            foodBinding.shimmerTv1.visibility = View.GONE
-//            foodBinding.shimmerTv2.visibility = View.GONE
-//            foodBinding.createdByTv.visibility = View.VISIBLE
-//            foodBinding.createdByCv.visibility = View.VISIBLE
-//            foodBinding.lastUpdatedByTv.visibility = View.VISIBLE
-//            foodBinding.lastUpdatedCv.visibility = View.VISIBLE
-//        }
-//    }
+    private fun onAddButtonClicked(){
+        setVisibility(fabClicked)
+        setAnimation(fabClicked)
+        fabClicked = !fabClicked
+    }
+
+    private fun setVisibility(clicked: Boolean){
+        if (!clicked){
+            when (account?.accountType) {
+                Customer, null -> {}
+                Admin, Manager -> {
+                    binding.deleteFab.visibility = View.VISIBLE
+                    binding.editFab.visibility = View.VISIBLE
+                    binding.setAvailabilityFab.visibility = View.VISIBLE
+                }
+                Staff -> {
+                    if (account?.staffPosition != StaffPosition.Pending && account?.staffPosition != StaffPosition.Disabled)
+                        binding.setAvailabilityFab.visibility = View.VISIBLE
+                }
+            }
+        } else {
+            binding.deleteFab.visibility = View.GONE
+            binding.editFab.visibility = View.GONE
+            binding.setAvailabilityFab.visibility = View.GONE
+        }
+    }
+
+    private fun setAnimation(clicked: Boolean){
+        if (!clicked){
+            binding.deleteFab.animation = fromBottom
+            binding.editFab.animation = fromBottom
+            binding.setAvailabilityFab.animation = fromBottom
+            binding.fab.animation = rotateOpen
+        } else {
+            binding.deleteFab.animation = toBottom
+            binding.editFab.animation = toBottom
+            binding.setAvailabilityFab.animation = toBottom
+            binding.fab.animation = rotateClose
+        }
+
+    }
 
     private fun setShimmerCreatorLayout(b: Boolean) {
         if (b) {
@@ -220,15 +252,6 @@ class SecondFragment : Fragment() {
         }
     }
 
-    private fun setAdminAccess() {
-        binding.deleteFab.visibility = View.VISIBLE
-        binding.editFab.visibility = View.VISIBLE
-    }
-
-    private fun setStaffAccess() {
-        binding.setAvailabilityFab.visibility = View.VISIBLE
-    }
-
     private fun deleteDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Delete Product")
@@ -246,9 +269,11 @@ class SecondFragment : Fragment() {
 
     private fun navigateBack() = findNavController().navigateUp()
     private fun deleteProduct() {
-        account ?: return
-        isObservingLoadData = false
-        viewModel.deleteProduct(account!!, productId!!)
+        authViewModel.getSession {
+            it ?: return@getSession
+            isObservingLoadData = false
+            viewModel.deleteProduct(it, productId!!)
+        }
     }
 
     private fun loadData() {

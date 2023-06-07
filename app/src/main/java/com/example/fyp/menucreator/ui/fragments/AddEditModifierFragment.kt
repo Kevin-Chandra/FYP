@@ -71,7 +71,7 @@ class AddEditModifierFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         _binding = FragmentAddEditModifierBinding.inflate(inflater, container, false)
         return binding.root
@@ -262,19 +262,18 @@ class AddEditModifierFragment : Fragment() {
 
     private fun observeError() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addEditModifierState.collect() {
-                if (it.productIdError != null){
+            viewModel.addEditModifierState.collect {
+                if (it.nameError != null){
                     binding.modifierName.error = it.nameError
                 } else {
                     binding.modifierName.error = null
                 }
-                if (it.nameError != null){
+                if (it.productIdError != null){
                     binding.modifierId.error = it.productIdError
                 } else {
                     binding.modifierId.error = null
                 }
                 errorlist = it.itemErrorList.toMutableList()
-                println("aaaa" + errorlist)
                 if (errorlist.isNotEmpty()) {
                     for (i in errorlist.indices){
                         val viewHolder = binding.itemRv.findViewHolderForAdapterPosition(i)

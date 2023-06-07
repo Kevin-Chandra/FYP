@@ -18,10 +18,15 @@ import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 import java.util.*
 import javax.inject.Inject
@@ -300,6 +305,31 @@ class AuthRepository @Inject constructor(
                 result.invoke(Response.Error(IllegalArgumentException("Email is blank")))
             else
                 result.invoke(Response.Error(e))
+        }
+    }
+
+    suspend fun getSessionByFlow() = callbackFlow {
+        if (auth.currentUser != null) {
+            val snapshotListener = userCollectionRef.document(auth.currentUser!!.uid)
+                .addSnapshotListener { querySnapshot, e ->
+                    if (e != null) {
+                        e.printStackTrace()
+                        return@addSnapshotListener
+                    }
+                    querySnapshot?.let {
+                        val accountResponse = run {
+                            val account = querySnapshot.toObject(Account::class.java)
+                            account
+                        }
+                        trySend(accountResponse)
+                    }
+                }
+            awaitClose {
+                snapshotListener.remove()
+            }
+        }
+        awaitClose{
+            channel.close()
         }
     }
 

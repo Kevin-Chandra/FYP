@@ -74,7 +74,7 @@ class OnlineOrderingActivity : ComponentActivity() {
                     val incomingOrderViewModel: IncomingOrderViewModel = hiltViewModel()
                     val accountViewModel : AccountViewModel = hiltViewModel()
 
-                    OnlineOrderingNavGraph(navController = navController,incomingOrderViewModel,productViewModel,accountViewModel)
+                    OnlineOrderingNavGraph(navController = navController,incomingOrderViewModel,productViewModel,accountViewModel,authViewModel)
                 }
             } else {
                 //Make splash screen

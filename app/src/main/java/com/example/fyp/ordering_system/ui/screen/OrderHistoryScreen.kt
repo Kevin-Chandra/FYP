@@ -2,6 +2,7 @@ package com.example.fyp.ordering_system.ui.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -174,7 +175,9 @@ fun OrderHistoryScreen(
                     } else {
                         LazyColumn {
                             items(pastOrders.value.sortedByDescending { it1 -> it1.orderFinishTime }){ item ->
-                                PastOrderRow(order = item)
+                                PastOrderRow(order = item){
+                                    navigator.navigate(Screen.OrderHistoryDetailedScreen.withArgs(item.orderId))
+                                }
                             }
                         }
                     }
@@ -185,14 +188,17 @@ fun OrderHistoryScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PastOrderRow(
-    order: Order
+    order: Order,
+    onClick:() -> Unit
 ) {
     Column(modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 16.dp)) {
+        .padding(horizontal = 16.dp)
+        .clickable { onClick() }
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,

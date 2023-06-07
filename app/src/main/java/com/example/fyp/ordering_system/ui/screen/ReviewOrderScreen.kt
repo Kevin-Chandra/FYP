@@ -138,11 +138,6 @@ fun ReviewOrderScreen(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             ) {
                 Box(modifier = Modifier.padding(it)) {
-                    if (uiState.value is Response.Loading){
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -214,6 +209,11 @@ fun ReviewOrderScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
+                    }
+                    if (uiState.value is Response.Loading){
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     }
                 }
             }

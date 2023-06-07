@@ -159,8 +159,8 @@ class AddEditModifierViewModel @Inject constructor(
         _addEditModifierState.value = _addEditModifierState.value.copy(
             itemErrorList = errorList
         )
-
-
+//        println(nameResult)
+//        println(validationResultList)
         if (validationResultList.any { !it.successful }){
             _addEditModifierState.value = _addEditModifierState.value.copy(
                 productIdError = idResult.errorMessage,
