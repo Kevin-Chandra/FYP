@@ -13,6 +13,7 @@ import com.example.fyp.ordering_system.domain.local_database.DeleteItemFromCartU
 import com.example.fyp.ordering_system.domain.local_database.GetCartUseCase
 import com.example.fyp.ordering_system.domain.remote_database.SubmitOrderUseCase
 import com.example.fyp.ordering_system.util.OrderingEvent
+import com.example.fyp.pos.domain.CompactOrderItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +31,7 @@ class CartViewModel @Inject constructor(
     private val submitOrderUseCase: SubmitOrderUseCase,
     private val getTaxUseCase: GetTaxUseCase,
     private val getServiceChargeUseCase: GetServiceChargeUseCase,
+    private val compactOrderItem: CompactOrderItem,
 ) : ViewModel(){
 
     var tax : Double = 0.0
@@ -48,7 +50,9 @@ class CartViewModel @Inject constructor(
             serviceCharge = getServiceChargeUseCase()
         }
         getCartUseCase().onEach{
-            cart.value = it
+            compactOrderItem(it){ compacted ->
+                cart.value = compacted
+            }
         }.launchIn(viewModelScope)
         orderId = ""
     }

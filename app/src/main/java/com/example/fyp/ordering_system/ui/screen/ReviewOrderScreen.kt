@@ -1,9 +1,6 @@
 package com.example.fyp.ordering_system.ui.screen
 
-import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,17 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material.Snackbar
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.twotone.Delete
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,9 +27,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,14 +39,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.modifier.modifierLocalMapOf
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.compose.FypTheme
@@ -64,18 +54,16 @@ import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.ui.navigation.Screen
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
-import com.example.fyp.ordering_system.util.AddToCartEvent
 import com.example.fyp.ordering_system.util.OrderingEvent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewOrderScreen(
     navigator: NavController,
-    cartViewModel: CartViewModel = hiltViewModel(),
-    productViewModel: ProductViewModel = hiltViewModel(),
+    cartViewModel: CartViewModel,
+    productViewModel: ProductViewModel,
     account: Account
 ) {
     val cart = cartViewModel.cart.value
@@ -132,6 +120,14 @@ fun ReviewOrderScreen(
                         title = {
                             Text(text = "Review Order")
                         },
+                        navigationIcon = {
+                             IconButton(onClick = { navigator.navigateUp()}) {
+                                 Icon(
+                                     imageVector = Icons.Rounded.ArrowBack,
+                                     contentDescription = null
+                                 )
+                             }
+                        },
                         scrollBehavior = scrollBehavior
                     )
                 },
@@ -157,10 +153,10 @@ fun ReviewOrderScreen(
                             )
                         } else {
                             Row(modifier = Modifier.fillMaxWidth()) {
-                                Text(text = "Name", modifier = Modifier.weight(1.5f))
-                                Text(text = "Qty", modifier = Modifier.weight(1f))
-                                Text(text = "Price", modifier = Modifier.weight(1f))
-                                Text(text = "Total", modifier = Modifier.weight(1f))
+                                Text(text = "Name", fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1.5f))
+                                Text(text = "Qty", fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                                Text(text = "Price", fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                                Text(text = "Total", fontWeight = FontWeight.SemiBold,modifier = Modifier.weight(1f))
                                 Spacer(modifier = Modifier.weight(0.5f))
                             }
                             Divider(modifier = Modifier.padding(vertical = 8.dp))

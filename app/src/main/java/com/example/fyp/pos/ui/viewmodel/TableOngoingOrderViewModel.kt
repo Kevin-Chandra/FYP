@@ -28,7 +28,7 @@ class TableOngoingOrderViewModel @Inject constructor(
     private val _tableOngoingOrderList = MutableStateFlow<List<Order>>(emptyList())
     val tableOngoingOrderList = _tableOngoingOrderList.asStateFlow()
 
-    val orderMap = mutableStateMapOf<String,Order>()
+    private val orderMap = mutableStateMapOf<String,Order>()
 
     private val orderItemMap = mutableMapOf<String,OrderItem>()
 
@@ -55,13 +55,12 @@ class TableOngoingOrderViewModel @Inject constructor(
     }
 
     private fun getOngoingOrderItem() = viewModelScope.launch{
-        getOnOrderItemByStatusUseCase(
-            listOf(
+        getOnOrderItemByStatusUseCase(listOf(
                 OrderItemStatus.Sent,
                 OrderItemStatus.Confirmed,
                 OrderItemStatus.Preparing,
                 OrderItemStatus.Finished
-            )
+            ),24
         ){
             it.onEach { it1 ->
                 when (it1){

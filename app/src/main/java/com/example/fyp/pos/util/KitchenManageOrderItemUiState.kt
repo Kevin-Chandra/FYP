@@ -4,5 +4,5 @@ data class KitchenManageOrderItemUiState(
     val loading: Boolean = false,
     val errorMessage: String? = null,
     val success: Boolean = false,
-    val successUpdate: Boolean = false,
+    val successMessage: String? = null,
 )

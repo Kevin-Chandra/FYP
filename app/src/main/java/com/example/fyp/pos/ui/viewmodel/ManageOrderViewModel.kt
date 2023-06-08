@@ -6,10 +6,9 @@ import com.example.fyp.account_management.util.Response
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
+import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.ordering_system.domain.remote_database.FinishOrderUseCase
-import com.example.fyp.ordering_system.domain.remote_database.GetOngoingOrderFromRemoteUseCase
-import com.example.fyp.ordering_system.domain.remote_database.UpdateOrderStatusUseCase
-import com.example.fyp.pos.domain.GetOngoingOrderItemUseCase
+import com.example.fyp.ordering_system.domain.remote_database.GetOrderFromRemoteByStatusUseCase
 import com.example.fyp.pos.domain.GetOrderItemByStatusUseCase
 import com.example.fyp.pos.domain.UpdateFoodAllTimeSalesUseCase
 import com.example.fyp.pos.domain.UpdateOrderHistoryUseCase
@@ -26,7 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ManageOrderViewModel @Inject constructor(
-    private val getOngoingOrderFromRemoteUseCase: GetOngoingOrderFromRemoteUseCase,
+    private val getOrderFromRemoteByStatusUseCase: GetOrderFromRemoteByStatusUseCase,
     private val getOrderItemByStatusUseCase: GetOrderItemByStatusUseCase,
     private val updateFoodAllTimeSalesUseCase: UpdateFoodAllTimeSalesUseCase,
     private val updateOrderHistoryUseCase: UpdateOrderHistoryUseCase,
@@ -53,7 +52,7 @@ class ManageOrderViewModel @Inject constructor(
             OrderItemStatus.Confirmed,
             OrderItemStatus.Preparing,
             OrderItemStatus.Finished,
-        )){
+        ),1){
             it.onEach { res ->
                 if (res is Response.Success){
                     _ongoingOrderItem.update { res.data.associateBy { it1 -> it1.orderItemId } }
@@ -124,7 +123,14 @@ class ManageOrderViewModel @Inject constructor(
 
     private fun getOngoingOrder() = viewModelScope.launch {
         _manageOrderItemUiState.update { ManageOrderUiState(loading = true) }
-        getOngoingOrderFromRemoteUseCase{
+        getOrderFromRemoteByStatusUseCase(
+            statuses =  listOf(
+                OrderStatus.Ongoing,
+                OrderStatus.Sent,
+                OrderStatus.Confirmed
+            ),
+            24)
+        {
             it.onEach { res ->
                 when (res){
                     is Response.Error ->{

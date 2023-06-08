@@ -1,9 +1,11 @@
 package com.example.fyp.pos.ui.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,10 +25,15 @@ import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,7 +60,9 @@ import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
+import com.example.fyp.ordering_system.util.errorToast
 import com.example.fyp.ordering_system.util.formatTime
+import com.example.fyp.ordering_system.util.successToast
 import com.example.fyp.pos.ui.theme.FYPTheme
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.util.KitchenManageOrderItemEvent
@@ -65,8 +75,35 @@ fun KitchenManageOrderScreen(
     productViewModel: ProductViewModel
 ) {
     val ongoingItems = viewModel.ongoingOrderItems.collectAsStateWithLifecycle()
-    val confirmedOrders = remember {
-        mutableStateListOf<OrderItem>()
+    val state = viewModel.manageOrderItemUiState.collectAsStateWithLifecycle()
+
+    val confirmedOrders = remember { mutableStateListOf<OrderItem>() }
+    var loading by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scroll = rememberScrollState()
+
+    BackHandler() {
+        viewModel.resetState()
+        navigator.navigateUp()
+    }
+
+    LaunchedEffect(key1 = state.value){
+        if (state.value.loading){
+            loading = true
+        }
+        if (state.value.errorMessage != null){
+            loading = false
+            errorToast(state.value.errorMessage!!,context)
+        }
+        if (state.value.success){
+            loading = false
+            state.value.successMessage?.let{
+                snackbarHostState.showSnackbar(state.value.successMessage?:"",null,true,SnackbarDuration.Short)
+            }
+        }
+
     }
 
     LaunchedEffect(key1 = ongoingItems){
@@ -74,224 +111,240 @@ fun KitchenManageOrderScreen(
         confirmedOrders.addAll(ongoingItems.value.filter { it.orderItemStatus == OrderItemStatus.Confirmed })
     }
 
-    val scroll = rememberScrollState()
-
     FYPTheme() {
         Surface() {
-            Column(
-                modifier = Modifier
+            Scaffold(
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+            ) {
+                Box(modifier = Modifier
+                    .padding(it)
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
-                    .verticalScroll(scroll),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
-                ) {
+                ){
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(scroll)
+                            .align(Alignment.TopCenter),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
 
-                    Text(
-                        text = "Confirmed Order",
-                        style = MaterialTheme.typography.headlineMedium,
-                    )
-                    Text(
-                        text = ongoingItems.value
-                            .filter { it.orderItemStatus == OrderItemStatus.Confirmed}
-                            .size
-                            .toString() + " Item",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }
-                if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Confirmed }){
-                    LazyRow(){
-                        items(ongoingItems.value
-                            .filter { it.orderItemStatus == OrderItemStatus.Confirmed }
-                            .sortedBy { it.timeAdded }){ item ->
-                            var showDialog by remember { mutableStateOf(false) }
-                            OrderItemCard(
-                                orderItem = item,
-                                getFood = { id ->
-                                    productViewModel.getFood(id)
-                                },
-                                getModifierItem = { id ->
-                                    productViewModel.getModifierItem(id)
-                                },
-                                getModifier = { id ->
-                                    productViewModel.getModifier(id)
-                                },
-                                onNextButtonClick = {
-                                    viewModel.onEvent(KitchenManageOrderItemEvent.OnPrepareOrderItem(item.orderItemId))
-                                },
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .clickable {
-                                        showDialog = true
-                                    }
+                            Text(
+                                text = "Confirmed Order",
+                                style = MaterialTheme.typography.headlineMedium,
                             )
-                            if (showDialog){
-                                OrderItemDialog(
-                                    item = item,
-                                    getFood = { id ->
-                                        productViewModel.getFood(id)
-                                    },
-                                    getModifier = { id ->
-                                        productViewModel.getModifier(id)
-                                    },
-                                    getModifierItem = { id ->
-                                        productViewModel.getModifierItem(id)
-                                    },
-                                    onNextButtonClick = {
-                                        viewModel.onEvent(KitchenManageOrderItemEvent.OnPrepareOrderItem(item.orderItemId))
-                                    },
-                                    showDialog = {
-                                        showDialog = it
+                            Text(
+                                text = ongoingItems.value
+                                    .filter { it.orderItemStatus == OrderItemStatus.Confirmed}
+                                    .size
+                                    .toString() + " Item",
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+                        if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Confirmed }){
+                            LazyRow(){
+                                items(ongoingItems.value
+                                    .filter { it.orderItemStatus == OrderItemStatus.Confirmed }
+                                    .sortedBy { it.timeAdded }){ item ->
+                                    var showDialog by remember { mutableStateOf(false) }
+                                    OrderItemCard(
+                                        orderItem = item,
+                                        getFood = { id ->
+                                            productViewModel.getFood(id)
+                                        },
+                                        getModifierItem = { id ->
+                                            productViewModel.getModifierItem(id)
+                                        },
+                                        getModifier = { id ->
+                                            productViewModel.getModifier(id)
+                                        },
+                                        onNextButtonClick = {
+                                            viewModel.onEvent(KitchenManageOrderItemEvent.OnPrepareOrderItem(item.orderItemId))
+                                        },
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .clickable {
+                                                showDialog = true
+                                            }
+                                    )
+                                    if (showDialog){
+                                        OrderItemDialog(
+                                            item = item,
+                                            getFood = { id ->
+                                                productViewModel.getFood(id)
+                                            },
+                                            getModifier = { id ->
+                                                productViewModel.getModifier(id)
+                                            },
+                                            getModifierItem = { id ->
+                                                productViewModel.getModifierItem(id)
+                                            },
+                                            onNextButtonClick = {
+                                                viewModel.onEvent(KitchenManageOrderItemEvent.OnPrepareOrderItem(item.orderItemId))
+                                            },
+                                            showDialog = {
+                                                showDialog = it
+                                            }
+                                        )
                                     }
-                                )
+                                }
                             }
-                        }
-                    }
-                } else {
-                    Text(
-                        text = "No orders coming in right now...",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
-                ) {
-                    Text(
-                        text = "Preparing Order",
-                        style = MaterialTheme.typography.headlineMedium,
-                    )
-                    Text(
-                        text = ongoingItems.value
-                            .filter { it.orderItemStatus == OrderItemStatus.Preparing}
-                            .size
-                            .toString() + " Item",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }
-
-                if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Preparing }){
-                    LazyRow(){
-                        items(ongoingItems.value
-                            .filter { it.orderItemStatus == OrderItemStatus.Preparing }
-                            .sortedBy { it.timeAdded }){ item ->
-                            var showDialog by remember { mutableStateOf(false) }
-                            OrderItemCard(
-                                orderItem = item,
-                                getFood = { id ->
-                                    productViewModel.getFood(id)
-                                },
-                                getModifier = { id ->
-                                    productViewModel.getModifier(id)
-                                },
-                                getModifierItem = { id ->
-                                    productViewModel.getModifierItem(id)
-                                },
-                                onNextButtonClick = {
-                                    viewModel.onEvent(KitchenManageOrderItemEvent.OnFinishOrderItem(item.orderItemId))
-                                },
+                        } else {
+                            Text(
+                                text = "No orders coming in right now...",
                                 modifier = Modifier
-                                    .padding(8.dp)
-                                    .clickable {
-                                        showDialog = true
-                                    }
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                textAlign = TextAlign.Center
                             )
-                            if (showDialog){
-                                OrderItemDialog(
-                                    item = item,
-                                    getFood = { id ->
-                                        productViewModel.getFood(id)
-                                    },
-                                    getModifier = { id ->
-                                        productViewModel.getModifier(id)
-                                    },
-                                    getModifierItem = { id ->
-                                        productViewModel.getModifierItem(id)
-                                    },
-                                    onNextButtonClick = {
-                                        viewModel.onEvent(KitchenManageOrderItemEvent.OnFinishOrderItem(item.orderItemId))
-                                    },
-                                    showDialog = {
-                                        showDialog = it
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Preparing Order",
+                                style = MaterialTheme.typography.headlineMedium,
+                            )
+                            Text(
+                                text = ongoingItems.value
+                                    .filter { it.orderItemStatus == OrderItemStatus.Preparing}
+                                    .size
+                                    .toString() + " Item",
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+
+                        if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Preparing }){
+                            LazyRow(){
+                                items(ongoingItems.value
+                                    .filter { it.orderItemStatus == OrderItemStatus.Preparing }
+                                    .sortedBy { it.timeAdded }){ item ->
+                                    var showDialog by remember { mutableStateOf(false) }
+                                    OrderItemCard(
+                                        orderItem = item,
+                                        getFood = { id ->
+                                            productViewModel.getFood(id)
+                                        },
+                                        getModifier = { id ->
+                                            productViewModel.getModifier(id)
+                                        },
+                                        getModifierItem = { id ->
+                                            productViewModel.getModifierItem(id)
+                                        },
+                                        onNextButtonClick = {
+                                            viewModel.onEvent(KitchenManageOrderItemEvent.OnFinishOrderItem(item.orderItemId))
+                                        },
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .clickable {
+                                                showDialog = true
+                                            }
+                                    )
+                                    if (showDialog){
+                                        OrderItemDialog(
+                                            item = item,
+                                            getFood = { id ->
+                                                productViewModel.getFood(id)
+                                            },
+                                            getModifier = { id ->
+                                                productViewModel.getModifier(id)
+                                            },
+                                            getModifierItem = { id ->
+                                                productViewModel.getModifierItem(id)
+                                            },
+                                            onNextButtonClick = {
+                                                viewModel.onEvent(KitchenManageOrderItemEvent.OnFinishOrderItem(item.orderItemId))
+                                            },
+                                            showDialog = {
+                                                showDialog = it
+                                            }
+                                        )
                                     }
-                                )
+                                }
                             }
+                        }else {
+                            Text(
+                                text = "No order to prepare right now...",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                textAlign = TextAlign.Center
+                            )
                         }
-                    }
-                }else {
-                    Text(
-                        text = "No order to prepare right now...",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
-                ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
 
-                    Text(
-                        text = "Finished Order",
-                        style = MaterialTheme.typography.headlineMedium,
-                    )
-                    Text(
-                        text = ongoingItems.value
-                            .filter { it.orderItemStatus == OrderItemStatus.Finished}
-                            .size
-                            .toString() + " Item",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }
-                if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Finished }){
-                    LazyRow{
-                        items(ongoingItems.value
-                            .filter { it.orderItemStatus == OrderItemStatus.Finished }
-                            .sortedByDescending { it.timeFinished }){ item ->
+                            Text(
+                                text = "Finished Order",
+                                style = MaterialTheme.typography.headlineMedium,
+                            )
+                            Text(
+                                text = ongoingItems.value
+                                    .filter { it.orderItemStatus == OrderItemStatus.Finished}
+                                    .size
+                                    .toString() + " Item",
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+                        if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Finished }){
+                            LazyRow{
+                                items(ongoingItems.value
+                                    .filter { it.orderItemStatus == OrderItemStatus.Finished }
+                                    .sortedByDescending { it.timeFinished }){ item ->
 
-                            OrderItemCard(
-                                orderItem = item,
-                                getFood = { id ->
-                                    productViewModel.getFood(id)
-                                },
-                                getModifier = { id ->
-                                    productViewModel.getModifier(id)
-                                },
-                                getModifierItem = { id ->
-                                    productViewModel.getModifierItem(id)
-                                },
-                                onNextButtonClick = {},
-                                modifier = Modifier.padding(8.dp)
+                                    OrderItemCard(
+                                        orderItem = item,
+                                        getFood = { id ->
+                                            productViewModel.getFood(id)
+                                        },
+                                        getModifier = { id ->
+                                            productViewModel.getModifier(id)
+                                        },
+                                        getModifierItem = { id ->
+                                            productViewModel.getModifierItem(id)
+                                        },
+                                        onNextButtonClick = {},
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
+                        }else {
+                            Text(
+                                text = "No order finished...",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
-                }else {
-                    Text(
-                        text = "No order finished...",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        textAlign = TextAlign.Center
-                    )
+                    if(loading){
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
                 }
+
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderItemCard(
     orderItem: OrderItem,

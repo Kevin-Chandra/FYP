@@ -13,6 +13,7 @@ class CompactOrderItem @Inject constructor(
     operator fun invoke(itemList: List<OrderItem>,result: (List<OrderItem>) -> Unit) {
         // map of foodId,orderItem
         val map = mutableMapOf<String,MutableList<OrderItem>>()
+
         itemList.forEach {
             if (!map.containsKey(it.foodId)){
                 map[it.foodId] = mutableListOf(it)
@@ -27,13 +28,13 @@ class CompactOrderItem @Inject constructor(
                         price = itemToAdd.price + it.price
                     ))
                 } else {
-
                     val itemToAdd = orderItemList.find { it1 -> it1.modifierItems == it.modifierItems }
                     if (itemToAdd == null){
                         orderItemList.add(it)
                     } else {
                         orderItemList.remove(itemToAdd)
                         orderItemList.add(itemToAdd.copy(
+                            timeAdded = itemToAdd.timeAdded,
                             quantity = itemToAdd.quantity + it.quantity,
                             price = itemToAdd.price + it.price)
                         )

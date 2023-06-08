@@ -29,11 +29,11 @@ import javax.inject.Inject
 import kotlin.Exception
 
 class OrderRepository @Inject constructor(
-    private val database: FirebaseFirestore,
+    database: FirebaseFirestore,
     private val orderItemDatabase: OrderItemRepository
 ) {
 
-    private val orderCollectionRef = Firebase.firestore.collection(FireStoreCollection.ORDER)
+    private val orderCollectionRef = database.collection(FireStoreCollection.ORDER)
 
     suspend fun addOrder(order: Order, result: (Response<String>) -> Unit){
         try {

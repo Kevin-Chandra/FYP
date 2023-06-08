@@ -25,7 +25,7 @@ import java.util.Date
 import javax.inject.Inject
 
 class OrderItemRepository @Inject constructor(
-    private val database: FirebaseFirestore,
+    database: FirebaseFirestore,
 ) {
     private val itemCollectionReference = database.collection(FireStoreCollection.ORDER_ITEM)
 
@@ -179,8 +179,8 @@ class OrderItemRepository @Inject constructor(
         }
     }
 
-    suspend fun getOrderItemListByStatus(statusList: List<OrderItemStatus>) = callbackFlow<Response<List<OrderItem>>> {
-        val startTime = Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant())
+    suspend fun getOrderItemListByStatus(statusList: List<OrderItemStatus>, lastDay: Long = 1) = callbackFlow<Response<List<OrderItem>>> {
+        val startTime = Date.from(LocalDateTime.now().minusDays(lastDay).atZone(ZoneId.systemDefault()).toInstant())
         val snapshotListener = itemCollectionReference
             .whereGreaterThanOrEqualTo(FireStoreDocumentField.TIME_ADDED,startTime)
             .whereIn(FireStoreDocumentField.ORDER_ITEM_STATUS,statusList)

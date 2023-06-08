@@ -7,7 +7,7 @@ import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.domain.remote_database.FinishOrderItemUseCase
 import com.example.fyp.ordering_system.domain.remote_database.UpdateOrderItemStatusUseCase
-import com.example.fyp.pos.domain.GetOngoingOrderItemUseCase
+import com.example.fyp.pos.domain.GetOrderItemByStatusUseCase
 import com.example.fyp.pos.util.KitchenManageOrderItemEvent
 import com.example.fyp.pos.util.KitchenManageOrderItemUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class IncomingOrderItemViewModel @Inject constructor(
-    private val getOngoingOrderItemUseCase: GetOngoingOrderItemUseCase,
+    private val getOrderItemByStatusUseCase: GetOrderItemByStatusUseCase,
     private val updateOrderItemStatusUseCase: UpdateOrderItemStatusUseCase,
     private val orderItemFinishUseCase: FinishOrderItemUseCase,
 ) : ViewModel() {
@@ -48,43 +48,49 @@ class IncomingOrderItemViewModel @Inject constructor(
     }
 
     private fun prepareOrderItem(itemId: String) = viewModelScope.launch{
-        updateOrderItemStatusUseCase(itemId,OrderItemStatus.Preparing){}
+        _manageOrderItemUiState.update { KitchenManageOrderItemUiState(loading = true) }
+        updateOrderItemStatusUseCase(itemId,OrderItemStatus.Preparing){
+            _manageOrderItemUiState.value = when(it){
+                is Response.Error -> {
+                    KitchenManageOrderItemUiState(loading = false,errorMessage = it.exception.message)
+                }
+                Response.Loading -> {
+                    KitchenManageOrderItemUiState(loading = true)
+                }
+                is Response.Success -> {
+                    KitchenManageOrderItemUiState(loading = false, successMessage = it.data, success = true)
+                }
+            }
+        }
     }
 
     private fun finishOrderItem(itemId: String) = viewModelScope.launch{
-        orderItemFinishUseCase(itemId){}
+        _manageOrderItemUiState.update { KitchenManageOrderItemUiState(loading = true) }
+        orderItemFinishUseCase(itemId){
+            _manageOrderItemUiState.value = when(it){
+                is Response.Error -> {
+                    KitchenManageOrderItemUiState(loading = false,errorMessage = it.exception.message)
+                }
+                Response.Loading -> {
+                    KitchenManageOrderItemUiState(loading = true)
+                }
+                is Response.Success -> {
+                    KitchenManageOrderItemUiState(loading = false, successMessage = it.data, success = true)
+                }
+            }
+        }
     }
-
-//    private fun deleteOrder(order: Order) = viewModelScope.launch{
-//        deleteOrderFromRemoteByOrderUseCase(order){
-//            when(it){
-//                is Response.Error -> {
-//                    _manageOrderUiState.update { it1 -> it1.copy(
-//                        errorMessage = it.exception.message,
-//                        success = false,
-//                        loading = false) }
-//                }
-//                Response.Loading -> {
-//                    _manageOrderUiState.update { _manageOrderUiState.value.copy(loading = true) }
-//                }
-//                is Response.Success -> {
-//                    if (it.data == "Order deleted successfully!"){
-//                        _manageOrderUiState.update {
-//                            _manageOrderUiState.value.copy(
-//                                errorMessage = null,
-//                                success = true,
-//                                loading = false
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     private fun getIncomingOrderItem() = viewModelScope.launch {
         _manageOrderItemUiState.update { KitchenManageOrderItemUiState(loading = true) }
-        getOngoingOrderItemUseCase{
+        getOrderItemByStatusUseCase(
+            statuses = listOf(
+                OrderItemStatus.Confirmed,
+                OrderItemStatus.Preparing,
+                OrderItemStatus.Finished
+            ),
+            lastDays = 1
+        ){
             it.onEach { res ->
                 when (res){
                     is Response.Error ->{
@@ -112,59 +118,6 @@ class IncomingOrderItemViewModel @Inject constructor(
         }
     }
 
-//    private fun getOngoingOrder() = viewModelScope.launch {
-//        getOrderFromRemoteByStatusUseCase(OrderStatus.Ongoing) { it ->
-//            it.onEach { res ->
-//                when (res){
-//                    is Response.Error ->{
-//                        _manageOrderUiState.update { _manageOrderUiState.value.copy(
-//                            errorMessage = res.exception.message,
-//                            success = false,
-//                            loading = false
-//                        ) }
-//                    }
-//                    Response.Loading -> {
-//                        _manageOrderUiState.update { _manageOrderUiState.value.copy(loading = true) }
-//                    }
-//                    is Response.Success -> {
-//                        _manageOrderUiState.update {
-//                            _manageOrderUiState.value.copy(
-//                                errorMessage = null,
-//                                success = true,
-//                                loading = false
-//                            )
-//                        }
-//                        _ongoingOrders.update { res.data }
-//                    }
-//                }
-//            }.launchIn(viewModelScope)
-//        }
-//    }
+    fun resetState() = _manageOrderItemUiState.update { KitchenManageOrderItemUiState() }
 
-//    fun getIncomingOrderItem() = viewModelScope.launch {
-//        getOrderFromRemoteByStatusUseCase(OrderStatus.Sent) {
-//            _incomingOrder.update { it }
-//        }
-//    }
-
-//    fun getOrderItemByOrderId(orderId: String, result:(Response<List<OrderItem>>) -> Unit) = viewModelScope.launch {
-//        result.invoke(Response.Loading)
-//        getOrderItemFromRemoteByOrderIdUseCase(orderId){ it1 ->
-//            result.invoke(it1)
-//        }
-//    }
-//
-//    private fun updateStatus(orderId: String, list: List<String>, orderStatus: OrderStatus, orderItemStatus: OrderItemStatus) = viewModelScope.launch{
-//        _manageOrderUiState.update { _manageOrderUiState.value.copy (loading = true) }
-//        updateOrderStatusUseCase(orderId,orderStatus){
-//            if (it is Response.Success){
-//                _manageOrderUiState.update {
-//                    _manageOrderUiState.value.copy (successUpdate = true, loading = false)
-//                }
-//            }
-//        }
-//        list.forEach { str ->
-//            updateOrderItemStatusUseCase(str,orderItemStatus){}
-//        }
-//    }
 }

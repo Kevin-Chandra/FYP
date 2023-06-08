@@ -96,7 +96,7 @@ class IncomingOrderViewModel @Inject constructor(
 
     private fun getIncomingOrder() = viewModelScope.launch {
         _manageOrderUiState.update { IncomingOrderUiState(loading = true) }
-        getOrderFromRemoteByStatusUseCase(OrderStatus.Sent) { it ->
+        getOrderFromRemoteByStatusUseCase( listOf(OrderStatus.Sent),24 ) { it ->
             it.onEach { res ->
                 when (res){
                     is Response.Error ->{
@@ -125,7 +125,7 @@ class IncomingOrderViewModel @Inject constructor(
     }
 
     private fun getOngoingOrder() = viewModelScope.launch {
-        getOrderFromRemoteByStatusUseCase(OrderStatus.Ongoing) { it ->
+        getOrderFromRemoteByStatusUseCase( listOf(OrderStatus.Ongoing),24) { it ->
             it.onEach { res ->
                 when (res){
                     is Response.Error ->{

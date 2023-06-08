@@ -10,7 +10,7 @@ import javax.inject.Inject
 class GetOrderItemByStatusUseCase @Inject constructor(
     private val orderItemRepository: OrderItemRepository,
     ) {
-    suspend operator fun invoke(statuses: List<OrderItemStatus>, result: (Flow<Response<List<OrderItem>>>) -> Unit) {
-        result.invoke(orderItemRepository.getOrderItemListByStatus(statuses))
+    suspend operator fun invoke(statuses: List<OrderItemStatus>,lastDays: Long, result: (Flow<Response<List<OrderItem>>>) -> Unit) {
+        result.invoke(orderItemRepository.getOrderItemListByStatus(statuses,lastDays))
     }
 }

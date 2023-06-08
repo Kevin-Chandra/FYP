@@ -89,16 +89,6 @@ class AddToCartViewModel @Inject constructor(
             }.launchIn(viewModelScope)
         }
 
-
-//        item.modifierItems?.let {
-//            it.forEach{ it1 ->
-//                val item = async {
-//                    getModifierItemByReturnUseCase(it1)
-//                }
-//                list.add(item)
-//            }
-//        }
-
         list.forEach {
             it.awaitAll().forEach { it1->
                 it1 ?: return@forEach
@@ -110,16 +100,6 @@ class AddToCartViewModel @Inject constructor(
                 }
             }
         }
-
-//        list.awaitAll().forEach {
-//            it ?: return@forEach
-//            val modifierParent = modifierMap[it.modifierParent]?: return@forEach
-//            if (map[modifierParent] == null){
-//                map[modifierParent] = mutableListOf(it)
-//            } else {
-//                map[modifierParent]?.add(it)
-//            }
-//        }
 
         map.forEach{
             onEvent(AddToCartEvent.ModifierItemListChanged(it.key,it.value.toList()))
@@ -146,7 +126,6 @@ class AddToCartViewModel @Inject constructor(
             }
             is AddToCartEvent.ModifierItemListChanged -> {
                 _addToCartState.value.modifierList[event.modifier] = event.list
-//                println(_addToCartState.value.modifierList.toList())
                 updatePrice()
             }
             is AddToCartEvent.QuantityChanged -> {
