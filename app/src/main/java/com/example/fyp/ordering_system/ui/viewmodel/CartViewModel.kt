@@ -31,7 +31,6 @@ class CartViewModel @Inject constructor(
     private val submitOrderUseCase: SubmitOrderUseCase,
     private val getTaxUseCase: GetTaxUseCase,
     private val getServiceChargeUseCase: GetServiceChargeUseCase,
-    private val compactOrderItem: CompactOrderItem,
 ) : ViewModel(){
 
     var tax : Double = 0.0
@@ -50,9 +49,10 @@ class CartViewModel @Inject constructor(
             serviceCharge = getServiceChargeUseCase()
         }
         getCartUseCase().onEach{
-            compactOrderItem(it){ compacted ->
-                cart.value = compacted
-            }
+            cart.value = it
+//            compactOrderItem(it){ compacted ->
+//                cart.value = compacted
+//            }
         }.launchIn(viewModelScope)
         orderId = ""
     }

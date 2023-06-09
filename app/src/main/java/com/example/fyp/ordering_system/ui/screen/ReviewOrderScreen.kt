@@ -254,11 +254,11 @@ fun OrderItemCart(food: Food,item: OrderItem, onDeleteClicked: (String) -> Unit,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = modifier.weight(1f))
-            Text(text = item.price.toString(),
+            Text(text = (item.price/item.quantity).toString(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = modifier.weight(1f))
-            Text(text = (item.price * item.quantity).toString(),
+            Text(text = item.price.toString(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = modifier.weight(1f))

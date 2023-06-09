@@ -69,6 +69,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -101,9 +102,6 @@ fun ManageTableScreen(
 ) {
     val tables = viewModel.tables.collectAsStateWithLifecycle()
 
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
     var showResetDialog by remember { mutableStateOf(false) }
     var showAssignDialog by remember { mutableStateOf(false) }
 
@@ -116,12 +114,6 @@ fun ManageTableScreen(
     FypTheme() {
         Surface() {
             Scaffold(
-//                floatingActionButton = {
-//                    FloatingActionButton(onClick = { showDialog = true }) {
-//                        Icon(imageVector = Icons.Default.Add, contentDescription = null)
-//                    }
-//                },
-//                floatingActionButtonPosition = FabPosition.End,
                 topBar = {
                     TopAppBar(
                         actions = {
@@ -263,7 +255,7 @@ fun AssignTableDialog(
                         style = MaterialTheme.typography.headlineSmall
                     )
 
-                    val options = (1..10).map { it.toString() }
+                    val options = (1..table!!.paxCapacity).map { it.toString() }
                     var expanded by remember { mutableStateOf(false) }
                     var pax by remember { mutableStateOf(options[0]) }
 
@@ -360,7 +352,7 @@ fun AddTableDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TableDialog(
     table: Table?,
@@ -389,8 +381,9 @@ fun TableDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
+                        val name = remember { table.name.ifEmpty { table.tableNumber } }
                         Text(
-                            text = "Table Number: ${table.tableNumber}",
+                            text = "Table: $name",
                             style = MaterialTheme.typography.headlineSmall
                         )
                         IconButton(
@@ -410,7 +403,16 @@ fun TableDialog(
 
                     if (table.tableStatus != Available && table.tableStatus != Unavailable){
                         Text(
-                            text = "Pax : ${table.pax}",
+                            text = "Pax : ${table.pax}/${table.paxCapacity}",
+                            modifier = Modifier.align(Alignment.Start),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Divider(Modifier.padding(vertical = 8.dp))
+                    } else {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            text = "Pax capacity : ${table.paxCapacity}",
                             modifier = Modifier.align(Alignment.Start),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
@@ -480,11 +482,10 @@ fun TableDialog(
                     }
                     when(table.tableStatus){
                         Available -> {
-                            Spacer(modifier = Modifier.height(52.dp))
+                            Spacer(modifier = Modifier.height(20.dp))
                             Button(onClick = onAssignClick) {
                                 Text(text = "Assign Seat")
                             }
-//                            Spacer(modifier = Modifier.height(20.dp))
                         }
                         Occupied ->{
                             Button(onClick = onAddOrderClick) {
@@ -532,7 +533,8 @@ fun TableDialog(
 @Composable
 fun PosTable(
     table: Table,
-    onClick: () -> Unit
+    settingMode: Boolean = false,
+    onClick: () -> Unit,
 ) {
     val icon = when (table.tableStatus) {
         Available -> Icons.Filled.Check
@@ -574,7 +576,7 @@ fun PosTable(
             ) {
                 Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(40.dp))
             }
-            if (!table.label.isNullOrEmpty())
+            if (!table.label.isNullOrEmpty() && !settingMode)
                 ElevatedAssistChip(
                     onClick = { },
                     label = {
@@ -582,12 +584,33 @@ fun PosTable(
                     },
 //                    modifier = Modifier.padding(bottom = 40.dp)
                 )
-            Text(
-                text = table.tableNumber.toString(),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier
+            if (settingMode && table.name.isNotEmpty()){
+                ElevatedAssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            text = "# ${table.tableNumber}",
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    },
+                )
+            }
+            if (table.name.isNotEmpty()){
+                Text(
+                    text = table.name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+            } else {
+                Text(
+                    text = table.tableNumber.toString(),
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier
 //            .padding(8.dp)
-            )
+                )
+            }
         }
     }
 }
@@ -598,7 +621,7 @@ fun PosTable(
 )
 @Composable
 fun TablePreview() {
-    PosTable(table = Table(tableStatus = Unavailable, pax = 2, tableNumber = 21, label = "AHBJJJKSB") ) {
+    PosTable(table = Table(tableStatus = Unavailable, pax = 2, tableNumber = 21, label = "AHBJJJKSB", name = "G-2"), settingMode = true ) {
 
     }
 }
@@ -614,7 +637,7 @@ fun AssignTablePreview() {
 @Composable
 fun TableDialogPreview() {
     TableDialog(
-        table = Table(tableNumber = 1, tableStatus = Occupied, currentOrder = "jdshbcksnkdsnndabkj"),
+        table = Table(tableNumber = 1, tableStatus = Occupied, currentOrder = "jdshbcksnkdsnndabkj", name = "B1"),
         onAddOrderClick = {},
         onClose = {},
         getOngoingOrder = {

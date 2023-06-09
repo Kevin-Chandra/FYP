@@ -14,11 +14,11 @@ interface OrderItemDao {
     @Upsert
     suspend fun upsertOrderItem(orderItem: OrderItem)
 
-    @Update
-    suspend fun updateOrderItem(orderItem: OrderItem)
-
     @Query("SELECT * FROM order_items WHERE orderItemId = :orderItemId")
     suspend fun getOrderItem(orderItemId: String): OrderItem
+
+    @Query("SELECT * FROM order_items WHERE foodId = :foodId")
+    suspend fun getOrderItemByFoodId(foodId: String): List<OrderItem>
 
     @Query("SELECT * FROM order_items ORDER BY timeAdded ASC")
     fun getOrderItemList(): Flow<List<OrderItem>>

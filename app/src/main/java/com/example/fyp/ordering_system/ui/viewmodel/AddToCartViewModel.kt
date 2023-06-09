@@ -10,7 +10,6 @@ import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemByReturnUs
 import com.example.fyp.menucreator.util.UiState
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.domain.local_database.GetOrderItemByIdUseCase
-import com.example.fyp.ordering_system.domain.local_database.UpdateOrderItemUseCase
 import com.example.fyp.ordering_system.domain.local_database.UpsertToCartUseCase
 import com.example.fyp.ordering_system.domain.validation.OrderValidationResult
 import com.example.fyp.ordering_system.domain.validation.ValidateModifierUseCase
@@ -35,7 +34,6 @@ import javax.inject.Inject
 @HiltViewModel
 class AddToCartViewModel @Inject constructor(
     private val upsertToCartUseCase: UpsertToCartUseCase,
-    private val updateOrderItemUseCase: UpdateOrderItemUseCase,
     private val getOrderItemByIdUseCase: GetOrderItemByIdUseCase,
     private val getModifierItemByReturnUseCase: GetModifierItemByReturnUseCase,
     private val getModifierListUseCase: GetModifierListUseCase,
@@ -215,7 +213,7 @@ class AddToCartViewModel @Inject constructor(
         }
 
         if (edit){
-            updateOrderItemUseCase(
+            upsertToCartUseCase(
                 getOrderItem(
                     item.orderItemId,
                     _addToCartState.value.foodId,
@@ -223,7 +221,8 @@ class AddToCartViewModel @Inject constructor(
                     _addToCartState.value.quantity,
                     _addToCartState.value.note,
                     _addToCartState.value.price
-                )
+                ),
+                edit
             )
         } else {
             upsertToCartUseCase(
@@ -234,7 +233,8 @@ class AddToCartViewModel @Inject constructor(
                     _addToCartState.value.quantity,
                     _addToCartState.value.note,
                     _addToCartState.value.price
-                )
+                ),
+                edit
             )
         }
         _addToCartUiState.emit(AddToCartUiState(successAdding = true, loading = false))

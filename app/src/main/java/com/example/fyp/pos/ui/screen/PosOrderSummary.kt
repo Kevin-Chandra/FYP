@@ -6,6 +6,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -202,11 +203,11 @@ fun PosOrderSummary(
                                         onDelete = {
                                             tableOrderViewModel.onEvent(TableOrderEvent.OnDeleteOrderItem(orderItem.orderItemId))
                                         },
-                                        onDecrement = { qty ->
-                                            tableOrderViewModel.onEvent(TableOrderEvent.OnIncrementQuantity(orderItem,qty))
-                                        },
-                                        onIncrement = { qty ->
-                                            tableOrderViewModel.onEvent(TableOrderEvent.OnIncrementQuantity(orderItem,qty))
+                                        onClick = {
+                                            navigator.navigate(PosScreen.PosAddToCartScreen.withRequiredArgs(
+                                                orderItem.foodId,
+                                                orderItem.quantity.toString(),
+                                            ) + "?orderItemId=${orderItem.orderItemId}")
                                         }
                                     )
                                 }
@@ -241,8 +242,7 @@ fun OrderItemRow(
     getModifier: (String) -> com.example.fyp.menucreator.data.model.Modifier?,
     getModifierItem: (String) -> ModifierItem?,
     onDelete: () -> Unit,
-    onIncrement: (Int) -> Unit,
-    onDecrement: (Int) -> Unit
+    onClick: () -> Unit,
 ) {
     val food = remember {
         getFood(orderItem.foodId)
@@ -252,15 +252,16 @@ fun OrderItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .height(150.dp)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable { onClick() },
     ) {
         Row(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.fillMaxSize().padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
-                Modifier.fillMaxWidth(0.8f),
+                Modifier.fillMaxWidth(0.88f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CoilImage(
@@ -286,37 +287,47 @@ fun OrderItemRow(
 //                Image(
 //                    imageVector = Icons.Default.Panorama, contentDescription = null,
 //                    modifier = Modifier
-//                        .size(100.dp)
-//                        .clip(RoundedCornerShape(10.dp))
+//                    .size(100.dp)
+//                    .clip(RoundedCornerShape(10.dp))
+//                    .padding(8.dp),
 //                )
-                Column(
-                    modifier = Modifier.padding(8.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = food.name,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.headlineMedium,
-                        maxLines = 1,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.basicMarquee()
-                    )
-                    if (orderItem.modifierItems?.isNotEmpty() == true) {
-                        Column(Modifier.verticalScroll(rememberScrollState())) {
-                            orderItem.modifierItems.forEach {
+            Text(
+                text = "${orderItem.quantity}x",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineMedium,
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(8.dp).basicMarquee()
+            )
+            Column(
+                modifier = Modifier.padding(8.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = food.name,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineMedium,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.basicMarquee()
+                )
+                if (orderItem.modifierItems?.isNotEmpty() == true) {
+                    Column(Modifier.verticalScroll(rememberScrollState())) {
+                        orderItem.modifierItems.forEach {
+                            Text(
+                                text = getModifier(it.key)?.name ?: "",
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            it.value.forEach { item ->
                                 Text(
-                                    text = getModifier(it.key)?.name ?: "",
-                                    fontWeight = FontWeight.SemiBold
+                                    text = getModifierItem(item)?.name ?: "",
+                                    modifier = Modifier.padding(horizontal = 8.dp)
                                 )
-                                it.value.forEach { item ->
-                                    Text(
-                                        text = getModifierItem(item)?.name ?: "",
-                                        modifier = Modifier.padding(horizontal = 8.dp)
-                                    )
-                                }
                             }
                         }
                     }
+                }
+            }
 //                orderItem.modifierItems?.forEach {
 //                    Text(text = getModifier(it.key).name)
 //                    it.value.forEach { item ->
@@ -326,66 +337,67 @@ fun OrderItemRow(
 //                        )
 //                    }
 //                }
-                }
             }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(8.dp).border(
-                    border = BorderStroke(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.primary
-                    ),
-                    shape = RoundedCornerShape(50)
-                )
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(8.dp)
             ) {
-                IconButton(
-                    onClick = { onIncrement(orderItem.quantity + 1) },
-                    modifier = Modifier.size(32.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                Text(
-                    text = "${orderItem.quantity}",
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(4.dp)
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
                 )
-                IconButton(
-                    onClick = { if (orderItem.quantity > 1) onDecrement(orderItem.quantity - 1)},
-                    modifier = Modifier.size(32.dp),
-                    enabled = orderItem.quantity > 1
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Remove,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
             }
+        }
+//            Column(
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                modifier = Modifier.padding(8.dp).border(
+//                    border = BorderStroke(
+//                        width = 2.dp,
+//                        color = MaterialTheme.colorScheme.primary
+//                    ),
+//                    shape = RoundedCornerShape(50)
+//                )
+//            ) {
+//                IconButton(
+//                    onClick = { onIncrement(orderItem.quantity + 1) },
+//                    modifier = Modifier.size(32.dp),
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Add,
+//                        contentDescription = null,
+//                        tint = MaterialTheme.colorScheme.primary
+//                    )
+//                }
+//                Text(
+//                    text = "${orderItem.quantity}",
+//                    fontWeight = FontWeight.SemiBold,
+//                    color = MaterialTheme.colorScheme.primary,
+//                    style = MaterialTheme.typography.titleMedium,
+//                    modifier = Modifier.padding(4.dp)
+//                )
+//                IconButton(
+//                    onClick = { if (orderItem.quantity > 1) onDecrement(orderItem.quantity - 1)},
+//                    modifier = Modifier.size(32.dp),
+//                    enabled = orderItem.quantity > 1
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Remove,
+//                        contentDescription = null,
+//                        tint = MaterialTheme.colorScheme.primary
+//                    )
+//                }
+//            }
 //            Column(
 //                horizontalAlignment = Alignment.CenterHorizontally
 //            ) {
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(start = 0.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+
 //            }
 
 
-        }
+//        }
 
     }
 }
@@ -404,9 +416,8 @@ fun RowPreview() {
         getFood = { Food(name = "ABCevsaesvervesav erfae efrv") },
         getModifier = { com.example.fyp.menucreator.data.model.Modifier(name = "Sauce") },
         getModifierItem = { ModifierItem(name = "Less") },
-        onIncrement = {},
-        onDecrement = {},
-        onDelete = {}
+        onDelete = {},
+        onClick = {}
     )
 }
 

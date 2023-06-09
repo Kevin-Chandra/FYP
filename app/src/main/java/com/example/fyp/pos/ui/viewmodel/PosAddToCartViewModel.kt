@@ -10,15 +10,12 @@ import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemByReturnUs
 import com.example.fyp.menucreator.util.UiState
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.domain.local_database.GetOrderItemByIdUseCase
-import com.example.fyp.ordering_system.domain.local_database.UpdateOrderItemUseCase
 import com.example.fyp.ordering_system.domain.local_database.UpsertToCartUseCase
 import com.example.fyp.ordering_system.domain.validation.OrderValidationResult
 import com.example.fyp.ordering_system.domain.validation.ValidateModifierUseCase
 import com.example.fyp.ordering_system.ui.state.AddToCartUiState
 import com.example.fyp.ordering_system.util.AddToCartEvent
 import com.example.fyp.ordering_system.util.AddToCartState
-import com.example.fyp.pos.domain.table_ordering.PosUpdateOrderItemUseCase
-import com.example.fyp.pos.domain.table_ordering.PosUpsertToCartUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -36,9 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PosAddToCartViewModel @Inject constructor(
-    private val upsertToCartUseCase: PosUpsertToCartUseCase,
-    private val updateOrderItemUseCase: PosUpdateOrderItemUseCase,
-    //--------------------------------
+    private val upsertToCartUseCase: UpsertToCartUseCase,
     private val getOrderItemByIdUseCase: GetOrderItemByIdUseCase,
     private val getModifierItemByReturnUseCase: GetModifierItemByReturnUseCase,
     private val getModifierListUseCase: GetModifierListUseCase,
@@ -237,30 +232,17 @@ class PosAddToCartViewModel @Inject constructor(
         _addToCartState.value.modifierList.forEach {
             map[it.key.productId] = it.value?.map { it1 -> it1.productId }!!
         }
-
-        if (edit){
-            updateOrderItemUseCase(
-                getOrderItem(
-                    item.orderItemId,
-                    _addToCartState.value.foodId,
-                    map,
-                    _addToCartState.value.quantity,
-                    _addToCartState.value.note,
-                    _addToCartState.value.price
-                )
-            )
-        } else {
-            upsertToCartUseCase(
-                getOrderItem(
-                    null,
-                    _addToCartState.value.foodId,
-                    map,
-                    _addToCartState.value.quantity,
-                    _addToCartState.value.note,
-                    _addToCartState.value.price
-                )
-            )
-        }
+        upsertToCartUseCase(
+            getOrderItem(
+                if (edit) item.orderItemId else null,
+                _addToCartState.value.foodId,
+                map,
+                _addToCartState.value.quantity,
+                _addToCartState.value.note,
+                _addToCartState.value.price
+            ),
+            edit
+        )
         _addToCartUiState.emit(AddToCartUiState(successAdding = true, loading = false))
     }
 

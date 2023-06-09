@@ -180,6 +180,7 @@ fun TableSettingScreen(
                         items(tables.value){ table ->
                             PosTable(
                                 table = table,
+                                settingMode = true,
                                 onClick = {
                                     Log.i("GGG", "ManageTableScreen: $table")
                                     clickedTable.value = table
@@ -392,7 +393,6 @@ fun TableSettingBottomSheet(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun AddEditTableBottomSheetContent(
     showLoading: Boolean,
