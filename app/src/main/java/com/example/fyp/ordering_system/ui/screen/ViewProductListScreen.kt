@@ -326,12 +326,13 @@ fun ProductCard(
                         )
                     }
                 }
-
-                Text(
-                    text = food.description,
-                    modifier = Modifier.align(Alignment.Start),
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                if (food.description.isNotEmpty()){
+                    Text(
+                        text = food.description,
+                        modifier = Modifier.align(Alignment.Start),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
         }
     }
