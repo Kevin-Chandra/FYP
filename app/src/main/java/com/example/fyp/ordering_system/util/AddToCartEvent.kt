@@ -5,7 +5,7 @@ import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
 
 sealed class AddToCartEvent {
-    data class FoodChanged(val food: Food,val requiredModifier: Int) : AddToCartEvent()
+    data class FoodChanged(val food: Food) : AddToCartEvent()
 
     //map of modifier id to list of item id
     data class ModifierItemListChanged(val modifier: Modifier, val list: List<ModifierItem>) : AddToCartEvent()
@@ -14,7 +14,7 @@ sealed class AddToCartEvent {
 
     data class NoteChanged(val note: String) : AddToCartEvent()
 
-    object RequiredModifierUnavailable : AddToCartEvent()
+//    data class RequiredModifierUnavailable(val modifierId: String) : AddToCartEvent()
 
     object AddToCart: AddToCartEvent()
 }

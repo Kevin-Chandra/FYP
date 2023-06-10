@@ -29,9 +29,10 @@ class ModifierListItemAdapter(
     }
     inner class ItemViewHolder(private var binding : RowProductItemBinding,private val view: View) : RecyclerView.ViewHolder(view) {
         fun bind(modifier: Modifier){
+            binding.productDescriptionEditText.visibility = View.GONE
+            binding.chip.visibility = View.GONE
             binding.productIdTextView.text = modifier.productId
             binding.productNameTextView.text = modifier.name
-            binding.chip.visibility = View.GONE
             binding.root.setOnClickListener{ onItemClicked.invoke(modifier)}
 
             if (modifier.imagePath != null){

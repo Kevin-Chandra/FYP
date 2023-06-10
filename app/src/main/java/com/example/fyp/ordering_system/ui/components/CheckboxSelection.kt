@@ -20,15 +20,17 @@ import com.example.fyp.menucreator.data.model.ModifierItem
 fun CheckboxSelection(
     items: List<ModifierItem>,
     selectedItems : SnapshotStateList<ModifierItem>,
+    maxSelection: Int = Int.MAX_VALUE,
     onClick : (List<ModifierItem>) -> Unit
 ){
+
     items.forEach { item ->
         if (item.availability) {
             Row(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .fillMaxWidth()
-                    .clickable {
+                    .clickable(selectedItems.size < maxSelection || selectedItems.contains(item) ) {
                         if (!selectedItems.contains(item)) {
                             selectedItems.add(item)
                         } else {
@@ -42,11 +44,13 @@ fun CheckboxSelection(
                 Checkbox(
                     checked = selectedItems.contains(item),
                     onCheckedChange = {
-                        if (it){
-                            selectedItems.add(item)
-                        } else
-                            selectedItems.remove(item)
-                        onClick(selectedItems)
+                        if (selectedItems.size < maxSelection || selectedItems.contains(item) ){
+                            if (it){
+                                selectedItems.add(item)
+                            } else
+                                selectedItems.remove(item)
+                            onClick(selectedItems)
+                        }
                     },
                     enabled = true
                 )

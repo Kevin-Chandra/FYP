@@ -1,6 +1,7 @@
 package com.example.fyp.menucreator.di
 
 import com.example.fyp.menucreator.domain.validation.ValidateDuplicateIdUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateModifierSelectionRangeUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateProductCategoryUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateProductNameUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateProductPriceUseCase
@@ -36,5 +37,11 @@ object MenuCreatorModule {
     @Singleton
     fun providesValidateDuplicateIdUseCase(): ValidateDuplicateIdUseCase {
         return ValidateDuplicateIdUseCase()
+    }
+
+    @Provides
+    @Singleton
+    fun providesValidateModifierSelectionRangeUseCase(): ValidateModifierSelectionRangeUseCase {
+        return ValidateModifierSelectionRangeUseCase()
     }
 }

@@ -18,6 +18,7 @@ import com.example.fyp.menucreator.domain.modifier.UpdateModifierUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemListUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateDuplicateIdUseCase
+import com.example.fyp.menucreator.domain.validation.ValidateModifierSelectionRangeUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateProductIdUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateProductNameUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateProductPriceUseCase
@@ -47,6 +48,7 @@ class AddEditModifierViewModel @Inject constructor(
     private val validateProductIdUseCase: ValidateProductIdUseCase,
     private val validateProductPriceUseCase: ValidateProductPriceUseCase,
     private val validateDuplicateIdUseCase: ValidateDuplicateIdUseCase,
+    private val validateModifierSelectionRangeUseCase: ValidateModifierSelectionRangeUseCase,
 ) : ViewModel() {
 
     private var _productId: String? = null
@@ -105,6 +107,12 @@ class AddEditModifierViewModel @Inject constructor(
             is AddEditModifierEvent.Save -> {
                 submit(event.isEdit,event.account)
             }
+            is AddEditModifierEvent.MinSelectionChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(minSelection = event.value)
+            }
+            is AddEditModifierEvent.MaxSelectionChanged -> {
+                _addEditModifierState.value = _addEditModifierState.value.copy(maxSelection = event.value)
+            }
         }
     }
 
@@ -143,6 +151,14 @@ class AddEditModifierViewModel @Inject constructor(
             )
         }
 
+        val modifierSelectionValidationResult = validateModifierSelectionRangeUseCase(
+            addEditModifierState.value.isRequired,
+            addEditModifierState.value.isMultipleChoice,
+            addEditModifierState.value.minSelection,
+            addEditModifierState.value.itemList.size,
+        )
+        validationResultList.add(modifierSelectionValidationResult)
+
         if (addEditModifierState.value.itemList.isEmpty()){
             _addEditModifierResponse.value = UiState.Failure(IllegalArgumentException("Modifier items is empty!"))
             return@launch
@@ -155,16 +171,19 @@ class AddEditModifierViewModel @Inject constructor(
             _addEditModifierResponse.value = UiState.Failure(IllegalArgumentException("Modifier items must be at least 2 for multiple choice!"))
             return@launch
         }
+//        if (addEditModifierState.value.isRequired && addEditModifierState.value.minSelection < 2){
+//            _addEditModifierResponse.value = UiState.Failure(IllegalArgumentException("Minimum selection must be 1 item for required modifier!"))
+//            return@launch
+//        }
 
         _addEditModifierState.value = _addEditModifierState.value.copy(
             itemErrorList = errorList
         )
-//        println(nameResult)
-//        println(validationResultList)
         if (validationResultList.any { !it.successful }){
             _addEditModifierState.value = _addEditModifierState.value.copy(
                 productIdError = idResult.errorMessage,
-                nameError = nameResult.errorMessage
+                nameError = nameResult.errorMessage,
+                selectionRangeError = modifierSelectionValidationResult.errorMessage
             )
             if (!duplicateIdResult.successful) {
                 _addEditModifierResponse.value = UiState.Failure(IllegalArgumentException("Duplicate Modifier Item Id!"))
@@ -203,7 +222,9 @@ class AddEditModifierViewModel @Inject constructor(
             addEditModifierState.value.isRequired,
             itemStringList.toList(),
             account.id,
-            account.id
+            account.id,
+            if (addEditModifierState.value.isMultipleChoice) addEditModifierState.value.minSelection else null,
+            if (addEditModifierState.value.isMultipleChoice) addEditModifierState.value.maxSelection else null,
         )
 
         addModifierUseCase.invoke(account, modifier,itemList,addEditModifierState.value.image){
@@ -227,8 +248,8 @@ class AddEditModifierViewModel @Inject constructor(
             modifierItemList = itemStringList.toList(),
             lastUpdated = Date(),
             lastUpdatedBy = account.id,
-            minItem = 0,
-            maxItem = itemStringList.size
+            minItem = if (addEditModifierState.value.isMultipleChoice) addEditModifierState.value.minSelection else null,
+            maxItem = if (addEditModifierState.value.isMultipleChoice) addEditModifierState.value.maxSelection else null,
         )
 
         updateModifierUseCase.invoke(account, newModifier,itemList,addEditModifierState.value.image){
@@ -243,9 +264,25 @@ class AddEditModifierViewModel @Inject constructor(
         isRequired: Boolean,
         itemList: List<String>,
         createdBy: String,
-        lastUpdatedBy: String
+        lastUpdatedBy: String,
+        minSelection: Int? = null,
+        maxSelection: Int? = null
     ): Modifier {
-        return Modifier(productId, name, isMultipleChoice, isRequired, itemList,0,itemList.size,null,null,null,Date(),createdBy,lastUpdatedBy)
+        return Modifier(
+            productId,
+            name,
+            isMultipleChoice,
+            isRequired,
+            itemList,
+            minSelection,
+            maxSelection,
+            null,
+            null,
+            null,
+            Date(),
+            createdBy,
+            lastUpdatedBy
+        )
     }
 
     private fun getModifierItem(
@@ -306,6 +343,8 @@ class AddEditModifierViewModel @Inject constructor(
         }
         onEvent(AddEditModifierEvent.ItemListChanged(list))
         onEvent(AddEditModifierEvent.ItemErrorListChanged(errorList))
+        onEvent(AddEditModifierEvent.MinSelectionChanged(modifier.minItem ?: 0))
+        onEvent(AddEditModifierEvent.MaxSelectionChanged(modifier.maxItem ?: list.size))
     }
 
 

@@ -107,16 +107,30 @@ class AddEditModifierFragment : Fragment() {
 
         adapter = ModifierItemAddEditAdapter(
             onItemRemoveClicked = { _, pos ->
-                println("${errorlist.size} -- $errorlist")
-                println("${list.size} -- $list")
                 val viewHolder = binding.itemRv.findViewHolderForAdapterPosition(pos)
                 viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_id_etl)?.isErrorEnabled = false
                 viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_name_etl)?.isErrorEnabled = false
                 viewHolder?.itemView?.findViewById<TextInputLayout>(R.id.item_price_etl)?.isErrorEnabled = false
+
+                if (viewModel.addEditModifierState.value.maxSelection == list.size){
+                    binding.modifierSelectionCountRs.setValues(
+                        if ( viewModel.addEditModifierState.value.maxSelection == viewModel.addEditModifierState.value.minSelection)
+                            viewModel.addEditModifierState.value.minSelection.toFloat() - 1f
+                        else
+                            viewModel.addEditModifierState.value.minSelection.toFloat(),
+                        list.size.toFloat()-1f,
+                    )
+                    viewModel.onEvent(AddEditModifierEvent.MaxSelectionChanged(list.size-1))
+                }
                 list.removeAt(pos)
                 errorlist.removeAt(pos)
                 viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
                 viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
+
+                if (list.size != 0 && binding.modifierSelectionCountRs.valueTo > list.size){
+                    binding.modifierSelectionCountRs.valueTo = list.size.toFloat()
+                }
+
                 binding.itemRv.adapter?.notifyItemRemoved(pos)
             },
             onIdChanged = { id , pos ->
@@ -147,6 +161,17 @@ class AddEditModifierFragment : Fragment() {
         }
         binding.isMultipleChoiceSwitch.setOnClickListener {
             viewModel.onEvent(AddEditModifierEvent.MultipleChoiceChanged(binding.isMultipleChoiceSwitch.isChecked))
+            binding.apply {
+                if (isMultipleChoiceSwitch.isChecked){
+                    modifierSelectionCountRs.visibility = View.VISIBLE
+                    textView12.visibility = View.VISIBLE
+                    divider9.visibility = View.VISIBLE
+                } else {
+                    textView12.visibility = View.GONE
+                    divider9.visibility = View.GONE
+                    modifierSelectionCountRs.visibility = View.GONE
+                }
+            }
         }
         binding.addModifierItemButton.setOnClickListener {
             addItemRow()
@@ -159,6 +184,12 @@ class AddEditModifierFragment : Fragment() {
                 command.contentEquals(NavigationCommand.EDIT),account?:return@setOnClickListener)
             )
         }
+        binding.modifierSelectionCountRs.addOnChangeListener { slider, _, _ ->
+            val sliderValues = slider.values
+            viewModel.onEvent(AddEditModifierEvent.MinSelectionChanged(sliderValues[0].toInt()))
+            viewModel.onEvent(AddEditModifierEvent.MaxSelectionChanged(sliderValues[1].toInt()))
+        }
+        binding.modifierSelectionCountRs.setValues(0f,0f)
         binding.resetButton.setOnClickListener {
             resetField()
         }
@@ -180,6 +211,15 @@ class AddEditModifierFragment : Fragment() {
         binding.isRequiredSwitch.isChecked = viewModel.addEditModifierState.value.isRequired
         binding.isMultipleChoiceSwitch.isChecked = viewModel.addEditModifierState.value.isMultipleChoice
         list = viewModel.addEditModifierState.value.itemList.toMutableList()
+        if (viewModel.addEditModifierState.value.isMultipleChoice){
+            binding.modifierSelectionCountRs.valueTo = list.size.toFloat()
+            binding.modifierSelectionCountRs.setValues(
+                viewModel.addEditModifierState.value.minSelection.toFloat(),viewModel.addEditModifierState.value.maxSelection.toFloat()
+            )
+            binding.modifierSelectionCountRs.visibility = View.VISIBLE
+            binding.textView12.visibility = View.VISIBLE
+            binding.divider9.visibility = View.VISIBLE
+        }
         viewModel.addEditModifierState.value.image?.let {
             Glide.with(requireContext())
                 .load(it)
@@ -220,6 +260,7 @@ class AddEditModifierFragment : Fragment() {
         adapter.notifyItemInserted(list.size-1)
         viewModel.onEvent(AddEditModifierEvent.ItemErrorListChanged(errorlist))
         viewModel.onEvent(AddEditModifierEvent.ItemListChanged(list))
+        binding.modifierSelectionCountRs.valueTo = list.size.toFloat()
     }
 
     private fun navigateBack() = findNavController().navigateUp()
@@ -272,6 +313,12 @@ class AddEditModifierFragment : Fragment() {
                     binding.modifierId.error = it.productIdError
                 } else {
                     binding.modifierId.error = null
+                }
+                if (it.selectionRangeError != null){
+                    binding.errorRs.text = it.selectionRangeError
+                    binding.errorRs.visibility = View.VISIBLE
+                } else {
+                    binding.errorRs.visibility = View.GONE
                 }
                 errorlist = it.itemErrorList.toMutableList()
                 if (errorlist.isNotEmpty()) {

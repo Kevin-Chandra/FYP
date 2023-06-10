@@ -390,6 +390,16 @@ class SecondFragment : Fragment() {
             }
             multipleChoiceValueTv.text = if (modifier.multipleChoice) "Yes" else "No"
             requiredValueTv.text = if (modifier.required) "Yes" else "No"
+            if (modifier.multipleChoice){
+                minSelectionValueTv.visibility = View.VISIBLE
+                minSelectionNameTv.visibility = View.VISIBLE
+                maxSelectionValueTv.visibility = View.VISIBLE
+                maxSelectionNameTv.visibility = View.VISIBLE
+                divider9.visibility = View.VISIBLE
+                divider8.visibility = View.VISIBLE
+                minSelectionValueTv.text = modifier.minItem.toString()
+                maxSelectionValueTv.text = modifier.maxItem.toString()
+            }
         }
 
         loadModifierItem(modifier)
@@ -399,7 +409,6 @@ class SecondFragment : Fragment() {
     }
 
     private fun loadBottomSheet(){
-        println("load bs")
         if (type == ProductType.Modifier){
             bottomSheetBinding.availableItemLayout.removeAllViews()
             viewModel.availabilityState.value.modifierItemAvailabilityMap?.forEach {
@@ -538,7 +547,6 @@ class SecondFragment : Fragment() {
 
             val list = food.modifierList as MutableList
             val iterator = list.iterator()
-//            var toUpdate = false
             while (iterator.hasNext()) {
                 val id = iterator.next()
                 val modifier = modifierListViewModel.getModifier(id)
@@ -568,8 +576,8 @@ class SecondFragment : Fragment() {
     //true if the id is to be removed
     private fun errorModifierDialog(msg: String,id:String,food:Food){
         val list = food.modifierList as MutableList
-        AlertDialog.Builder(context)
-            .setTitle("Exception occured")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Exception occurred!")
             .setMessage("Modifier Unavailable\nReason: $msg")
             .setCancelable(false)
             .setPositiveButton("Remove") {dialog, _ ->
@@ -610,8 +618,8 @@ class SecondFragment : Fragment() {
     }
 
     private fun errorDialog(msg: String){
-        AlertDialog.Builder(context)
-            .setTitle("Exception occured")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Exception occurred!")
             .setMessage("Reason: $msg")
             .setCancelable(false)
             .setPositiveButton("Ok") {
@@ -683,16 +691,10 @@ class SecondFragment : Fragment() {
                         bottomSheetBinding.saveButton.isEnabled = true
                         bottomSheetBinding.progressBarBottomSheet.visibility = View.GONE
                         if (it.data == "Loaded"){
-                            println(it.data)
                             loadBottomSheet()
                         }
                         if (it.data == "Updated Availability!"){
                             successToast(it.data)
-//                            binding.deleteFab.isEnabled = true
-//                            binding.editFab.isEnabled = true
-//                            allowRefresh = true
-//                            successToast("Product deleted successfully")
-//                            navigateBack()
                             bottomSheet.dismiss()
                         }
                     }
@@ -707,7 +709,6 @@ class SecondFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        println("OnDestroy Called")
         _binding = null
         _foodBinding = null
         _modifierBinding = null

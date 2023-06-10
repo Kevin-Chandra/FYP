@@ -52,6 +52,7 @@ class ModifierItemAddEditAdapter(
                 }
 
                 removeButton.setOnClickListener{
+                    removeButton.isEnabled = false
                     onItemRemoveClicked.invoke(item,adapterPosition)
                 }
             }

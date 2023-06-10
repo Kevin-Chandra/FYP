@@ -14,7 +14,6 @@ import javax.inject.Inject
 
 class UpdateProductAvailabilityUseCase @Inject constructor(
     private val foodRepo: FoodRepository,
-    private val modifierRepository: ModifierRepository,
     private val itemRepository: ModifierItemRepository
 
 ) {

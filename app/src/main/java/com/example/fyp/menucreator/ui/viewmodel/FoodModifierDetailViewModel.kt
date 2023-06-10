@@ -143,7 +143,6 @@ class FoodModifierDetailViewModel @Inject constructor(
             }
             is SetAvailabilityEvent.ModifierItemAvailabilityChanged -> {
                 _availabilityState.value.modifierItemAvailabilityMap?.set(event.availabilityList.first,event.availabilityList.second)
-//                _availabilityState.value = availabilityState.value.copy(modifierItemAvailabilityMap = availabilityState.value.modifierItemAvailabilityMap[event.availabilityList.key] = event.availabilityList.value)
             }
             is SetAvailabilityEvent.Save -> save(event.account)
         }
@@ -151,6 +150,19 @@ class FoodModifierDetailViewModel @Inject constructor(
 
     private fun save(account: Account){
         _updateAvailabilityResponse.value = UiState.Loading
+
+        val size = availabilityState.value.modifierItemAvailabilityMap?.values?.count { it } ?: 0
+        if (type != ProductType.FoodAndBeverage && modifier?.required == true){
+            if (modifier?.multipleChoice == true && size < modifier?.minItem!!){
+                _updateAvailabilityResponse.value = UiState.Failure(Exception("Availability is less than required minimum selection!"))
+                return
+            }
+            if (modifier?.multipleChoice != true && (size < 1)){
+                _updateAvailabilityResponse.value = UiState.Failure(Exception("Minimum availability required is one!"))
+                return
+            }
+        }
+
         if (type == ProductType.FoodAndBeverage){
             updateFoodAvailability(account,availabilityState.value.foodAvailability)
         } else {

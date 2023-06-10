@@ -42,8 +42,6 @@ class AddToCartViewModel @Inject constructor(
 
     private lateinit var  food : Food
 
-    private var requiredModifier = 0
-
     private var edit : Boolean = false
     private lateinit var item : OrderItem
 
@@ -53,11 +51,28 @@ class AddToCartViewModel @Inject constructor(
     private val _addToCartUiState = MutableSharedFlow<AddToCartUiState>()
     val addToCartUiState = _addToCartUiState.asSharedFlow()
 
+    private var modifierMap = mapOf<String,Modifier>()
+
     fun initializeItemEdit(id : String) = viewModelScope.launch{
         if (!edit){
             edit = true
             item = getOrderItemByIdUseCase(id)
             loadItemToState()
+        }
+    }
+
+    fun init(list: List<Modifier>){
+        modifierMap = list.associateBy { it.productId }
+
+        _addToCartState.update {
+            it.copy(
+                modifierList = modifierMap.values.associateWith { null }.toMutableMap()
+            )
+        }
+        _addToCartState.update {
+            it.copy(
+                errorList = modifierMap.keys.associateWith { null }.toMutableMap()
+            )
         }
     }
 
@@ -86,7 +101,6 @@ class AddToCartViewModel @Inject constructor(
                 }
             }.launchIn(viewModelScope)
         }
-
         list.forEach {
             it.awaitAll().forEach { it1->
                 it1 ?: return@forEach
@@ -102,12 +116,10 @@ class AddToCartViewModel @Inject constructor(
         map.forEach{
             onEvent(AddToCartEvent.ModifierItemListChanged(it.key,it.value.toList()))
         }
-
         _addToCartUiState.emit(AddToCartUiState(loading = false))
     }
 
     fun onEvent(event: AddToCartEvent){
-        println(event)
         when(event){
             AddToCartEvent.AddToCart -> {
                 addToCart()
@@ -116,8 +128,7 @@ class AddToCartViewModel @Inject constructor(
                 if (!this::food.isInitialized) {
                     food = event.food
                     if (food.availability) {
-                        requiredModifier = event.requiredModifier
-                        _addToCartState.update { _addToCartState.value.copy(foodId = event.food.productId) }
+                        _addToCartState.update { it.copy(foodId = event.food.productId) }
                         updatePrice()
                     }
                 }
@@ -127,21 +138,13 @@ class AddToCartViewModel @Inject constructor(
                 updatePrice()
             }
             is AddToCartEvent.QuantityChanged -> {
-                _addToCartState.update { _addToCartState.value.copy( quantity = event.qty) }
+                _addToCartState.update { it.copy( quantity = event.qty) }
                 updatePrice()
             }
             is AddToCartEvent.NoteChanged -> {
-                _addToCartState.update { _addToCartState.value.copy( note = event.note) }
-            }
-
-            is AddToCartEvent.RequiredModifierUnavailable -> {
-                if (requiredModifier > 0) requiredModifier -= 1
+                _addToCartState.update { it.copy( note = event.note) }
             }
         }
-    }
-
-    private fun resetState(){
-        _addToCartState.value = AddToCartState()
     }
 
     private fun updatePrice() {
@@ -178,38 +181,33 @@ class AddToCartViewModel @Inject constructor(
     private fun addToCart() = viewModelScope.launch{
         _addToCartUiState.emit(AddToCartUiState(loading = true))
 
-        val required = _addToCartState.value.modifierList.keys.count{
-            it.required
-        }
-
-        if (required != requiredModifier){
-            _addToCartUiState.emit (AddToCartUiState(
-                errorMessage = "Please select all required modifier",
-                loading = false
-            ))
-            return@launch
-        }
-
         val map = mutableMapOf<String,List<String>>()
         val validationResultList = mutableListOf<OrderValidationResult>()
 
         _addToCartState.value.modifierList.forEach{
-            it.value?.let { it1 -> validateModifierUseCase(it.key, it1) }
-                ?.let { it2 ->
-                    validationResultList.add(it2)
-                }
+            val result = validateModifierUseCase(it.key,it.value)
+            validationResultList.add(result)
+            if (!result.successful){
+                _addToCartState.value.errorList[it.key.productId] = result.errorMessage
+            } else {
+                _addToCartState.value.errorList[it.key.productId] = null
+            }
         }
+        println(validationResultList)
+        _addToCartState.update { it }
 
         if (validationResultList.any { !it.successful }){
             _addToCartUiState.emit (AddToCartUiState(
-                errorMessage = "Error",
+                errorMessage = "Selection error!",
                 loading = false
             ))
             return@launch
         }
 
         _addToCartState.value.modifierList.forEach {
-            map[it.key.productId] = it.value?.map { it1 -> it1.productId }!!
+            if (!it.value.isNullOrEmpty()){
+                map[it.key.productId] = it.value?.map { it1 -> it1.productId }!!
+            }
         }
 
         if (edit){
@@ -239,6 +237,4 @@ class AddToCartViewModel @Inject constructor(
         }
         _addToCartUiState.emit(AddToCartUiState(successAdding = true, loading = false))
     }
-
-
 }

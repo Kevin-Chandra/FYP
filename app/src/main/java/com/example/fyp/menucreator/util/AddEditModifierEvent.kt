@@ -14,6 +14,10 @@ sealed class AddEditModifierEvent {
 
     data class MultipleChoiceChanged(val multipleChoice: Boolean): AddEditModifierEvent()
 
+    data class MinSelectionChanged(val value: Int): AddEditModifierEvent()
+
+    data class MaxSelectionChanged(val value: Int): AddEditModifierEvent()
+
     data class ItemListChanged(val items:List<Triple<Pair<String,Boolean>,String,String>>): AddEditModifierEvent()
 
     data class ItemErrorListChanged(val itemErrors:List<Triple<String?,String?,String?>?>): AddEditModifierEvent()

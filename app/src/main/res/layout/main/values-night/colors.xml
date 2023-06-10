@@ -5,4 +5,5 @@
     <color name="borderlessButtonColor">#000000</color>
 
     <color name="primary">@color/md_theme_dark_primary</color>
+    <color name="error">@color/md_theme_dark_error</color>
 </resources>

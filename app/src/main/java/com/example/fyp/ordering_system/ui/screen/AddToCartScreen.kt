@@ -34,9 +34,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -65,7 +68,7 @@ import com.skydoves.landscapist.components.rememberImageComponent
 @Composable
 fun AddToCartScreen (
     navigator: NavController,
-    productViewModel: ProductViewModel = hiltViewModel(),
+    productViewModel: ProductViewModel,
     foodId: String,
     orderItemId: String? = null,
     quantity: Int = 1
@@ -75,22 +78,23 @@ fun AddToCartScreen (
     val addToCartViewModel = hiltViewModel<AddToCartViewModel>()
 
     val cartState = addToCartViewModel.addToCartState.collectAsStateWithLifecycle()
-    val uiState =
-        addToCartViewModel.addToCartUiState.collectAsStateWithLifecycle(AddToCartUiState())
+    val uiState = addToCartViewModel.addToCartUiState.collectAsStateWithLifecycle(AddToCartUiState())
     val food = productViewModel.getFood(foodId)!!
-
-    var count = 0
-    food.modifierList.forEach {
-        if (productViewModel.getModifier(it)?.required == true)
-            count++
-    }
-    addToCartViewModel.onEvent(AddToCartEvent.FoodChanged(food, count))
-    addToCartViewModel.onEvent(AddToCartEvent.QuantityChanged(quantity))
 
     LaunchedEffect(key1 = true) {
         orderItemId?.let {
             addToCartViewModel.initializeItemEdit(it)
         }
+        val modifierList = mutableListOf<com.example.fyp.menucreator.data.model.Modifier>()
+        food.modifierList.forEach {
+            val modifier = productViewModel.getModifier(it)
+            if (modifier?.modifierItemList?.any{ id -> productViewModel.getModifierItem(id)!!.availability } == true){
+                modifierList.add(modifier)
+            }
+        }
+        addToCartViewModel.init(modifierList)
+        addToCartViewModel.onEvent(AddToCartEvent.FoodChanged(food))
+        addToCartViewModel.onEvent(AddToCartEvent.QuantityChanged(quantity))
     }
 
     FypTheme() {
@@ -127,7 +131,6 @@ fun AddToCartScreen (
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-//                        item {
                         CoilImage(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -165,7 +168,9 @@ fun AddToCartScreen (
                         }
                         if (food.description.isNotEmpty()) {
                             Text(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
                                 textAlign = TextAlign.Start,
                                 text = food.description,
                                 style = MaterialTheme.typography.bodyLarge
@@ -173,7 +178,7 @@ fun AddToCartScreen (
                         }
                         if (food.modifiable) {
                             Column() {
-                                food.modifierList.forEach { id ->
+                                food.modifierList.forEach{ id ->
                                     val list = mutableListOf<ModifierItem>()
                                     productViewModel.getModifier(id)
                                         ?.let { it1 ->
@@ -185,11 +190,12 @@ fun AddToCartScreen (
                                                 ModifierSelection(
                                                     addToCartViewModel,
                                                     list,
-                                                    it1
+                                                    it1,
                                                 )
-                                            } else {
-                                                addToCartViewModel.onEvent(AddToCartEvent.RequiredModifierUnavailable)
                                             }
+//                                            else {
+////                                                addToCartViewModel.onEvent(AddToCartEvent.RequiredModifierUnavailable(id))
+//                                            }
                                         }
                                 }
                             }
@@ -212,13 +218,15 @@ fun AddToCartScreen (
                         )
 
                         Row(
-                            modifier = Modifier.padding(16.dp).border(
-                                border = BorderStroke(
-                                    width = 2.dp,
-                                    color = MaterialTheme.colorScheme.onSurface
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .border(
+                                    border = BorderStroke(
+                                        width = 2.dp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    ),
+                                    shape = RoundedCornerShape(50)
                                 ),
-                                shape = RoundedCornerShape(50)
-                            ),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
@@ -262,26 +270,34 @@ fun AddToCartScreen (
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ModifierSelection(
     addToCartViewModel: AddToCartViewModel,
     list: List<ModifierItem>,
-    thisModifier: com.example.fyp.menucreator.data.model.Modifier
+    thisModifier: com.example.fyp.menucreator.data.model.Modifier,
 ) {
 
     val cartState = addToCartViewModel.addToCartState.collectAsStateWithLifecycle()
 
     if (list.any { it.availability }){
         Card(
+            border = if (cartState.value.errorList[thisModifier.productId] != null) BorderStroke(2.dp,MaterialTheme.colorScheme.error) else null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp, horizontal = 16.dp),
-            elevation = CardDefaults.cardElevation()
+            elevation = CardDefaults.cardElevation(),
         ) {
             Column(
                 modifier = Modifier.padding(8.dp)
             ){
+                if ( cartState.value.errorList[thisModifier.productId] != null ){
+                    Text(
+                        text = cartState.value.errorList[thisModifier.productId].toString(),
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -303,15 +319,6 @@ fun ModifierSelection(
                             maxLines = 1,
                             fontWeight = FontWeight.Bold
                         )
-                        if (thisModifier.multipleChoice && cartState.value.modifierList[thisModifier]!= null){
-                            ElevatedAssistChip(
-                                onClick = {},
-                                label = {
-                                    Text(text = "${cartState.value.modifierList[thisModifier]?.size} items selected")
-                                },
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            )
-                        }
                     }
                     AssistChip(
                         label = {
@@ -319,10 +326,18 @@ fun ModifierSelection(
                                 maxLines = 1
                             )},
                         onClick = {},
-//                        modifier = Modifier.weight(1f)
                     )
                 }
-
+                if (thisModifier.multipleChoice && thisModifier.maxItem != null){
+                    var text by remember { mutableStateOf("Select at least ${thisModifier.minItem} and up to ${thisModifier.maxItem} items") }
+                    if (thisModifier.minItem == thisModifier.maxItem){
+                        text = "Select ${thisModifier.minItem} items"
+                    }
+                    Text(
+                        text = text,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
                 if (thisModifier.multipleChoice){
 
                     val selectedItems = remember {
@@ -334,6 +349,7 @@ fun ModifierSelection(
                     CheckboxSelection(
                         items = list,
                         selectedItems = selectedItems,
+                        maxSelection = thisModifier.maxItem ?: thisModifier.modifierItemList.size,
                         onClick = { items ->
                             addToCartViewModel.onEvent(AddToCartEvent.ModifierItemListChanged(thisModifier,items.toMutableList()))
                         }
