@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -48,6 +49,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -76,7 +80,7 @@ import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ViewProductListScreen(
     navigator: NavController,
@@ -136,12 +140,20 @@ fun ViewProductListScreen(
                                 )
                             })
                 },
-                modifier = Modifier.nestedScroll(nestedScrollConnection).nestedScroll(scrollBehavior.nestedScrollConnection)
+                modifier = Modifier
+                    .nestedScroll(nestedScrollConnection)
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(it)
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
                 ) {
                     if (filteredFoodList.value is UiState.Success) {
                         if ((filteredFoodList.value as UiState.Success<List<Food>>).data.isEmpty()){
@@ -175,6 +187,7 @@ fun ViewProductListScreen(
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .padding()
+                                    .testTag("product_list")
                             ) {
                                 items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
                                     ProductCard(item) { it1 ->
@@ -195,7 +208,7 @@ fun ViewProductListScreen(
                                     x = 0,
                                     y = -bottomBarOffsetHeightPx.value.roundToInt()
                                 )
-                            },
+                            }.testTag("view_cart_btn"),
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -230,9 +243,10 @@ fun CategoryList(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .testTag("category_list"),
         horizontalArrangement = Arrangement.Start,
-        contentPadding = PaddingValues(8.dp)
+        contentPadding = PaddingValues(8.dp),
     ){
         items(categoryList){
             ElevatedFilterChip(
@@ -252,7 +266,6 @@ fun CategoryList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductCard(
     food: Food,

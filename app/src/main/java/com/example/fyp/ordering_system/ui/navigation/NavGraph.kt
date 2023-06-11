@@ -1,6 +1,10 @@
 package com.example.fyp.ordering_system.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavArgument
 import androidx.navigation.NavHostController
@@ -20,6 +24,7 @@ import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SetupOnlineOrderingNavGraph(
     navController : NavHostController,
@@ -30,7 +35,11 @@ fun SetupOnlineOrderingNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.ProductListScreen.route){
+        startDestination = Screen.ProductListScreen.route,
+        modifier = Modifier.semantics {
+            testTagsAsResourceId = true
+        }
+    ){
         composable(
             route = Screen.ProductListScreen.route
         ){

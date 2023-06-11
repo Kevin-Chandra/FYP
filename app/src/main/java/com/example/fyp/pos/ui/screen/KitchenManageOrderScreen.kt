@@ -27,7 +27,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -55,6 +54,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.compose.FypTheme
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.data.model.OrderItem
@@ -62,8 +62,6 @@ import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.errorToast
 import com.example.fyp.ordering_system.util.formatTime
-import com.example.fyp.ordering_system.util.successToast
-import com.example.fyp.pos.ui.theme.FYPTheme
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.util.KitchenManageOrderItemEvent
 import java.util.Date
@@ -111,7 +109,7 @@ fun KitchenManageOrderScreen(
         confirmedOrders.addAll(ongoingItems.value.filter { it.orderItemStatus == OrderItemStatus.Confirmed })
     }
 
-    FYPTheme() {
+    FypTheme() {
         Surface() {
             Scaffold(
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) }

@@ -7,15 +7,20 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CustomerOrderBottomNavigation(navController: NavController,modifier: Modifier = Modifier) {
     val items = listOf(
@@ -24,7 +29,9 @@ fun CustomerOrderBottomNavigation(navController: NavController,modifier: Modifie
         CustomerBottomNavItem.OrderHistoryScreen,
     )
     NavigationBar(
-        modifier = modifier
+        modifier = modifier.semantics {
+            testTagsAsResourceId = true
+        }
     ){
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
@@ -36,7 +43,7 @@ fun CustomerOrderBottomNavigation(navController: NavController,modifier: Modifie
 //                    fontSize = 9.sp)
                         },
                 selected = currentRoute == item.screen_route,
-                alwaysShowLabel = false,
+                alwaysShowLabel = true,
                 onClick = {
                     navController.navigate(item.screen_route) {
 
@@ -48,7 +55,8 @@ fun CustomerOrderBottomNavigation(navController: NavController,modifier: Modifie
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
+                modifier = Modifier.testTag(item.title)
             )
         }
     }

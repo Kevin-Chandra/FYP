@@ -41,9 +41,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -65,6 +69,7 @@ import com.skydoves.landscapist.animation.circular.CircularRevealPlugin
 import com.skydoves.landscapist.coil.CoilImage
 import com.skydoves.landscapist.components.rememberImageComponent
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddToCartScreen (
     navigator: NavController,
@@ -115,7 +120,9 @@ fun AddToCartScreen (
                     }
                 },
             ) {
-                Box(modifier = Modifier.padding(it)) {
+                Box(modifier = Modifier.padding(it).semantics {
+                    testTagsAsResourceId = true
+                }) {
                     LaunchedEffect(key1 = uiState.value) {
                         if (uiState.value.errorMessage != null) {
                             errorToast(uiState.value.errorMessage ?: "", context)
@@ -177,7 +184,9 @@ fun AddToCartScreen (
                             )
                         }
                         if (food.modifiable) {
-                            Column() {
+                            Column(
+                                modifier = Modifier.testTag("modifier_selection_list")
+                            ) {
                                 food.modifierList.forEach{ id ->
                                     val list = mutableListOf<ModifierItem>()
                                     productViewModel.getModifier(id)
@@ -251,7 +260,8 @@ fun AddToCartScreen (
                             )
                             IconButton(onClick = {
                                 addToCartViewModel.onEvent(AddToCartEvent.QuantityChanged(cartState.value.quantity.inc()))
-                            }) {
+                            },
+                            ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Add,
                                     contentDescription = "Add one"

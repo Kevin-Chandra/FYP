@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/bug_report_btn"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:icon="@drawable/ic_bug_report"
+        app:iconSize="48dp"
+        app:layout_constraintEnd_toStartOf="@+id/feedback_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView11"
+        style="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="Report bug"
+        app:flow_wrapMode="aligned"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/bug_report_btn"
+        app:layout_constraintStart_toStartOf="@+id/bug_report_btn"
+        app:layout_constraintTop_toBottomOf="@+id/bug_report_btn" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/feedback_btn"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:flow_wrapMode="aligned"
+        app:icon="@drawable/ic_feedback"
+        app:iconSize="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/bug_report_btn"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        style="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="Submit feedback"
+        app:flow_wrapMode="aligned"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/feedback_btn"
+        app:layout_constraintStart_toStartOf="@+id/feedback_btn"
+        app:layout_constraintTop_toBottomOf="@+id/feedback_btn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

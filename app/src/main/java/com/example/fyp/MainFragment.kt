@@ -1,6 +1,8 @@
 package com.example.fyp
 
+import android.app.Dialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,22 +12,30 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.example.fyp.account_management.AccountActivity
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.AccountType
-import com.example.fyp.account_management.data.model.AccountType.*
-import com.example.fyp.account_management.data.model.StaffPosition
-import com.example.fyp.account_management.data.model.StaffPosition.*
+import com.example.fyp.account_management.data.model.AccountType.Admin
+import com.example.fyp.account_management.data.model.AccountType.Customer
+import com.example.fyp.account_management.data.model.AccountType.Manager
+import com.example.fyp.account_management.data.model.AccountType.Staff
+import com.example.fyp.account_management.data.model.StaffPosition.Disabled
+import com.example.fyp.account_management.data.model.StaffPosition.Pending
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
-import com.example.fyp.account_management.util.Response
+import com.example.fyp.databinding.FeedbackDialogBinding
 import com.example.fyp.databinding.FragmentMainBinding
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.ordering_system.ui.OnlineOrderingActivity
 import com.example.fyp.pos.PosActivity
+import com.example.fyp.util.Constants
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.dialog.MaterialDialogs
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
+    private var _dialogBinding: FeedbackDialogBinding? = null
     private val binding get() = _binding!!
+    private val dialogBinding get() = _dialogBinding!!
 
     private val authViewModel by viewModels<MainAuthViewModel>()
 
@@ -39,14 +49,15 @@ class MainFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentMainBinding.inflate(inflater, container, false)
+        _dialogBinding = FeedbackDialogBinding.inflate(inflater,container,false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initProductSettings()
         getSession()
+        initProductSettings()
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             binding.helloTv.visibility = View.INVISIBLE
@@ -73,6 +84,25 @@ class MainFragment : Fragment() {
         binding.menuCreatorButton.setOnClickListener {
             val i = Intent(requireContext(), MenuCreatorActivity::class.java)
             startActivity(i)
+        }
+
+        binding.feedbackFab.setOnClickListener {
+            if (dialogBinding.root.parent != null){
+                (dialogBinding.root.parent as ViewGroup).removeView(dialogBinding.root)
+
+            }
+            MaterialAlertDialogBuilder(requireContext())
+                .setView(dialogBinding.root)
+                .setCancelable(true)
+                .show()
+        }
+
+        dialogBinding.bugReportBtn.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.Url.bugReportUrl)))
+        }
+
+        dialogBinding.feedbackBtn.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.Url.feedbackUrl)))
         }
     }
 

@@ -15,14 +15,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.example.compose.FypTheme
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.data.model.AccountType.*
-import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.data.model.StaffPosition.*
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.pos.ui.navigation.PosScreen
-import com.example.fyp.pos.ui.theme.FYPTheme
 
 @Composable
 fun MainPosScreen(
@@ -40,7 +38,7 @@ fun MainPosScreen(
         }
     }
 
-    FYPTheme() {
+    FypTheme() {
         Surface() {
             Box(modifier = Modifier.fillMaxSize()){
                 if (account.value == null){
