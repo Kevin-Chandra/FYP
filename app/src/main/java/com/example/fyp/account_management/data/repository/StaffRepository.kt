@@ -3,6 +3,7 @@ package com.example.fyp.account_management.data.repository
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
 import com.example.fyp.account_management.data.model.*
@@ -64,15 +65,18 @@ class StaffRepository @Inject constructor(
             }
     }
 
-    fun getToken(result: (Flow<Response<String>>) -> Unit){
-        adminSettings.document(FireStoreDocumentField.STAFF_REGISTRATION_TOKEN)
-            .addSnapshotListener{ snapshot,e ->
-                if (e != null) {
-                    result.invoke(flowOf(Response.Error(e)))
-                    return@addSnapshotListener
-                }
-                result.invoke(flowOf(Response.Success(snapshot?.get(FireStoreDocumentField.STAFF_REGISTRATION_TOKEN).toString())))
-            }
+    suspend fun getToken() : Response<String>{
+        return try {
+            val data = adminSettings.document(FireStoreDocumentField.STAFF_REGISTRATION_TOKEN)
+                .get()
+                .await()
+                .getString(FireStoreDocumentField.STAFF_REGISTRATION_TOKEN)
+            Response.Success(data ?: "")
+        } catch (e: Exception){
+//            Log.d("StaffRepository", "getToken: ")
+            e.printStackTrace()
+            Response.Error(e)
+        }
     }
 
     fun getPendingStaff(result: (Flow<Response<List<Account>>>) -> Unit) = CoroutineScope(Dispatchers.IO).launch{

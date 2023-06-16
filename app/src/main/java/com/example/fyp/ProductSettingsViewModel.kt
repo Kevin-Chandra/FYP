@@ -11,6 +11,7 @@ import com.example.fyp.menucreator.domain.foodCategory.GetFoodCategoryUseCase
 import com.example.fyp.menucreator.domain.foodCategory.UpdateFoodCategoryUseCase
 import com.example.fyp.menucreator.domain.productSettings.GetServiceChargeUseCase
 import com.example.fyp.menucreator.domain.productSettings.GetTaxUseCase
+import com.example.fyp.menucreator.domain.productSettings.GetVersionNameUseCase
 import com.example.fyp.menucreator.domain.productSettings.InsertSettingUseCase
 import com.example.fyp.menucreator.domain.productSettings.SetServiceChargeUseCase
 import com.example.fyp.menucreator.domain.productSettings.SetTaxUseCase
@@ -35,6 +36,7 @@ class ProductSettingsViewModel @Inject constructor(
     private val setTaxUseCase: SetTaxUseCase,
     private val getServiceChargeUseCase: GetServiceChargeUseCase,
     private val getTaxUseCase: GetTaxUseCase,
+    private val getVersionNameUseCase: GetVersionNameUseCase,
 ) : ViewModel(){
 
     private val _updateState = MutableStateFlow<Response<String>>(Response.Success(""))
@@ -46,8 +48,15 @@ class ProductSettingsViewModel @Inject constructor(
     private val _tax = MutableSharedFlow<Double>()
     val tax = _tax.asSharedFlow()
 
+    private val _versionName = MutableStateFlow<Response<Pair<String,String>>>(Response.Loading)
+    val versionName = _versionName.asStateFlow()
+
     init {
         insertSettingToDatabase()
+    }
+
+    fun getVersionName() = viewModelScope.launch{
+        _versionName.value =  getVersionNameUseCase()
     }
 
     fun insertSettingToDatabase() = viewModelScope.launch {

@@ -51,12 +51,10 @@ class ManageStaffFragment : Fragment() {
     private val viewModel by activityViewModels<AdminViewModel>()
     private val staffViewModel by activityViewModels<StaffViewModel>()
 
-    private var user: Account? = null
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         _binding = FragmentManageStaffBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -149,7 +147,7 @@ class ManageStaffFragment : Fragment() {
 
     private fun showEmptyPendingText(boolean: Boolean) {
         binding.apply {
-            if (boolean == true){
+            if (boolean){
                 pendingStaffRv.visibility = View.GONE
                 emptyPendingTv.visibility = View.VISIBLE
             }
@@ -162,7 +160,7 @@ class ManageStaffFragment : Fragment() {
 
     private fun showEmptyStaffText(boolean: Boolean) {
         binding.apply {
-            if (boolean == true){
+            if (boolean){
                 staffListRv.visibility = View.GONE
                 emptyStaffTv.visibility = View.VISIBLE
             }
@@ -172,24 +170,6 @@ class ManageStaffFragment : Fragment() {
             }
         }
     }
-
-//    private fun registerFilterChanged() {
-//        val ids = binding.filterCg.checkedChipIds
-//
-//        val titles = mutableListOf<CharSequence>()
-//
-//        ids.forEach { id ->
-//            titles.add(chips_group.findViewById<Chip>(id).text)
-//        }
-//
-//        val text = if (titles.isNotEmpty()) {
-//            titles.joinToString(", ")
-//        } else {
-//            "No Choice"
-//        }
-//
-//        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-//    }
 
     private fun generateRandomToken(length: Int): String{
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -203,23 +183,13 @@ class ManageStaffFragment : Fragment() {
             viewModel.setTokenResponse.collect() {
                 when (it) {
                     is Response.Loading -> {
-//                        binding.deleteBtn.isEnabled = false
-//                        binding.progressBar.visibility = View.VISIBLE
                     }
                     is Response.Error -> {
-//                        binding.progressBar.visibility = View.GONE
-//                        binding.deleteBtn.isEnabled = true
                         it.exception.message?.let { it1 -> errorToast(it1) }
                     }
                     is Response.Success -> {
                         if (it.data == "Token Updated")
                             successToast(it.data)
-//                        if (it.data == "Account deleted successfully!"){
-//                            binding.deleteBtn.isEnabled = true
-//                            binding.progressBar.visibility = View.GONE
-//                            successToast(it.data)
-//                            navigateLogin()
-//                        }
                     }
                 }
             }
@@ -231,22 +201,12 @@ class ManageStaffFragment : Fragment() {
             viewModel.getTokenResponse.collect() {
                 when (it) {
                     is Response.Loading -> {
-//                        binding.deleteBtn.isEnabled = false
-//                        binding.progressBar.visibility = View.VISIBLE
                     }
                     is Response.Error -> {
-//                        binding.progressBar.visibility = View.GONE
-//                        binding.deleteBtn.isEnabled = true
                         it.exception.message?.let { it1 -> errorToast(it1) }
                     }
                     is Response.Success -> {
                         binding.tokenEt.setText(it.data)
-//                        if (it.data == "Account deleted successfully!"){
-//                            binding.deleteBtn.isEnabled = true
-//                            binding.progressBar.visibility = View.GONE
-//                            successToast(it.data)
-//                            navigateLogin()
-//                        }
                     }
                 }
             }

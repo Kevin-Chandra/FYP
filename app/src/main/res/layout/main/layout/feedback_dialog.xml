@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
@@ -23,12 +24,9 @@
         style="@style/TextAppearance.Material3.TitleMedium"
         android:layout_width="75dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
         android:text="Report bug"
-        app:flow_wrapMode="aligned"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:flow_wrapMode="aligned"
         app:layout_constraintEnd_toEndOf="@+id/bug_report_btn"
         app:layout_constraintStart_toStartOf="@+id/bug_report_btn"
         app:layout_constraintTop_toBottomOf="@+id/bug_report_btn" />
@@ -49,17 +47,56 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/textView13"
         style="@style/TextAppearance.Material3.TitleMedium"
         android:layout_width="75dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
         android:text="Submit feedback"
-        app:flow_wrapMode="aligned"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:flow_wrapMode="aligned"
+        app:layout_constraintBottom_toTopOf="@id/spacer"
         app:layout_constraintEnd_toEndOf="@+id/feedback_btn"
         app:layout_constraintStart_toStartOf="@+id/feedback_btn"
         app:layout_constraintTop_toBottomOf="@+id/feedback_btn" />
+
+    <Space
+        android:id="@+id/spacer"
+        android:layout_width="0dp"
+        android:layout_height="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/update_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/update_btn"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:visibility="gone"
+        app:flow_wrapMode="aligned"
+        app:icon="@drawable/ic_update"
+        app:iconSize="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spacer"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/update_app_tv"
+        style="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Update Available"
+        android:textAlignment="center"
+        android:visibility="gone"
+        app:flow_wrapMode="aligned"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/update_btn"
+        app:layout_constraintStart_toStartOf="@+id/update_btn"
+        app:layout_constraintTop_toBottomOf="@+id/update_btn"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

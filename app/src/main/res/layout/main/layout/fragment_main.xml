@@ -57,21 +57,23 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:text="Menu Creator"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/account_btn"
-            app:layout_constraintTop_toBottomOf="@+id/hello_tv" />
+            app:layout_constraintTop_toBottomOf="@+id/hello_tv"
+            tools:visibility="visible" />
 
         <Button
             android:id="@+id/account_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:text="Account"
-            app:layout_constraintBottom_toBottomOf="@+id/menu_creator_button"
             app:layout_constraintEnd_toStartOf="@+id/menu_creator_button"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/menu_creator_button" />
+            app:layout_constraintTop_toBottomOf="@+id/hello_tv" />
 
         <Button
             android:id="@+id/online_ordering_btn"
@@ -83,7 +85,7 @@
             app:layout_constraintEnd_toStartOf="@+id/pos_btn"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/menu_creator_button" />
+            app:layout_constraintTop_toBottomOf="@+id/account_btn" />
 
         <Button
             android:id="@+id/pos_btn"
@@ -96,7 +98,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/online_ordering_btn"
-            app:layout_constraintTop_toBottomOf="@+id/menu_creator_button"
+            app:layout_constraintTop_toBottomOf="@+id/account_btn"
             tools:visibility="visible" />
 
         <TextView

@@ -50,7 +50,7 @@ class MainAccountFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         _binding = FragmentMainAccountBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -81,9 +81,7 @@ class MainAccountFragment : Fragment() {
             }
 
             if (user?.accountType == AccountType.Staff) {
-                println("staff ${user?.staffPosition}")
                 if (user?.staffPosition == StaffPosition.Pending) {
-                    println("staff p")
                     binding.accountStatusChip.text = "Pending Account"
                     binding.accountStatusChip.visibility = View.VISIBLE
                     binding.accountStatusChip.setOnClickListener {

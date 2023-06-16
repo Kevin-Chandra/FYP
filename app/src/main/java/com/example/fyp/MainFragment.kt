@@ -1,6 +1,5 @@
 package com.example.fyp
 
-import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +9,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.fyp.account_management.AccountActivity
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType.Admin
@@ -19,6 +21,7 @@ import com.example.fyp.account_management.data.model.AccountType.Staff
 import com.example.fyp.account_management.data.model.StaffPosition.Disabled
 import com.example.fyp.account_management.data.model.StaffPosition.Pending
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
+import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FeedbackDialogBinding
 import com.example.fyp.databinding.FragmentMainBinding
 import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
@@ -26,8 +29,8 @@ import com.example.fyp.ordering_system.ui.OnlineOrderingActivity
 import com.example.fyp.pos.PosActivity
 import com.example.fyp.util.Constants
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.dialog.MaterialDialogs
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -42,6 +45,8 @@ class MainFragment : Fragment() {
     private val productSettingsViewModel by activityViewModels<ProductSettingsViewModel>()
 
     private lateinit var account: Account
+
+    val versionName = BuildConfig.VERSION_NAME
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -98,17 +103,19 @@ class MainFragment : Fragment() {
         }
 
         dialogBinding.bugReportBtn.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.Url.bugReportUrl)))
+            openLink(Constants.Url.bugReportUrl)
         }
 
         dialogBinding.feedbackBtn.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.Url.feedbackUrl)))
+            openLink(Constants.Url.feedbackUrl)
         }
     }
 
     private fun getSession() = authViewModel.getSession(true) {
         binding.onlineOrderingBtn.isEnabled = false
         if (it != null){
+            productSettingsViewModel.getVersionName()
+            observeVersion()
             account = it
             binding.shimmerHello.stopShimmer()
             binding.shimmerHello.visibility = View.GONE
@@ -124,6 +131,7 @@ class MainFragment : Fragment() {
                 Admin,Manager -> {
                     binding.posBtn.visibility = View.VISIBLE
                     binding.onlineOrderingBtn.visibility = View.VISIBLE
+                    binding.menuCreatorButton.visibility = View.VISIBLE
                     binding.onlineOrderingBtn.isEnabled = true
                 }
                 Staff -> {
@@ -131,6 +139,7 @@ class MainFragment : Fragment() {
                         binding.infoTv.visibility = View.GONE
                         binding.posBtn.visibility = View.VISIBLE
                         binding.onlineOrderingBtn.visibility = View.VISIBLE
+                        binding.menuCreatorButton.visibility = View.VISIBLE
                         binding.onlineOrderingBtn.isEnabled = true
                     } else {
                         binding.infoTv.text = "Your staff account is currently ${it.staffPosition}. Please contact admin for more details"
@@ -139,7 +148,40 @@ class MainFragment : Fragment() {
                 }
             }
         }
+
     }
+
+    private fun observeVersion() = viewLifecycleOwner.lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            productSettingsViewModel.versionName.collect() {
+                when (it) {
+                    is Response.Loading -> {
+                    }
+                    is Response.Error -> {
+//                        it.exception.message?.let { it1 -> errorToast(it1) }
+                    }
+                    is Response.Success -> {
+                        if (it.data.first != versionName){
+                            dialogBinding.updateBtn.visibility = View.VISIBLE
+                            dialogBinding.updateAppTv.visibility = View.VISIBLE
+                            dialogBinding.updateBtn.setOnClickListener { _ ->
+                                if (it.data.second.isNotEmpty())
+                                    openLink(it.data.second)
+                            }
+                        } else {
+                            dialogBinding.updateBtn.visibility = View.GONE
+                            dialogBinding.updateAppTv.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun openLink(link: String){
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+    }
+
 
     private fun initProductSettings(){
         productSettingsViewModel.insertSettingToDatabase()

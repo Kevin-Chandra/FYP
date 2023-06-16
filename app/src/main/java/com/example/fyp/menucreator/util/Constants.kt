@@ -51,6 +51,9 @@ object FireStoreDocumentField{
     const val TABLE_NUMBER = "tableNumber"
     const val TABLE_LABEL = "label"
     const val PAX = "pax"
+    const val APP_VERSION = "Update"
+    const val VERSION_NAME = "versionName"
+    const val DOWNLOAD_LINK = "link"
 }
 
 object NavigationCommand{

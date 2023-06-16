@@ -12,9 +12,5 @@ import javax.inject.Inject
 class GetRegisterStaffTokenUseCase @Inject constructor(
     private val staffRepository: StaffRepository
 ) {
-    operator fun invoke(
-        result: (Flow<Response<String>>) -> Unit
-    ) {
-        staffRepository.getToken(result)
-    }
+    suspend operator fun invoke() = staffRepository.getToken()
 }

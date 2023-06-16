@@ -52,6 +52,16 @@ class ProductSettingsRepository @Inject constructor(
         }
     }
 
+    suspend fun getVersionName(): Response<Pair<String,String>> {
+        return try {
+            val versionName = productSettingsCollectionReference.document(FireStoreDocumentField.APP_VERSION)
+                .get().await()
+            Response.Success(Pair(versionName.getString(FireStoreDocumentField.VERSION_NAME)?:"", versionName.getString(FireStoreDocumentField.DOWNLOAD_LINK) ?: ""))
+        } catch (e: Exception){
+            Response.Error(e)
+        }
+    }
+
     fun setTax(amount: Double, result: (Response<String>) -> Unit){
         productSettingsCollectionReference.document(FireStoreDocumentField.PRODUCT_SETTINGS)
             .update(mapOf( FireStoreDocumentField.TAX to amount))

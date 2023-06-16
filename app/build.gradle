@@ -7,6 +7,7 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'dagger.hilt.android.plugin'
     id 'com.google.devtools.ksp' version '1.8.20-1.0.10'
+    id 'com.google.firebase.firebase-perf'
 }
 
 kotlin {
@@ -29,7 +30,7 @@ android {
         minSdk 26
         targetSdk 33
         versionCode 1
-        versionName "1.4-alpha"
+        versionName "beta-1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -183,6 +184,12 @@ dependencies {
 
     //Lottie animation
     implementation "com.airbnb.android:lottie-compose:6.0.0"
+
+    //Performance Monitoring
+    implementation 'com.google.firebase:firebase-perf-ktx:20.3.3'
+
+    //Google Analytics
+    implementation 'com.google.firebase:firebase-analytics:21.3.0'
 
     //Draggable Grid
 //    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")

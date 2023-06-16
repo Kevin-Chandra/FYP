@@ -2,4 +2,5 @@
 <resources>
     <string name="title_activity_online_ordering">Online Ordering Activity</string>
     <string name="title_activity_pos">PosActivity</string>
+    <string name="default_notification_channel_id">Default Channel</string>
 </resources>
