@@ -58,7 +58,7 @@
         app:layout_constraintTop_toBottomOf="@+id/change_password_btn"
         tools:visibility="visible" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/logout_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -66,14 +66,17 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:backgroundTint="@color/red"
-        android:drawableLeft="@drawable/ic_logout"
+        app:iconTint="@color/white"
+        app:icon="@drawable/ic_logout"
+        app:iconGravity="textStart"
         android:text="Logout"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/register_staff_btn" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/delete_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -81,9 +84,11 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/red"
-        android:drawableLeft="@drawable/ic_delete"
-        android:drawableTint="@color/white"
+        app:icon="@drawable/ic_delete"
+        app:iconTint="@color/white"
+        app:iconGravity="textStart"
         android:text="Delete Account"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

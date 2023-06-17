@@ -1,6 +1,5 @@
 package com.example.fyp.ordering_system.ui.components
 
-import androidx.compose.material.BottomNavigation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -9,13 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -40,7 +36,6 @@ fun CustomerOrderBottomNavigation(navController: NavController,modifier: Modifie
                 icon = { Icon(painterResource(id = item.icon), contentDescription = item.title) },
                 label = { Text(
                     text = item.title,)
-//                    fontSize = 9.sp)
                         },
                 selected = currentRoute == item.screen_route,
                 alwaysShowLabel = true,

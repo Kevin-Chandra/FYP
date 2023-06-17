@@ -6,8 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,12 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.compose.FypTheme
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
-import com.example.fyp.account_management.util.Response
 import com.example.fyp.ordering_system.ui.navigation.OnlineOrderingNavGraph
 import com.example.fyp.ordering_system.ui.navigation.SetupOnlineOrderingNavGraph
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel

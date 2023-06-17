@@ -46,7 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.compose.FypTheme
+import com.example.fyp.theme.FypTheme
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food

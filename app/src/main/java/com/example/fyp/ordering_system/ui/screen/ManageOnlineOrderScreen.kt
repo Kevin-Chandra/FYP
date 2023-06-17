@@ -60,7 +60,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.compose.FypTheme
+import com.example.fyp.theme.FypTheme
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.ui.view_model.AccountViewModel

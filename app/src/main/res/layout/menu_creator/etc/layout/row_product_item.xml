@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="10dp"
+    style="@style/Widget.Material3.CardView.Elevated"
     app:cardElevation="4dp"
-    app:strokeWidth="0dp"
     android:clickable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout

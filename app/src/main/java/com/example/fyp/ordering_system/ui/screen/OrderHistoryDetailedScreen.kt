@@ -21,14 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.compose.FypTheme
+import com.example.fyp.theme.FypTheme
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
-import com.example.fyp.pos.ui.navigation.PosScreen
 import com.example.fyp.pos.ui.screen.OrderInvoiceDetailedView
 
 @OptIn(ExperimentalMaterial3Api::class)

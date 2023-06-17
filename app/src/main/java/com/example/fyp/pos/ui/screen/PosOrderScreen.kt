@@ -8,7 +8,6 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +29,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -53,12 +53,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.compose.FypTheme
+import com.example.fyp.theme.FypTheme
 import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.FoodCategory
@@ -72,7 +71,6 @@ import com.skydoves.landscapist.coil.CoilImage
 import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PosOrderScreen(
     navController: NavController,
@@ -94,8 +92,6 @@ fun PosOrderScreen(
         onBackPressed()
     }
 
-    println("pos order screen")
-
     FypTheme() {
         Surface() {
             Scaffold(
@@ -109,14 +105,8 @@ fun PosOrderScreen(
                             .padding(8.dp)
                     ) {
                         Text(text = "${cart.value.size} Item • ")
-//                        Spacer(modifier = Modifier.fillMaxWidth(0.5f))
                         Text(text = "View order summary")
                     }
-//                    BottomAppBar(
-//                        modifier = Modifier.
-//                    ) {
-//
-//                    }
                 }
             ) {
                 PosOrderScreenContent(
@@ -178,13 +168,8 @@ fun PosOrderScreenContent(
             }
         }
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-//                .fillMaxHeight(0.95f)
-//                .align(Alignment.BottomCenter)
-            ,
-            shape = RoundedCornerShape(7),
-
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(topStartPercent = 7, topEndPercent = 7),
         ) {
             Column(
                 Modifier.padding(16.dp)
@@ -223,7 +208,7 @@ fun PosOrderScreenContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductItem(
     food: Food,
@@ -249,33 +234,33 @@ fun ProductItem(
 //                modifier = Modifier.fillMaxHeight(),
 //
 //            ) {
-                CoilImage(
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(RoundedCornerShape(10.dp)),
-                    imageModel = {food.imageUri?: R.mipmap.ic_launcher},
-                    imageOptions = ImageOptions(
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.Center,
-                        contentDescription = "Food Image",
-                        colorFilter = null,
-                    ),
-                    previewPlaceholder = R.mipmap.ic_launcher,
-                    component = rememberImageComponent {
-                        +ShimmerPlugin(
-                            baseColor = Color.Gray,
-                            highlightColor = Color.White
-                        )
-                    },
-                )
+//                CoilImage(
+//                    modifier = Modifier
+//                        .size(150.dp)
+//                        .clip(RoundedCornerShape(10.dp)),
+//                    imageModel = {food.imageUri?: R.mipmap.ic_launcher},
+//                    imageOptions = ImageOptions(
+//                        contentScale = ContentScale.Crop,
+//                        alignment = Alignment.Center,
+//                        contentDescription = "Food Image",
+//                        colorFilter = null,
+//                    ),
+//                    previewPlaceholder = R.mipmap.ic_launcher,
+//                    component = rememberImageComponent {
+//                        +ShimmerPlugin(
+//                            baseColor = Color.Gray,
+//                            highlightColor = Color.White
+//                        )
+//                    },
+//                )
 //                placeholder
-//            Image(
-//                imageVector = Icons.Default.Panorama, contentDescription = null,
-//                modifier = Modifier
-//                    .height(150.dp)
-//                    .width(150.dp)
-//                    .clip(RoundedCornerShape(10.dp))
-//            )
+            Image(
+                imageVector = Icons.Default.Panorama, contentDescription = null,
+                modifier = Modifier
+                    .height(150.dp)
+                    .width(150.dp)
+                    .clip(RoundedCornerShape(10.dp))
+            )
             Text(
                 text = food.name,
                 fontWeight = FontWeight.SemiBold,
@@ -362,7 +347,7 @@ fun ProductItemPreview() {
 }
 
 @Preview(showBackground = true, device = "id:Nexus One",
-    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+    uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL
 )
 @Composable
 fun PosContentPreview() {
@@ -386,6 +371,6 @@ fun PosContentPreview() {
         ),
         currentCategory = null,
         onFilterFoodClick = {},
-        onAddToCartClick = {it,q -> }
+        onAddToCartClick = { _, _ -> }
     )
 }

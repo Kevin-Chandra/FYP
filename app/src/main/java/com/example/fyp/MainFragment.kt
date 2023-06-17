@@ -28,12 +28,13 @@ import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.ordering_system.ui.OnlineOrderingActivity
 import com.example.fyp.pos.PosActivity
 import com.example.fyp.util.Constants
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 
-@AndroidEntryPoint
+@ExperimentalBadgeUtils @AndroidEntryPoint
 class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
     private var _dialogBinding: FeedbackDialogBinding? = null
@@ -46,7 +47,7 @@ class MainFragment : Fragment() {
 
     private lateinit var account: Account
 
-    val versionName = BuildConfig.VERSION_NAME
+    private val versionName = BuildConfig.VERSION_NAME
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -116,6 +117,7 @@ class MainFragment : Fragment() {
         if (it != null){
             productSettingsViewModel.getVersionName()
             observeVersion()
+
             account = it
             binding.shimmerHello.stopShimmer()
             binding.shimmerHello.visibility = View.GONE
@@ -158,7 +160,6 @@ class MainFragment : Fragment() {
                     is Response.Loading -> {
                     }
                     is Response.Error -> {
-//                        it.exception.message?.let { it1 -> errorToast(it1) }
                     }
                     is Response.Success -> {
                         if (it.data.first != versionName){
