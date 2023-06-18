@@ -6,12 +6,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.Glide
 import com.example.fyp.account_management.AccountActivity
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType.Admin
@@ -73,6 +76,10 @@ class MainFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
+        binding.profileImgCv.setOnClickListener {
+            startActivity(Intent(requireContext(),AccountActivity::class.java))
+        }
+
         binding.accountBtn.setOnClickListener {
             startActivity(Intent(requireContext(),AccountActivity::class.java))
         }
@@ -122,30 +129,44 @@ class MainFragment : Fragment() {
             binding.shimmerHello.stopShimmer()
             binding.shimmerHello.visibility = View.GONE
             binding.helloTv.visibility = View.VISIBLE
+            binding.profileImgCv.visibility = View.VISIBLE
             binding.helloTv.text = "Hello, ${account.first_name}"
+
+            if (account.profileUri != null){
+                binding.profileIv.setPadding(0)
+                Glide.with(requireContext())
+                    .load(account.profileUri!!.toUri())
+                    .centerCrop()
+                    .into(binding.profileIv)
+            }
 
             when(it.accountType){
                 Customer -> {
-                    binding.posBtn.visibility = View.GONE
+                    binding.posLayout.visibility = View.GONE
+                    binding.menuCreatorLayout.visibility = View.GONE
                     binding.onlineOrderingBtn.visibility = View.VISIBLE
                     binding.onlineOrderingBtn.isEnabled = true
+                    binding.onlineOrderingBtn.text = "Order Now"
                 }
                 Admin,Manager -> {
-                    binding.posBtn.visibility = View.VISIBLE
-                    binding.onlineOrderingBtn.visibility = View.VISIBLE
-                    binding.menuCreatorButton.visibility = View.VISIBLE
+                    binding.posLayout.visibility = View.VISIBLE
+                    binding.menuCreatorLayout.visibility = View.VISIBLE
                     binding.onlineOrderingBtn.isEnabled = true
+                    binding.onlineOrderingBtn.text = "Manage Order"
                 }
                 Staff -> {
                     if (it.staffPosition != Disabled && it.staffPosition != Pending && it.staffPosition != null){
                         binding.infoTv.visibility = View.GONE
-                        binding.posBtn.visibility = View.VISIBLE
-                        binding.onlineOrderingBtn.visibility = View.VISIBLE
-                        binding.menuCreatorButton.visibility = View.VISIBLE
+                        binding.posLayout.visibility = View.VISIBLE
+                        binding.menuCreatorLayout.visibility = View.VISIBLE
                         binding.onlineOrderingBtn.isEnabled = true
+                        binding.onlineOrderingBtn.text = "Manage Order"
                     } else {
                         binding.infoTv.text = "Your staff account is currently ${it.staffPosition}. Please contact admin for more details"
                         binding.infoTv.visibility = View.VISIBLE
+                        binding.posLayout.visibility = View.GONE
+                        binding.menuCreatorLayout.visibility = View.GONE
+                        binding.onlineOrderingBtn.isEnabled = false
                     }
                 }
             }

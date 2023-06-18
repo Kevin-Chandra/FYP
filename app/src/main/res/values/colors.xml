@@ -31,6 +31,8 @@
         <color name="borderlessButtonBackgroundColor">#FF000000</color>
 
     <color name="primary">@color/md_theme_light_primary</color>
+    <color name="primaryContainer">@color/md_theme_light_primaryContainer</color>
+    <color name="primaryContainerInverse">@color/md_theme_dark_primaryContainer</color>
     <color name="error">@color/md_theme_light_error</color>
 
     <color name="seed">#fac124</color>

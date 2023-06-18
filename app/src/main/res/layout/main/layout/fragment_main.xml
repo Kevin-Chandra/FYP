@@ -13,109 +13,378 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.facebook.shimmer.ShimmerFrameLayout
-            android:id="@+id/shimmer_hello"
+
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shimmer_auto_start="true">
+            app:layout_constraintTop_toTopOf="parent">
 
-            <EditText
-                android:id="@+id/placeholder_hello_tv"
-                style="@style/TextAppearance.MaterialComponents.Headline4"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="24dp"
-                android:background="#DDDDDD" />
+                android:layout_height="match_parent">
 
-        </com.facebook.shimmer.ShimmerFrameLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/hello_tv"
-            style="@style/TextAppearance.MaterialComponents.Headline4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/menu_creator_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Hello, A" />
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmer_hello"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:shimmer_auto_start="true"
+                        tools:visibility="gone">
 
-        <Button
-            android:id="@+id/menu_creator_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="16dp"
-            android:text="Menu Creator"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/account_btn"
-            app:layout_constraintTop_toBottomOf="@+id/hello_tv"
-            tools:visibility="visible" />
+                        <TextView
+                            android:id="@+id/placeholder_hello_tv"
+                            style="@style/TextAppearance.MaterialComponents.Headline4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="24dp"
+                            android:layout_marginTop="24dp"
+                            android:layout_marginEnd="24dp"
+                            android:background="#DDDDDD" />
 
-        <Button
-            android:id="@+id/account_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Account"
-            app:layout_constraintEnd_toStartOf="@+id/menu_creator_button"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/hello_tv" />
+                    </com.facebook.shimmer.ShimmerFrameLayout>
 
-        <Button
-            android:id="@+id/online_ordering_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:enabled="false"
-            android:text="Ordering System"
-            app:layout_constraintEnd_toStartOf="@+id/pos_btn"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/account_btn" />
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/profile_img_cv"
+                        style="@style/Widget.Material3.CardView.Filled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="24dp"
+                        android:visibility="visible"
+                        app:cardBackgroundColor="@color/md_theme_light_primaryContainer"
+                        app:cardCornerRadius="100dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/hello_tv"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/hello_tv"
+                        tools:visibility="visible">
 
-        <Button
-            android:id="@+id/pos_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:enabled="true"
-            android:text="Point of Sales"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/online_ordering_btn"
-            app:layout_constraintTop_toBottomOf="@+id/account_btn"
-            tools:visibility="visible" />
+                        <ImageView
+                            android:id="@+id/profile_iv"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:padding="4dp"
+                            android:src="@drawable/ic_person_outlined" />
+                    </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/info_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:drawableStart="@drawable/ic_info_outlined"
-            android:drawablePadding="8dp"
-            android:drawableTint="@color/borderlessButtonBackgroundColor"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/feedback_fab"
-            app:layout_constraintEnd_toStartOf="@+id/feedback_fab"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/feedback_fab"
-            tools:visibility="visible" />
+                    <ImageView
+                        android:id="@+id/background_img"
+                        android:layout_width="wrap_content"
+                        android:layout_height="250dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:scaleX="0.9"
+                        android:scaleY="0.9"
+                        android:src="@drawable/menu_creator_img"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/info_tv" />
+
+                    <TextView
+                        android:id="@+id/hello_tv"
+                        style="@style/TextAppearance.MaterialComponents.Headline4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        app:layout_constraintEnd_toStartOf="@+id/profile_img_cv"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Hello, Alfred" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/title_tv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginEnd="32dp"
+                        android:lineSpacingMultiplier="0.8"
+                        android:text="Discover Food With Us"
+                        android:textColor="@color/primary"
+                        android:textSize="64sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/background_img" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/subtitle_tv"
+                        style="@style/TextAppearance.Material3.HeadlineSmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="32dp"
+                        android:text="Experience the most delicious food with us"
+                        android:textFontWeight="250"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_tv" />
+
+<!--                    <Button-->
+<!--                        android:id="@+id/account_btn"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="24dp"-->
+<!--                        android:text="Account"-->
+<!--                        android:visibility="visible"-->
+<!--                        app:layout_constraintEnd_toStartOf="@+id/menu_creator_button"-->
+<!--                        app:layout_constraintHorizontal_bias="0.5"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/hello_tv" />-->
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/menu_creator_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/pos_layout"
+                        tools:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/menu_creator_background_img"
+                            android:layout_width="wrap_content"
+                            android:layout_height="175dp"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="32dp"
+                            android:layout_marginEnd="16dp"
+                            android:scaleX="0.95"
+                            android:scaleY="0.95"
+                            android:src="@drawable/menu_creator_img"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/menu_creator_title_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginEnd="32dp"
+                            android:lineSpacingMultiplier="0.8"
+                            android:text="Menu Creator System"
+                            android:textColor="@color/primary"
+                            android:textSize="64sp"
+                            android:textStyle="bold"
+                            app:flow_wrapMode="aligned"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/menu_creator_background_img" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/menu_creator_subtitle_tv"
+                            style="@style/TextAppearance.Material3.HeadlineSmall"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginEnd="32dp"
+                            android:text="Add or edit products"
+                            android:textFontWeight="250"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/menu_creator_title_tv" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/menu_creator_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginTop="16dp"
+                            android:text="View Menu"
+                            app:icon="@drawable/ic_arrow_forward"
+                            app:iconGravity="end"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/menu_creator_subtitle_tv" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/pos_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/online_ordering_btn"
+                        tools:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/pos_img"
+                            android:layout_width="wrap_content"
+                            android:layout_height="200dp"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="32dp"
+                            android:layout_marginEnd="16dp"
+                            android:scaleX="0.9"
+                            android:scaleY="0.9"
+                            android:src="@drawable/dining_img"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/pos_title_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginEnd="32dp"
+                            android:lineSpacingMultiplier="0.8"
+                            android:text="Point of Sales"
+                            android:textColor="@color/primary"
+                            android:textSize="64sp"
+                            android:textStyle="bold"
+                            app:flow_wrapMode="aligned"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/pos_img" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/pos_subtitle_tv"
+                            style="@style/TextAppearance.Material3.HeadlineSmall"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginEnd="32dp"
+                            android:text="Easily manage table and online order"
+                            android:textFontWeight="250"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/pos_title_tv" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/pos_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginTop="16dp"
+                            android:text="View POS"
+                            app:icon="@drawable/ic_arrow_forward"
+                            app:iconGravity="end"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/pos_subtitle_tv" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/account_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/menu_creator_layout">
+
+                        <ImageView
+                            android:id="@+id/account_img"
+                            android:layout_width="wrap_content"
+                            android:layout_height="250dp"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="32dp"
+                            android:layout_marginEnd="16dp"
+                            android:scaleX="0.9"
+                            android:scaleY="0.9"
+                            android:src="@drawable/account_img"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/account_title_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginEnd="32dp"
+                            android:lineSpacingMultiplier="0.8"
+                            android:text="Account"
+                            android:textColor="@color/primary"
+                            android:textSize="64sp"
+                            android:textStyle="bold"
+                            app:flow_wrapMode="aligned"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/account_img" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/account_subtitle_tv"
+                            style="@style/TextAppearance.Material3.HeadlineSmall"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginEnd="32dp"
+                            android:text="Edit account information"
+                            android:textFontWeight="250"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/account_title_tv" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/account_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginTop="12dp"
+                            android:text="Manage Account"
+                            app:icon="@drawable/ic_arrow_forward"
+                            app:iconGravity="end"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/account_subtitle_tv" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/online_ordering_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginTop="16dp"
+                        android:enabled="false"
+                        android:text=". . ."
+                        app:icon="@drawable/ic_arrow_forward"
+                        app:iconGravity="end"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/subtitle_tv" />
+
+                    <TextView
+                        android:id="@+id/info_tv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="24dp"
+                        android:drawableStart="@drawable/ic_info_outlined"
+                        android:drawablePadding="8dp"
+                        android:drawableTint="@color/borderlessButtonBackgroundColor"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/profile_img_cv"
+                        tools:visibility="visible" />
+
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
+        </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/feedback_fab"
@@ -126,7 +395,9 @@
             android:clickable="true"
             android:src="@drawable/ic_feedback"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:contentDescription="Send feedback"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

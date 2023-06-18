@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -67,6 +68,7 @@ class MainAccountFragment : Fragment() {
             binding.accountNameTv.isSelected = true
 
             if (user?.profileUri != null) {
+                binding.profileIv.setPadding(0)
                 Glide.with(requireContext())
                     .load(user?.profileUri)
                     .placeholder(R.drawable.ic_profile_placeholder_24)

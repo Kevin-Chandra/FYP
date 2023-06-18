@@ -5,5 +5,7 @@
     <color name="borderlessButtonColor">#000000</color>
 
     <color name="primary">@color/md_theme_dark_primary</color>
+    <color name="primaryContainer">@color/md_theme_dark_primaryContainer</color>
+    <color name="primaryContainerInverse">@color/md_theme_light_primaryContainer</color>
     <color name="error">@color/md_theme_dark_error</color>
 </resources>
