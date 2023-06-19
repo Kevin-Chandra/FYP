@@ -377,7 +377,6 @@ class AuthRepository @Inject constructor(
     }
 
     private fun deleteImage(path: String, result: (Response<String>) -> Unit){
-        println("path $path")
         imageRef.child(path)
             .delete()
             .addOnSuccessListener {

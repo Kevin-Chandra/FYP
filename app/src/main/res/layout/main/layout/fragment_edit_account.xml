@@ -36,14 +36,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardView"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_gravity="center"
             android:layout_marginTop="24dp"
             app:cardCornerRadius="100dp"
-            android:backgroundTint="@color/borderlessButtonBackgroundColor"
+            style="@style/Widget.Material3.CardView.Filled"
+            app:cardBackgroundColor="@color/primaryContainerInverse"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView2">
@@ -55,7 +56,7 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_profile_placeholder_24" />
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/edit_img_btn"

@@ -205,6 +205,7 @@ class RegisterStaffFragment : Fragment() {
     private fun navigateMain() {
         val i = Intent(requireContext(), MainActivity::class.java)
         i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        i.putExtra("skip",true)
         startActivity(i)
     }
 

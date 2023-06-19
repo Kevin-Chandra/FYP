@@ -20,8 +20,14 @@ class MainActivity : AppCompatActivity() {
 
     private val authViewModel by viewModels<MainAuthViewModel>()
 
+    var skipOnboardScreen = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (intent.extras != null) {
+            skipOnboardScreen = intent.extras!!.getBoolean("skip")
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -38,5 +44,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+    fun shouldSkip() : Boolean = skipOnboardScreen
 
 }

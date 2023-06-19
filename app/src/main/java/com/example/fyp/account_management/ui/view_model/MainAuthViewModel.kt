@@ -63,7 +63,6 @@ class MainAuthViewModel @Inject constructor(
 
     private fun getAccountFlow() = viewModelScope.launch{
         getSessionFlowUseCase().onEach { account: Account? ->
-            Log.d("MainAuthViewModel", "getAccountSession: $account update")
             _account = account
             accountState.value = account
         }.launchIn(viewModelScope)
@@ -71,10 +70,8 @@ class MainAuthViewModel @Inject constructor(
 
     fun getSession(online: Boolean = false,result: (Account?) -> Unit) = viewModelScope.launch(Dispatchers.Main){
         if (_account == null || online){
-            println("Request session online")
             result.invoke(getSessionUseCase())
         } else {
-            println("Request session locally")
             result.invoke(_account)
         }
     }

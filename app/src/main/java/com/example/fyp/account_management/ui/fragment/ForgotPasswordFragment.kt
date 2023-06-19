@@ -56,7 +56,6 @@ class ForgotPasswordFragment : Fragment() {
             viewModel.resetState.collect {
                 when (it) {
                     is Response.Loading -> {
-//                        println("Login response loading")
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is Response.Error -> {

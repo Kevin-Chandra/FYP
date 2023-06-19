@@ -42,7 +42,7 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
     private val dialogBinding get() = _dialogBinding!!
 
-    private val authViewModel by viewModels<MainAuthViewModel>()
+    private val authViewModel by activityViewModels<MainAuthViewModel>()
 
     private val productSettingsViewModel by activityViewModels<ProductSettingsViewModel>()
 
@@ -117,7 +117,7 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun getSession() = authViewModel.getSession(true) {
+    private fun getSession() = authViewModel.getSession{
         binding.onlineOrderingBtn.isEnabled = false
         if (it != null){
             productSettingsViewModel.getVersionName()
