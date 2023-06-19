@@ -33,6 +33,7 @@
     <color name="primary">@color/md_theme_light_primary</color>
     <color name="secondary">@color/md_theme_light_secondary</color>
     <color name="primaryContainer">@color/md_theme_light_primaryContainer</color>
+    <color name="onPrimaryContainerInverse">@color/md_theme_dark_onPrimaryContainer</color>
     <color name="primaryContainerInverse">@color/md_theme_dark_primaryContainer</color>
     <color name="error">@color/md_theme_light_error</color>
 

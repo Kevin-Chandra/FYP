@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,12 +24,12 @@ import kotlin.math.roundToInt
 fun CustomScaffold(
     navigator: NavController,
     topBar : @Composable () -> Unit,
-    content : @Composable (PaddingValues) -> Unit,
-    modifier: Modifier = Modifier
+    content : @Composable (PaddingValues, MutableState<Float>) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val bottomBarHeight = 80.dp
     val bottomBarHeightPx = with(LocalDensity.current) { bottomBarHeight.roundToPx().toFloat() }
-    val bottomBarOffsetHeightPx = remember { mutableStateOf(0f) }
+    val bottomBarOffsetHeightPx = remember { mutableFloatStateOf(0f) }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -44,7 +46,7 @@ fun CustomScaffold(
 
     Scaffold(
         topBar = topBar,
-        content = { content(it) },
+        content = { content(it,bottomBarOffsetHeightPx) },
         bottomBar = {
             CustomerOrderBottomNavigation(
                 navController = navigator,
@@ -57,6 +59,6 @@ fun CustomScaffold(
                         )
                     })
         },
-        modifier = modifier.nestedScroll(nestedScrollConnection)
+        modifier = modifier.nestedScroll(nestedScrollConnection),
     )
 }

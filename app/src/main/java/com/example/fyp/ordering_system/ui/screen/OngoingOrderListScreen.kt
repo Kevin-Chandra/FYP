@@ -58,6 +58,7 @@ import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderStatus
+import com.example.fyp.ordering_system.ui.components.CustomScaffold
 import com.example.fyp.ordering_system.ui.components.CustomerOrderBottomNavigation
 import com.example.fyp.ordering_system.ui.navigation.Screen
 import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
@@ -78,24 +79,7 @@ fun OngoingOrderListScreen(
 
     val context = LocalContext.current
 
-    val bottomBarHeight = 80.dp
-    val bottomBarHeightPx = with(LocalDensity.current) { bottomBarHeight.roundToPx().toFloat() }
-    val bottomBarOffsetHeightPx = remember { mutableStateOf(0f) }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-
-                val delta = available.y
-                val newOffset = bottomBarOffsetHeightPx.value + delta
-                bottomBarOffsetHeightPx.value = newOffset.coerceIn(-bottomBarHeightPx, 0f)
-
-                return Offset.Zero
-            }
-        }
-    }
-
-    LaunchedEffect(key1 = true){
+    LaunchedEffect(key1 = true) {
         ongoingOrderViewModel.getOngoingOrderList(account.id)
     }
 
@@ -103,19 +87,8 @@ fun OngoingOrderListScreen(
 
     FypTheme {
         Surface {
-            Scaffold(
-                bottomBar = {
-                    CustomerOrderBottomNavigation(
-                        navController = navigator,
-                        modifier = Modifier
-                            .height(bottomBarHeight)
-                            .offset {
-                                IntOffset(
-                                    x = 0,
-                                    y = -bottomBarOffsetHeightPx.value.roundToInt()
-                                )
-                            })
-                },
+            CustomScaffold(
+                navigator = navigator,
                 topBar = {
                     TopAppBar(
                         title = {
@@ -127,82 +100,96 @@ fun OngoingOrderListScreen(
                         scrollBehavior = scrollBehavior
                     )
                 },
-                modifier = Modifier
-                    .nestedScroll(scrollBehavior.nestedScrollConnection)
-                    .nestedScroll(nestedScrollConnection)
-            ) {
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)) {
-                    if (uiState.value.success){
-                        if (orderList.value.isEmpty()){
-                            val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.order_food))
-                            val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
-
-                            Column(
-                                modifier = Modifier.align(Alignment.Center),
-                                horizontalAlignment = CenterHorizontally,
-                                verticalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                LottieAnimation(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                content = { it, _ ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(it)
+                    ) {
+                        if (uiState.value.success) {
+                            if (orderList.value.isEmpty()) {
+                                val composition by rememberLottieComposition(
+                                    spec = LottieCompositionSpec.RawRes(
+                                        R.raw.order_food
+                                    )
+                                )
+                                val animProgress by animateLottieCompositionAsState(
                                     composition = composition,
-                                    progress = { animProgress },
-                                    modifier = Modifier
-                                        .size(400.dp)
+                                    iterations = LottieConstants.IterateForever
                                 )
-                                Text(
-                                    text = "No ongoing order now...",
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 8.dp)
-                                )
-                                AssistChip(
-                                    modifier = Modifier.padding(16.dp),
-                                    onClick = { navigator.navigate(Screen.ProductListScreen.route)},
-                                    label = {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
-                                            Text(
-                                                text = "Order now",
-                                                modifier = Modifier.padding(horizontal = 8.dp),
-                                                style = MaterialTheme.typography.titleMedium
+
+                                Column(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    horizontalAlignment = CenterHorizontally,
+                                    verticalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    LottieAnimation(
+                                        composition = composition,
+                                        progress = { animProgress },
+                                        modifier = Modifier
+                                            .size(400.dp)
+                                    )
+                                    Text(
+                                        text = "No ongoing order now...",
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp)
+                                    )
+                                    AssistChip(
+                                        modifier = Modifier.padding(16.dp),
+                                        onClick = { navigator.navigate(Screen.ProductListScreen.route) },
+                                        label = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Rounded.ArrowBack,
+                                                    contentDescription = null
+                                                )
+                                                Text(
+                                                    text = "Order now",
+                                                    modifier = Modifier.padding(horizontal = 8.dp),
+                                                    style = MaterialTheme.typography.titleMedium
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
+                            } else {
+                                LazyColumn(
+                                    modifier = Modifier.align(Alignment.TopCenter)
+                                ) {
+                                    items(
+                                        orderList.value
+                                    ) { item ->
+                                        OngoingOrderCard(order = item) {
+                                            navigator.navigate(
+                                                Screen.OngoingOrderScreen.withArgs(
+                                                    item.orderId
+                                                )
                                             )
                                         }
-                                    }
-                                )
-                            }
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.align(Alignment.TopCenter)
-                            ){
-                                items(
-                                    orderList.value
-                                ) { item ->
-                                    OngoingOrderCard(order = item) {
-                                        navigator.navigate(Screen.OngoingOrderScreen.withArgs(item.orderId))
                                     }
                                 }
                             }
                         }
-                    }
-                    if (uiState.value.loading){
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    }
-                    uiState.value.errorMessage?.let { error ->
-                        errorToast(error,context)
+                        if (uiState.value.loading) {
+                            CircularProgressIndicator(Modifier.align(Alignment.Center))
+                        }
+                        uiState.value.errorMessage?.let { error ->
+                            errorToast(error, context)
+                        }
                     }
                 }
-            }
+            )
         }
     }
-
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OngoingOrderCard(
     order: Order,

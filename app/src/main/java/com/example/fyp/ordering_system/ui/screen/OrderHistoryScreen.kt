@@ -51,6 +51,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.fyp.theme.FypTheme
 import com.example.fyp.R
 import com.example.fyp.ordering_system.data.model.Order
+import com.example.fyp.ordering_system.ui.components.CustomScaffold
 import com.example.fyp.ordering_system.ui.components.CustomerOrderBottomNavigation
 import com.example.fyp.ordering_system.ui.navigation.Screen
 import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
@@ -65,23 +66,6 @@ fun OrderHistoryScreen(
     viewModel: OngoingOrderViewModel
 ) {
 
-    val bottomBarHeight = 80.dp
-    val bottomBarHeightPx = with(LocalDensity.current) { bottomBarHeight.roundToPx().toFloat() }
-    val bottomBarOffsetHeightPx = remember { mutableStateOf(0f) }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-
-                val delta = available.y
-                val newOffset = bottomBarOffsetHeightPx.value + delta
-                bottomBarOffsetHeightPx.value = newOffset.coerceIn(-bottomBarHeightPx, 0f)
-
-                return Offset.Zero
-            }
-        }
-    }
-
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     LaunchedEffect(key1 = true){
@@ -91,19 +75,8 @@ fun OrderHistoryScreen(
     val pastOrders = viewModel.pastOrderList.collectAsStateWithLifecycle()
 
     FypTheme {
-        Scaffold(
-            bottomBar = {
-                CustomerOrderBottomNavigation(
-                    navController = navigator,
-                    modifier = Modifier
-                        .height(bottomBarHeight)
-                        .offset {
-                            IntOffset(
-                                x = 0,
-                                y = -bottomBarOffsetHeightPx.value.roundToInt()
-                            )
-                        })
-            },
+        CustomScaffold(
+            navigator = navigator,
             topBar = {
                 TopAppBar(
                     title = {
@@ -115,71 +88,80 @@ fun OrderHistoryScreen(
                     scrollBehavior = scrollBehavior
                 )
             },
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection).nestedScroll(nestedScrollConnection)
-        ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(it)) {
-                if (statusState.value.loading){
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                if (statusState.value.errorMessage != null){
-                    AlertDialog(
-                        onDismissRequest = {  },
-                        confirmButton = {
-                            TextButton(onClick = { navigator.navigateUp() }) {
-                                Text(text = "Ok")
-                            }
-                        },
-                        title = {
-                            Text(text = "Error!")
-                        },
-                        text = {
-                            Text(text = statusState.value.errorMessage!!)
-                        }
-                    )
-                }
-                if (statusState.value.success){
-                    if (pastOrders.value.isEmpty()){
-                        val composition by rememberLottieComposition(
-                            spec = LottieCompositionSpec.RawRes(R.raw.no_order_history)
-                        )
-                        val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            content = { it, _ ->
 
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            LottieAnimation(
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                ) {
+                    if (statusState.value.loading) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                    if (statusState.value.errorMessage != null) {
+                        AlertDialog(
+                            onDismissRequest = { },
+                            confirmButton = {
+                                TextButton(onClick = { navigator.navigateUp() }) {
+                                    Text(text = "Ok")
+                                }
+                            },
+                            title = {
+                                Text(text = "Error!")
+                            },
+                            text = {
+                                Text(text = statusState.value.errorMessage!!)
+                            }
+                        )
+                    }
+                    if (statusState.value.success) {
+                        if (pastOrders.value.isEmpty()) {
+                            val composition by rememberLottieComposition(
+                                spec = LottieCompositionSpec.RawRes(R.raw.no_order_history)
+                            )
+                            val animProgress by animateLottieCompositionAsState(
                                 composition = composition,
-                                progress = { animProgress },
-                                modifier = Modifier
-                                    .size(400.dp)
+                                iterations = LottieConstants.IterateForever
                             )
-                            Text(
-                                text = "No order history in this account...",
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.headlineMedium,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp)
-                            )
-                        }
-                    } else {
-                        LazyColumn {
-                            items(pastOrders.value.sortedByDescending { it1 -> it1.orderFinishTime }){ item ->
-                                PastOrderRow(order = item){
-                                    navigator.navigate(Screen.OrderHistoryDetailedScreen.withArgs(item.orderId))
+
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                LottieAnimation(
+                                    composition = composition,
+                                    progress = { animProgress },
+                                    modifier = Modifier
+                                        .size(400.dp)
+                                )
+                                Text(
+                                    text = "No order history in this account...",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp)
+                                )
+                            }
+                        } else {
+                            LazyColumn {
+                                items(pastOrders.value.sortedByDescending { it1 -> it1.orderFinishTime }) { item ->
+                                    PastOrderRow(order = item) {
+                                        navigator.navigate(
+                                            Screen.OrderHistoryDetailedScreen.withArgs(
+                                                item.orderId
+                                            )
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-
+        )
     }
 }
 

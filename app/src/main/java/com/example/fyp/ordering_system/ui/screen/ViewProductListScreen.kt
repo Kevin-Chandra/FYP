@@ -64,6 +64,7 @@ import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.util.UiState
+import com.example.fyp.ordering_system.ui.components.CustomScaffold
 import com.example.fyp.ordering_system.ui.components.CustomerOrderBottomNavigation
 import com.example.fyp.ordering_system.ui.navigation.Screen
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
@@ -86,27 +87,12 @@ fun ViewProductListScreen(
     val selectedCategory = productViewModel.selectedCategory.collectAsStateWithLifecycle()
     val cart = cartViewModel.cart
 
-    val bottomBarHeight = 80.dp
-    val bottomBarHeightPx = with(LocalDensity.current) { bottomBarHeight.roundToPx().toFloat() }
-    val bottomBarOffsetHeightPx = remember { mutableFloatStateOf(0f) }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-
-                val delta = available.y
-                val newOffset = bottomBarOffsetHeightPx.value + delta
-                bottomBarOffsetHeightPx.value = newOffset.coerceIn(-bottomBarHeightPx, 0f)
-
-                return Offset.Zero
-            }
-        }
-    }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     FypTheme {
         Surface {
-            Scaffold(
+            CustomScaffold(
+                navigator = navigator,
                 topBar = {
                     TopAppBar(
                         title = {
@@ -122,107 +108,103 @@ fun ViewProductListScreen(
                         scrollBehavior = scrollBehavior
                     )
                 },
-                bottomBar = {
-                    CustomerOrderBottomNavigation(
-                        navController = navigator,
-                        modifier = Modifier
-                            .height(bottomBarHeight)
-                            .offset {
-                                IntOffset(
-                                    x = 0,
-                                    y = -bottomBarOffsetHeightPx.value.roundToInt()
-                                )
-                            })
-                },
                 modifier = Modifier
-                    .nestedScroll(nestedScrollConnection)
                     .nestedScroll(scrollBehavior.nestedScrollConnection)
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(it)
-                        .semantics {
-                            testTagsAsResourceId = true
-                        }
-                ) {
-                    if (filteredFoodList.value is UiState.Success) {
-                        if ((filteredFoodList.value as UiState.Success<List<Food>>).data.isEmpty()){
-                            val composition by rememberLottieComposition(
-                                spec = LottieCompositionSpec.RawRes(R.raw.empty_food)
-                            )
-                            val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
-
-                            Column(
-                                modifier = Modifier.align(Alignment.Center),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                LottieAnimation(
-                                    composition = composition,
-                                    progress = { animProgress },
-                                    modifier = Modifier
-                                        .size(400.dp)
-                                )
-                                Text(
-                                    text = "No food in this category...",
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 8.dp)
-                                )
+                    },
+                content = { it,offset ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(it)
+                            .semantics {
+                                testTagsAsResourceId = true
                             }
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .align(Alignment.TopCenter)
-                                    .padding()
-                                    .testTag("product_list")
-                            ) {
-                                items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
-                                    ProductCard(item) { it1 ->
-                                        navigator.navigate(Screen.AddToCartScreen.withArgs(it1, "null","1"))
+                    ) {
+                        if (filteredFoodList.value is UiState.Success) {
+                            if ((filteredFoodList.value as UiState.Success<List<Food>>).data.isEmpty()) {
+                                val composition by rememberLottieComposition(
+                                    spec = LottieCompositionSpec.RawRes(R.raw.empty_food)
+                                )
+                                val animProgress by animateLottieCompositionAsState(
+                                    composition = composition,
+                                    iterations = LottieConstants.IterateForever
+                                )
+
+                                Column(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    LottieAnimation(
+                                        composition = composition,
+                                        progress = { animProgress },
+                                        modifier = Modifier
+                                            .size(400.dp)
+                                    )
+                                    Text(
+                                        text = "No food in this category...",
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp)
+                                    )
+                                }
+                            } else {
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .align(Alignment.TopCenter)
+                                        .padding()
+                                        .testTag("product_list")
+                                ) {
+                                    items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
+                                        ProductCard(item) { it1 ->
+                                            navigator.navigate(
+                                                Screen.AddToCartScreen.withArgs(
+                                                    it1,
+                                                    "null",
+                                                    "1"
+                                                )
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    Button(
-                        onClick = { navigator.navigate(Screen.ReviewOrderScreen.route) },
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .offset {
-                                IntOffset(
-                                    x = 0,
-                                    y = -bottomBarOffsetHeightPx.value.roundToInt()
-                                )
-                            }.testTag("view_cart_btn"),
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
+                        Button(
+                            onClick = { navigator.navigate(Screen.ReviewOrderScreen.route) },
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .offset {
+                                    IntOffset(
+                                        x = 0,
+                                        y = -offset.value.roundToInt()
+                                    )
+                                }.testTag("view_cart_btn"),
                         ) {
-                            Text(
-                                text = cart.value.size.toString(),
-//                            style = MaterialTheme.typography.headlineSmall
-                            )
-                            Text(
-                                text = "View Cart",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(text = cartViewModel.getSubTotalPrice().toString())
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = cart.value.size.toString(),
+                                    //                            style = MaterialTheme.typography.headlineSmall
+                                )
+                                Text(
+                                    text = "View Cart",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Text(text = cartViewModel.getSubTotalPrice().toString())
+                            }
                         }
                     }
                 }
-
-            }
+            )
         }
     }
 }

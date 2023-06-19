@@ -132,6 +132,9 @@ dependencies {
     //Coil Image loader
     implementation("io.coil-kt:coil-compose:2.3.0")
 
+    //Splash Screen
+    implementation "androidx.core:core-splashscreen:1.0.1"
+
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 //    kapt 'com.google.dagger:hilt-android-compiler:2.43.2'
 
