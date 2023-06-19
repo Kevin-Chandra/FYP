@@ -4,19 +4,14 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.domain.use_case.ValidateNameUseCase
-import com.example.fyp.account_management.domain.use_case.ValidationResult
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.data.model.ProductType
-import com.example.fyp.menucreator.data.repository.ModifierItemRepository
-import com.example.fyp.menucreator.data.repository.ModifierRepository
 import com.example.fyp.menucreator.domain.ProductValidationResult
 import com.example.fyp.menucreator.domain.modifier.AddModifierUseCase
 import com.example.fyp.menucreator.domain.modifier.GetModifierUseCase
 import com.example.fyp.menucreator.domain.modifier.UpdateModifierUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemListUseCase
-import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateDuplicateIdUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateModifierSelectionRangeUseCase
 import com.example.fyp.menucreator.domain.validation.ValidateProductIdUseCase
@@ -26,17 +21,10 @@ import com.example.fyp.menucreator.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import java.lang.Exception
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
-import kotlin.collections.Map
-import kotlin.collections.arrayListOf
-import kotlin.collections.get
-import kotlin.collections.iterator
 import kotlin.collections.mutableMapOf
 import kotlin.collections.set
-import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class AddEditModifierViewModel @Inject constructor(

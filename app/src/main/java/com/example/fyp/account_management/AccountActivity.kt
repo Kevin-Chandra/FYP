@@ -23,9 +23,6 @@ class AccountActivity : AppCompatActivity() {
         binding = ActivityAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-//        val navController = findNavController(R.id.nav_host_fragment_content_account)
-
     }
 
     override fun onSupportNavigateUp(): Boolean {

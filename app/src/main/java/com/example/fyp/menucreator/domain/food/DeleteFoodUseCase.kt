@@ -2,9 +2,7 @@ package com.example.fyp.menucreator.domain.food
 
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType
-import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.data.repository.ProductImageRepository
 import com.example.fyp.menucreator.domain.productImage.DeleteImageUseCase
 import com.example.fyp.menucreator.util.UiState
 import javax.inject.Inject

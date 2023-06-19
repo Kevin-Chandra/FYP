@@ -1,7 +1,6 @@
 package com.example.fyp.menucreator.di
 
 import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.data.repository.ProductImageRepository
 import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import com.example.fyp.menucreator.domain.food.*
 import com.example.fyp.menucreator.domain.productImage.DeleteImageUseCase

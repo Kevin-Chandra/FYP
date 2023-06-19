@@ -13,7 +13,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
-import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentFirstBinding
 import com.example.fyp.menucreator.ui.adapter.MenuCreatorViewPagerAdapter
 import com.google.android.material.tabs.TabLayout

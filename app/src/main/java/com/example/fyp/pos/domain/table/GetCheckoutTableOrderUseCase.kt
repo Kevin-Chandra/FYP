@@ -5,17 +5,10 @@ import com.example.fyp.menucreator.domain.productSettings.GetServiceChargeUseCas
 import com.example.fyp.menucreator.domain.productSettings.GetTaxUseCase
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
-import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.ordering_system.data.repository.remote.OrderRepository
 import com.example.fyp.ordering_system.domain.remote_database.GetOrderItemFromRemoteByOrderIdByReturnUseCase
 import com.example.fyp.pos.data.model.Table
 import com.example.fyp.pos.data.model.TableStatus
-import com.example.fyp.pos.data.repository.remote.TableRepository
-import com.example.fyp.pos.domain.UpdateFoodAllTimeSalesUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 class GetCheckoutTableOrderUseCase @Inject constructor(

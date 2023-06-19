@@ -3,7 +3,6 @@ package com.example.fyp.ordering_system.data.repository.local
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
-import androidx.room.Update
 import androidx.room.Upsert
 import com.example.fyp.ordering_system.data.model.OrderItem
 import kotlinx.coroutines.flow.Flow

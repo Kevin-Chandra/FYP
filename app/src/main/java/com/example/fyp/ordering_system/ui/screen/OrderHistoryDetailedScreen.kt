@@ -40,7 +40,7 @@ fun OrderHistoryDetailedScreen(
     account : Account
 ) {
 
-    val order = remember() {
+    val order = remember {
         mutableStateOf<Order?>(null)
     }
 
@@ -51,8 +51,8 @@ fun OrderHistoryDetailedScreen(
 
     val orderItemList = ongoingOrderViewModel.currentOrderItem.collectAsStateWithLifecycle()
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 topBar = {
                     TopAppBar(

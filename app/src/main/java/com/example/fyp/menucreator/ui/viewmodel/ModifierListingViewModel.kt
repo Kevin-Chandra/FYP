@@ -2,11 +2,8 @@ package com.example.fyp.menucreator.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ModifierItem
-import com.example.fyp.menucreator.data.repository.ModifierItemRepository
-import com.example.fyp.menucreator.data.repository.ModifierRepository
 import com.example.fyp.menucreator.domain.modifier.GetModifierListUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemListUseCase
 import com.example.fyp.menucreator.util.UiState
@@ -40,8 +37,8 @@ class ModifierListingViewModel @Inject constructor(
     private fun getModifierList() {
         _modifiers.value = UiState.Loading
         getModifierListUseCase.invoke {
-            viewModelScope.launch() {
-                it.collect() {
+            viewModelScope.launch {
+                it.collect {
                     when (it) {
                         is UiState.Success -> {
                             modifierMap.clear()
@@ -62,8 +59,8 @@ class ModifierListingViewModel @Inject constructor(
     private fun getModifierItemList() {
         _modifierItems.value = UiState.Loading
         getModifierItemListUseCase.invoke {
-            viewModelScope.launch() {
-                it.collect() {
+            viewModelScope.launch {
+                it.collect {
                     when (it) {
                         is UiState.Success -> {
                             itemMap.clear()

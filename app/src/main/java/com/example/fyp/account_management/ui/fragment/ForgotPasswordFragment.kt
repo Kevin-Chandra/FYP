@@ -34,7 +34,7 @@ class ForgotPasswordFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentForgotPasswordBinding.inflate(inflater, container, false)
         return binding.root
@@ -53,7 +53,7 @@ class ForgotPasswordFragment : Fragment() {
 
     private fun observeReset() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.resetState.collect() {
+            viewModel.resetState.collect {
                 when (it) {
                     is Response.Loading -> {
 //                        println("Login response loading")

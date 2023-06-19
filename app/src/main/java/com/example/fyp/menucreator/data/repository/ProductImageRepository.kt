@@ -5,12 +5,8 @@ import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.util.FirebaseStorageReference
 import com.example.fyp.menucreator.util.MenuCreatorResponse
 import com.example.fyp.menucreator.util.UiState
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
-import java.util.UUID
 
 class ProductImageRepository {
     private val imageStorageRef = FirebaseStorage.getInstance().reference

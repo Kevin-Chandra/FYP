@@ -99,7 +99,7 @@ fun AddToCartScreen (
         addToCartViewModel.onEvent(AddToCartEvent.QuantityChanged(quantity))
     }
 
-    FypTheme() {
+    FypTheme {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {

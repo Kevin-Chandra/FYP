@@ -2,18 +2,14 @@ package com.example.fyp.account_management.ui.fragment
 
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -26,9 +22,6 @@ import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.RegistrationEvent
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentUserRegisterBinding
-import com.example.fyp.menucreator.util.UiState
-import com.google.android.material.theme.overlay.MaterialThemeOverlay
-import com.google.firebase.database.collection.LLRBNode
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -63,7 +56,7 @@ class UserRegisterFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentUserRegisterBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -133,7 +126,7 @@ class UserRegisterFragment : Fragment() {
 
     private fun observeRegistration() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.registerResponse.collect() {
+            viewModel.registerResponse.collect {
                 when (it) {
                     is Response.Loading -> {
                         binding.registerBtn.isEnabled = false
@@ -159,7 +152,7 @@ class UserRegisterFragment : Fragment() {
 
     private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.registerState.collect() {
+            viewModel.registerState.collect {
                 if (it.emailError != null){
                     binding.emailEditTextLayout.error = it.emailError.toString()
 

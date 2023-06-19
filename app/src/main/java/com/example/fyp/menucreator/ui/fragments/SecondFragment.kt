@@ -1,6 +1,5 @@
 package com.example.fyp.menucreator.ui.fragments
 
-import android.app.AlertDialog
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,7 +20,6 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.data.model.AccountType.*
 import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
@@ -405,7 +403,7 @@ class SecondFragment : Fragment() {
         loadModifierItem(modifier)
         loadBottomSheet()
 
-        creatorInfoBinding.lastUpdatedTv.text = "Last Updated ${modifier.lastUpdated.toString()}"
+        creatorInfoBinding.lastUpdatedTv.text = "Last Updated ${modifier.lastUpdated}"
     }
 
     private fun loadBottomSheet(){
@@ -453,7 +451,7 @@ class SecondFragment : Fragment() {
         foodBinding.categoryValueTv.text = food.category
         foodBinding.priceTextview.text = food.price.toString()
         foodBinding.availabilityChip.text = if (food.availability) "Available" else "Unavailable"
-        creatorInfoBinding.lastUpdatedTv.text = "Last Updated ${food.lastUpdated.toString()}"
+        creatorInfoBinding.lastUpdatedTv.text = "Last Updated ${food.lastUpdated}"
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -644,7 +642,7 @@ class SecondFragment : Fragment() {
 
     private fun observeDeletion() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.deleteResponse.collect() {
+            viewModel.deleteResponse.collect {
                 when (it) {
                     is UiState.Loading -> {
                         binding.deleteFab.isEnabled = false
@@ -676,7 +674,7 @@ class SecondFragment : Fragment() {
 
     private fun observeUpdateAvailability() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.updateAvailabilityResponse.collect() {
+            viewModel.updateAvailabilityResponse.collect {
                 when (it) {
                     is UiState.Loading -> {
                         bottomSheetBinding.saveButton.isEnabled = false

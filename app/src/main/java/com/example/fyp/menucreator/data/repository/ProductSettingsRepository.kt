@@ -1,31 +1,11 @@
 package com.example.fyp.menucreator.data.repository
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
-import androidx.core.content.ContextCompat.startActivity
-import com.example.fyp.account_management.data.model.*
-import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
-import com.example.fyp.menucreator.util.FirebaseStorageReference
-import com.example.fyp.menucreator.util.UiState
-import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.firestore.ktx.toObjects
-import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
-import java.util.*
 import javax.inject.Inject
-import kotlin.random.Random
 
 class ProductSettingsRepository @Inject constructor(
     private val database: FirebaseFirestore,

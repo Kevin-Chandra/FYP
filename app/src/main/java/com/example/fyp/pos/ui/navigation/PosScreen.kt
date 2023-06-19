@@ -14,11 +14,7 @@ sealed class PosScreen(val route: String) {
     object PosCheckoutScreen: PosScreen(route = "pos_checkout_screen")
     object PosInvoiceScreen: PosScreen(route = "pos_invoice_screen")
     object PosRootGraph: PosScreen(route = "pos_root_graph")
-    object PosTableOrderGraph: PosScreen(route = "pos_table_order_screen"){
-//        fun passId(id:String):String{
-//            return "pos_table_order_screen?tableId=$id"
-//        }
-    }
+    object PosTableOrderGraph: PosScreen(route = "pos_table_order_screen")
 
     object PosOrderSummaryScreen : PosScreen(route = "pos_order_summary_screen")
     object PosAddToCartScreen : PosScreen(route = "pos_add_to_cart_screen")

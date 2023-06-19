@@ -1,8 +1,6 @@
 package com.example.fyp.pos.domain.table
 
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.menucreator.domain.productSettings.GetServiceChargeUseCase
-import com.example.fyp.menucreator.domain.productSettings.GetTaxUseCase
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus

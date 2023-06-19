@@ -25,7 +25,6 @@ import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
-import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentAddEditModifierBinding
 import com.example.fyp.menucreator.ui.adapter.ModifierItemAddEditAdapter
 import com.example.fyp.menucreator.ui.viewmodel.AddEditModifierViewModel
@@ -356,7 +355,7 @@ class AddEditModifierFragment : Fragment() {
 
     private fun observeLoadModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            viewModel.loadResponse.collect() { it ->
+            viewModel.loadResponse.collect { it ->
                 when (it) {
                     is UiState.Loading -> {
                         uiEnabled(false)
@@ -386,7 +385,7 @@ class AddEditModifierFragment : Fragment() {
 
     private fun observeAddEditModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addEditModifierResponse.collect() { it ->
+            viewModel.addEditModifierResponse.collect { it ->
                 when (it) {
                     is UiState.Loading -> {
                         uiEnabled(false)

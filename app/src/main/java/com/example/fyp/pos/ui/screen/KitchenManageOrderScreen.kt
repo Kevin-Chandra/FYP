@@ -82,7 +82,7 @@ fun KitchenManageOrderScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scroll = rememberScrollState()
 
-    BackHandler() {
+    BackHandler {
         viewModel.resetState()
         navigator.navigateUp()
     }
@@ -109,8 +109,8 @@ fun KitchenManageOrderScreen(
         confirmedOrders.addAll(ongoingItems.value.filter { it.orderItemStatus == OrderItemStatus.Confirmed })
     }
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
             ) {
@@ -147,7 +147,7 @@ fun KitchenManageOrderScreen(
                             )
                         }
                         if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Confirmed }){
-                            LazyRow(){
+                            LazyRow {
                                 items(ongoingItems.value
                                     .filter { it.orderItemStatus == OrderItemStatus.Confirmed }
                                     .sortedBy { it.timeAdded }){ item ->
@@ -225,7 +225,7 @@ fun KitchenManageOrderScreen(
                         }
 
                         if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Preparing }){
-                            LazyRow(){
+                            LazyRow {
                                 items(ongoingItems.value
                                     .filter { it.orderItemStatus == OrderItemStatus.Preparing }
                                     .sortedBy { it.timeAdded }){ item ->
@@ -426,7 +426,7 @@ fun OrderItemCard(
             //Note Row
             Row{
                 Icon(imageVector = Icons.Filled.Description, contentDescription = null, modifier = Modifier.padding(horizontal = 8.dp))
-                Column() {
+                Column {
                     Text(text = "Note", fontWeight = FontWeight.Bold)
                     if (orderItem.note.isNullOrEmpty()){
                         Text(text = "No note", fontStyle = FontStyle.Italic, fontWeight = FontWeight.Light)
@@ -441,7 +441,7 @@ fun OrderItemCard(
                 }
             }
             if (orderItem.orderItemStatus != OrderItemStatus.Finished){
-                Row() {
+                Row {
                     Button(onClick = onNextButtonClick) {
                         Text(text = if (orderItem.orderItemStatus == OrderItemStatus.Preparing) "Finish order" else "Prepare order")
                     }
@@ -556,7 +556,7 @@ fun OrderItemDialog(
                         contentDescription = null,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    Column() {
+                    Column {
                         Text(text = "Note", fontWeight = FontWeight.Bold)
                         if (item.note.isNullOrEmpty()) {
                             Text(

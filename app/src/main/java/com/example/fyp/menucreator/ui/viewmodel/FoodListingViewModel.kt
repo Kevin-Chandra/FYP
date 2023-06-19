@@ -26,8 +26,8 @@ class FoodListingViewModel @Inject constructor(
     private fun getFoodList() {
         _foods.value = UiState.Loading
         getFoodListUseCase.invoke {
-            viewModelScope.launch() {
-                it.collect() {
+            viewModelScope.launch {
+                it.collect {
                     when (it) {
                         is UiState.Success -> {
                             foodMap.clear()

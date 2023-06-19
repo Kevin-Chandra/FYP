@@ -81,8 +81,8 @@ fun OngoingOrderScreen(
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(currentAnim.value))
     val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
 
-    FypTheme() {
-        Scaffold() {
+    FypTheme {
+        Scaffold {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -263,7 +263,7 @@ fun ViewOrderItem(
                 style = MaterialTheme.typography.headlineSmall
             )
             val food = getFood(orderItem.foodId)?:return
-            Column() {
+            Column {
                 Text(text = food.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineMedium)
                 orderItem.modifierItems?.forEach {
                     val modifier = getModifier(it.key)

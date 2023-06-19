@@ -1,8 +1,5 @@
 package com.example.fyp.menucreator.data.model
 
-import com.google.firebase.firestore.ServerTimestamp
-import java.util.*
-
 
 abstract class Product (
     open val productId: String,

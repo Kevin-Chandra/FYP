@@ -22,6 +22,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <TextView
+                android:id="@+id/food_title_tv"
+                style="@style/TextAppearance.Material3.HeadlineMedium"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:padding="8dp"
+                tools:text="TextView" />
+
             <RelativeLayout
                 android:layout_width="200dp"
                 android:layout_height="200dp"
@@ -69,7 +79,9 @@
                 android:id="@+id/product_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
+                android:layout_marginHorizontal="@dimen/et_marginHorizontal"
+                android:layout_marginVertical="@dimen/et_marginVertical"
+                app:startIconDrawable="@drawable/ic_id"
                 app:errorEnabled="true"
                 android:hint="Product Id">
 
@@ -86,7 +98,9 @@
                 android:id="@+id/product_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
+                android:layout_marginHorizontal="@dimen/et_marginHorizontal"
+                android:layout_marginVertical="@dimen/et_marginVertical"
+                app:startIconDrawable="@drawable/ic_food"
                 app:errorEnabled="true"
                 android:hint="Name">
 
@@ -103,7 +117,9 @@
                 android:id="@+id/product_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
+                android:layout_marginHorizontal="@dimen/et_marginHorizontal"
+                android:layout_marginVertical="@dimen/et_marginVertical"
+                app:startIconDrawable="@drawable/ic_money"
                 app:errorEnabled="true"
                 android:hint="Price">
 
@@ -120,7 +136,9 @@
                 android:id="@+id/product_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
+                android:layout_marginHorizontal="@dimen/et_marginHorizontal"
+                android:layout_marginVertical="@dimen/et_marginVertical"
+                app:startIconDrawable="@drawable/ic_notes"
                 android:hint="Description"
                 app:errorEnabled="true">
 
@@ -137,8 +155,10 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginHorizontal="@dimen/et_marginHorizontal"
+                android:layout_marginVertical="@dimen/et_marginVertical"
                 app:errorEnabled="true"
+                app:startIconDrawable="@drawable/ic_category"
                 android:hint="Food Category"
                 app:endIconMode="dropdown_menu"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -155,10 +175,13 @@
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/modifier_switch"
+                style="@style/Widget.Material3.CompoundButton.MaterialSwitch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
+                android:layout_marginHorizontal="@dimen/et_marginHorizontal"
+                android:layout_marginVertical="8dp"
                 android:checked="false"
+                android:textSize="16sp"
                 android:text="Modifier" />
 
             <LinearLayout
@@ -188,6 +211,8 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/reset_button"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:textColor="@color/error"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"

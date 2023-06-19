@@ -1,7 +1,6 @@
 package com.example.fyp.menucreator.util
 
 import android.net.Uri
-import java.util.*
 
 data class AddEditFoodState(
     val productId: String = "",

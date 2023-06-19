@@ -90,7 +90,7 @@ class TableOrderCartViewModel @Inject constructor(
         deleteItemFromCartUseCase(id)
     }
 
-    private fun submitOrder() = viewModelScope.launch(){
+    private fun submitOrder() = viewModelScope.launch {
         _posOrderUiState.value = Response.Loading
         val job = async {
             if (table.currentOrder.isNullOrEmpty()) {

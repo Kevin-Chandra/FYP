@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.fyp.menucreator.data.model.ProductSettings
 import com.example.fyp.menucreator.util.FireStoreDocumentField
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductSettingsDao {

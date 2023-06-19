@@ -1,11 +1,8 @@
 package com.example.fyp.menucreator.data.model
 
-import android.net.Uri
-import com.example.fyp.account_management.data.model.AccountType
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
-import kotlin.collections.ArrayList
 
 data class Food(
     override val productId: String = "",

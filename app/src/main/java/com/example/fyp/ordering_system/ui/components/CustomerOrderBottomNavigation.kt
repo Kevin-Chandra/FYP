@@ -6,6 +6,10 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -33,7 +37,7 @@ fun CustomerOrderBottomNavigation(navController: NavController,modifier: Modifie
         val currentRoute = navBackStackEntry?.destination?.route
         items.forEach { item ->
             NavigationBarItem(
-                icon = { Icon(painterResource(id = item.icon), contentDescription = item.title) },
+                icon = { Icon(painterResource(id = if (currentRoute == item.screen_route) item.iconClicked else item.icon ), contentDescription = item.title) },
                 label = { Text(
                     text = item.title,)
                         },
@@ -41,7 +45,6 @@ fun CustomerOrderBottomNavigation(navController: NavController,modifier: Modifie
                 alwaysShowLabel = true,
                 onClick = {
                     navController.navigate(item.screen_route) {
-
                         navController.graph.startDestinationRoute?.let { screen_route ->
                             popUpTo(screen_route) {
                                 saveState = true

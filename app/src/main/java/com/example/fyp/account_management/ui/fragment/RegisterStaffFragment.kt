@@ -58,7 +58,7 @@ class RegisterStaffFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRegisterStaffBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -131,7 +131,7 @@ class RegisterStaffFragment : Fragment() {
 
     private fun observeRegistration() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.registerResponse.collect() {
+            viewModel.registerResponse.collect {
                 when (it) {
                     is Response.Loading -> {
                         binding.registerProgress.visibility = View.VISIBLE
@@ -155,7 +155,7 @@ class RegisterStaffFragment : Fragment() {
 
     private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.registerState.collect() {
+            viewModel.registerState.collect {
                 if (it.tokenError != null){
                     binding.regTokenEditTextLayout.error = it.tokenError.toString()
 

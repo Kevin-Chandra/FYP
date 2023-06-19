@@ -4,12 +4,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.domain.use_case.GetAccountUseCase
-import com.example.fyp.account_management.domain.use_case.GetSessionUseCase
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ProductType
-import com.example.fyp.menucreator.data.repository.ModifierRepository
 import com.example.fyp.menucreator.domain.*
 import com.example.fyp.menucreator.domain.food.AddFoodUseCase
 import com.example.fyp.menucreator.domain.food.GetFoodUseCase

@@ -35,7 +35,7 @@ class UpdatePasswordFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentUpdatePasswordBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -59,7 +59,7 @@ class UpdatePasswordFragment : Fragment() {
 
     private fun observeChangePass() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.changePassState.collect() {
+            viewModel.changePassState.collect {
                 when (it) {
                     is Response.Loading -> {
                         binding.saveBtn.isEnabled = false

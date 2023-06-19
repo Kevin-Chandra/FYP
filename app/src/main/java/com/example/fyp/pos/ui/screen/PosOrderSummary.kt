@@ -126,8 +126,8 @@ fun PosOrderSummary(
     }
 
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 topBar = {
                     TopAppBar(
@@ -176,7 +176,7 @@ fun PosOrderSummary(
                     .fillMaxSize()
                     .padding(it)){
                     if (cart.value.isNotEmpty()){
-                            LazyColumn(){
+                            LazyColumn {
                                 items(cart.value){ orderItem->
                                     OrderItemRow(
                                         orderItem = orderItem,

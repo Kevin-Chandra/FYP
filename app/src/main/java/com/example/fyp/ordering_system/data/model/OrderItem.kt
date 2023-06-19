@@ -6,7 +6,6 @@ import androidx.room.TypeConverters
 import com.example.fyp.ordering_system.util.Converters
 import java.util.Date
 
-
 @Entity (tableName = "order_items")
 @TypeConverters(Converters::class)
 data class OrderItem (

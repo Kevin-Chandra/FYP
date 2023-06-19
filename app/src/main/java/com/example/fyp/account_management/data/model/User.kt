@@ -1,8 +1,7 @@
 package com.example.fyp.account_management.data.model
 
-import android.os.Parcelable
 import com.google.firebase.firestore.ServerTimestamp
-import java.util.*
+import java.util.Date
 
 data class Account(
         val id: String = "",
@@ -32,7 +31,4 @@ enum class StaffPosition{
         Pending,
         Regular,
         Kitchen
-}
-enum class SpecialAccess (){
-        MANAGE_STAFF
 }

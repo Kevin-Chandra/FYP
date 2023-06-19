@@ -103,7 +103,7 @@ fun ManageOrderScreen(
 
     val account = authViewModel.accountState
 
-    FypTheme() {
+    FypTheme {
         Surface {
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
             Scaffold(

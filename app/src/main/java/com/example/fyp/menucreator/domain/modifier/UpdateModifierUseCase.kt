@@ -14,7 +14,6 @@ import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import com.example.fyp.menucreator.util.MenuCreatorResponse
 import com.example.fyp.menucreator.util.UiState
 import kotlinx.coroutines.*
-import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 class UpdateModifierUseCase @Inject constructor(

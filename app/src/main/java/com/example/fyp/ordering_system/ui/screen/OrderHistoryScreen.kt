@@ -90,7 +90,7 @@ fun OrderHistoryScreen(
     val statusState = viewModel.pastOrderState.collectAsStateWithLifecycle()
     val pastOrders = viewModel.pastOrderList.collectAsStateWithLifecycle()
 
-    FypTheme() {
+    FypTheme {
         Scaffold(
             bottomBar = {
                 CustomerOrderBottomNavigation(

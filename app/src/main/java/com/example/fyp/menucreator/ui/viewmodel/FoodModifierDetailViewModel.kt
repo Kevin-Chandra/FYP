@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.menucreator.data.model.*
-import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.data.repository.ModifierItemRepository
-import com.example.fyp.menucreator.data.repository.ModifierRepository
 import com.example.fyp.menucreator.domain.UpdateProductAvailabilityUseCase
 import com.example.fyp.menucreator.domain.food.DeleteFoodUseCase
 import com.example.fyp.menucreator.domain.food.GetFoodUseCase
@@ -14,8 +11,6 @@ import com.example.fyp.menucreator.domain.food.UpdateFoodUseCase
 import com.example.fyp.menucreator.domain.modifier.DeleteModifierUseCase
 import com.example.fyp.menucreator.domain.modifier.GetModifierUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemListUseCase
-import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemUseCase
-import com.example.fyp.menucreator.domain.productImage.DeleteImageUseCase
 import com.example.fyp.menucreator.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +18,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

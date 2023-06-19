@@ -6,19 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.account_management.data.model.AccountType
-import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
-import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.ui.adapter.ModifierListItemAdapter
 import com.example.fyp.databinding.FragmentModifierListBinding
 import com.example.fyp.menucreator.data.model.ProductType
-import com.example.fyp.menucreator.data.repository.ModifierItemRepository
-import com.example.fyp.menucreator.data.repository.ModifierRepository
 import com.example.fyp.menucreator.ui.viewmodel.ModifierListingViewModel
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,7 +31,7 @@ class ModifierListFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentModifierListBinding.inflate(inflater, container, false)
         return binding.root
@@ -62,7 +57,7 @@ class ModifierListFragment : Fragment() {
         binding.recyclerView.adapter = modifierAdapter
 
         viewLifecycleOwner.lifecycleScope.launch{
-            viewModel.modifiers.collect() {
+            viewModel.modifiers.collect {
                 when (it) {
                     is UiState.Success -> {modifierAdapter.submitList(it.data.toMutableList())
                                             binding.progressBar.visibility = View.GONE}

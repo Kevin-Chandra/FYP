@@ -67,8 +67,8 @@ fun MainPosScreen(
         }
     }
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Box(modifier = Modifier.fillMaxSize()){
                 if (account.value == null){
                     CircularProgressIndicator(Modifier.align(Alignment.Center))

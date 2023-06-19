@@ -6,14 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Constants
-import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.databinding.FragmentProductListBinding
 import com.example.fyp.menucreator.data.model.ProductType
@@ -55,7 +53,7 @@ class ProductListFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch{
-            viewModel.foods.collect() {
+            viewModel.foods.collect {
                 when (it) {
                     is UiState.Success -> {foodAdapter.submitList(it.data.toMutableList())
                         binding.progressBar.visibility = View.GONE}

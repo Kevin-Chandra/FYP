@@ -94,7 +94,7 @@ fun PosAddToCartScreen (
         addToCartViewModel.onEvent(AddToCartEvent.QuantityChanged(quantity))
     }
 
-    FypTheme() {
+    FypTheme {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
@@ -174,7 +174,7 @@ fun PosAddToCartScreen (
                             )
                         }
                         if (food.modifiable) {
-                            Column() {
+                            Column {
                                 food.modifierList.forEach{ id ->
                                     val list = mutableListOf<ModifierItem>()
                                     productViewModel.getModifier(id)

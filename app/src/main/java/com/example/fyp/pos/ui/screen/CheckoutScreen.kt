@@ -134,8 +134,8 @@ fun CheckoutScreen(
         }
     }
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 topBar = {
                          TopAppBar(
@@ -195,7 +195,7 @@ fun CheckoutScreen(
                     .padding(it)){
                     Column(modifier = Modifier.fillMaxWidth()) {
                         if (!order.value?.orderList.isNullOrEmpty()) {
-                            LazyColumn() {
+                            LazyColumn {
                                 items(order.value!!.orderList) { item ->
                                     val orderItem = tableOngoingOrderViewModel.getOrderItem(item)
                                     orderItem?.let {

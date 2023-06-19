@@ -1,41 +1,26 @@
 package com.example.fyp.account_management.ui.fragment
 
-import android.app.Dialog
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import com.example.fyp.MainActivity
 import com.example.fyp.R
-import com.example.fyp.account_management.AuthActivity
-import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.AccountType
-import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.ui.adapter.PendingStaffAdapter
 import com.example.fyp.account_management.ui.adapter.StaffListAdapter
 import com.example.fyp.account_management.ui.view_model.AdminViewModel
-import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.ui.view_model.StaffViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.databinding.FragmentMainAccountBinding
 import com.example.fyp.databinding.FragmentManageStaffBinding
-import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.chip.Chip
-import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -81,7 +66,7 @@ class ManageStaffFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                staffViewModel.pendingAccounts.collect() {
+                staffViewModel.pendingAccounts.collect {
                     when (it) {
                         is Response.Success -> {
                             pendingStaffAdapter.submitList(it.data.toMutableList())
@@ -104,7 +89,7 @@ class ManageStaffFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                staffViewModel.staffAccounts.collect() { it ->
+                staffViewModel.staffAccounts.collect { it ->
                     when (it) {
                         is Response.Success -> {
                             staffListAdapter.submitList(it.data.toMutableList().sortedBy { it1 -> it1.staffPosition })
@@ -180,7 +165,7 @@ class ManageStaffFragment : Fragment() {
 
     private fun observeSetToken() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.setTokenResponse.collect() {
+            viewModel.setTokenResponse.collect {
                 when (it) {
                     is Response.Loading -> {
                     }
@@ -198,7 +183,7 @@ class ManageStaffFragment : Fragment() {
 
     private fun observeGetToken() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.getTokenResponse.collect() {
+            viewModel.getTokenResponse.collect {
                 when (it) {
                     is Response.Loading -> {
                     }

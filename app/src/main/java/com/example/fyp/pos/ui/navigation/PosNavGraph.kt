@@ -26,7 +26,6 @@ import com.example.fyp.pos.ui.screen.PosAddToCartScreen
 import com.example.fyp.pos.ui.screen.PosOrderScreen
 import com.example.fyp.pos.ui.screen.PosOrderSummary
 import com.example.fyp.pos.ui.screen.TableSettingScreen
-import com.example.fyp.pos.ui.viewmodel.CheckoutViewModel
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.ui.viewmodel.ManageOrderViewModel
 import com.example.fyp.pos.ui.viewmodel.ManageTableViewModel

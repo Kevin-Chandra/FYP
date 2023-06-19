@@ -1,8 +1,6 @@
 package com.example.fyp.menucreator.data.repository
 
-import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
-import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.menucreator.util.MenuCreatorResponse
@@ -11,13 +9,11 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class ModifierRepository(
-) {
+class ModifierRepository {
     private val modifierCollectionRef = Firebase.firestore.collection(FireStoreCollection.MODIFIER)
 
     fun addModifier(modifier: Modifier,result: (UiState<String>) -> Unit){

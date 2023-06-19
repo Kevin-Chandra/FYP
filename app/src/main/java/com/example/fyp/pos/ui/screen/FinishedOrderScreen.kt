@@ -71,8 +71,8 @@ fun FinishedOrderScreen(
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 topBar = {
                     TopAppBar(

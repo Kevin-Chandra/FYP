@@ -11,8 +11,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.databinding.RowPendingStaffBinding
-import com.example.fyp.databinding.RowProductItemBinding
-import com.example.fyp.menucreator.data.model.Food
 
 
 class PendingStaffAdapter(

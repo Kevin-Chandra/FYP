@@ -47,7 +47,6 @@ class ProductListItemAdapter(
                     .into(binding.imageView)
             }
 
-
             binding.root.setOnClickListener{ onItemClicked.invoke(food)}
         }
     }

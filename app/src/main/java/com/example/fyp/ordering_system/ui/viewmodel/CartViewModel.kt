@@ -13,7 +13,6 @@ import com.example.fyp.ordering_system.domain.local_database.DeleteItemFromCartU
 import com.example.fyp.ordering_system.domain.local_database.GetCartUseCase
 import com.example.fyp.ordering_system.domain.remote_database.SubmitOrderUseCase
 import com.example.fyp.ordering_system.util.OrderingEvent
-import com.example.fyp.pos.domain.CompactOrderItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

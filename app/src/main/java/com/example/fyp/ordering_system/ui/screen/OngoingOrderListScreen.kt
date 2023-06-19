@@ -101,8 +101,8 @@ fun OngoingOrderListScreen(
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 bottomBar = {
                     CustomerOrderBottomNavigation(

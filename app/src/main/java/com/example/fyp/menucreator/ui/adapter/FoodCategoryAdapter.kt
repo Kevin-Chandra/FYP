@@ -7,13 +7,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fyp.databinding.RowFoodCategoryBinding
-import com.example.fyp.databinding.RowProductItemBinding
-import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.FoodCategory
-import com.example.fyp.menucreator.data.model.Modifier
 
 class FoodCategoryAdapter (private val onItemClicked: (FoodCategory) -> Unit) :
-    ListAdapter<FoodCategory, FoodCategoryAdapter.ItemViewHolder>(FoodCategoryAdapter.DiffCallback){
+    ListAdapter<FoodCategory, FoodCategoryAdapter.ItemViewHolder>(DiffCallback){
 
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<FoodCategory>() {

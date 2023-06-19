@@ -16,6 +16,4 @@ data class Table(
     val paxCapacity: Int = 0,
     val currentOrder: String? = null,
     val tableStatus: TableStatus = TableStatus.Available
-) {
-
-}
+)

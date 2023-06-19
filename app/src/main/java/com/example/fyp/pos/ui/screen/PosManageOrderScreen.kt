@@ -74,13 +74,13 @@ fun ManageOrderScreen(
     val ongoingOrders = manageOrderViewModel.ongoingOrder.collectAsStateWithLifecycle()
     val ongoingOrderItems = manageOrderViewModel.ongoingOrderItem.collectAsStateWithLifecycle()
 
-    var showDialog by remember() {
+    var showDialog by remember {
         mutableStateOf(false)
     }
 
     val coroutineScope = rememberCoroutineScope()
 
-    FypTheme() {
+    FypTheme {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
@@ -97,7 +97,7 @@ fun ManageOrderScreen(
                     )
                 }
                 if (ongoingOrders.value.isNotEmpty()){
-                    LazyColumn(){
+                    LazyColumn {
                         items(ongoingOrders.value){ item ->
                             var firstName by rememberSaveable { mutableStateOf<String?>(null) }
                             var lastName by rememberSaveable { mutableStateOf<String?>(null)  }

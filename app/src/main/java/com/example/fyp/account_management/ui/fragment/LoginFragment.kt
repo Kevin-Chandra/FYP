@@ -35,7 +35,7 @@ class LoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
@@ -67,7 +67,7 @@ class LoginFragment : Fragment() {
 
     private fun observeLogin() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.loginState.collect() {
+            viewModel.loginState.collect {
                 when (it) {
                     is Response.Loading -> {
                         binding.loginBtn.isEnabled = false

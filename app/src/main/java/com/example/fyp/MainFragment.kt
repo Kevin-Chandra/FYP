@@ -35,8 +35,6 @@ import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-
-
 @ExperimentalBadgeUtils @AndroidEntryPoint
 class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
@@ -176,7 +174,7 @@ class MainFragment : Fragment() {
 
     private fun observeVersion() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            productSettingsViewModel.versionName.collect() {
+            productSettingsViewModel.versionName.collect {
                 when (it) {
                     is Response.Loading -> {
                     }

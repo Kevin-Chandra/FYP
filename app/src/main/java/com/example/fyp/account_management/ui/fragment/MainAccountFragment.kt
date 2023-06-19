@@ -185,7 +185,7 @@ class MainAccountFragment : Fragment() {
 
     private fun observeDelete() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            authViewModel.deleteAccountState.collect() {
+            authViewModel.deleteAccountState.collect {
                 when (it) {
                     is Response.Loading -> {
                         binding.deleteBtn.isEnabled = false

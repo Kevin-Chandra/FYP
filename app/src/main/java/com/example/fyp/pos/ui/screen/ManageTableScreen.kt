@@ -104,8 +104,8 @@ fun ManageTableScreen(
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 topBar = {
                     TopAppBar(
@@ -332,7 +332,7 @@ fun AddTableDialog(
         onDismissRequest = { onDismiss(false) },
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        Column() {
+        Column {
             OutlinedTextField(value = tableName, onValueChange = {
                 tableName = it
             })

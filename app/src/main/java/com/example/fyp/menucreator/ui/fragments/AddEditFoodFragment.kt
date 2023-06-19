@@ -6,12 +6,10 @@ import android.os.Bundle
 import android.view.*
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -22,9 +20,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
-import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentAddEditFoodBinding
 import com.example.fyp.databinding.RowAddEditModifierBinding
 import com.example.fyp.menucreator.data.model.FoodCategory
@@ -113,6 +109,8 @@ class AddEditFoodFragment : Fragment() {
         }
 
         binding.apply {
+            foodTitleTv.text = if (command == NavigationCommand.EDIT) "Edit Food" else "Add Food"
+
             productIdEditText.doAfterTextChanged {
                 viewModel.onEvent(AddEditFoodEvent.ProductIdChanged(productIdEditText.text.toString()))
             }
@@ -166,7 +164,7 @@ class AddEditFoodFragment : Fragment() {
 
     private fun loadModifier() = lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.CREATED) {
-            viewModel.modifiers.collect() {
+            viewModel.modifiers.collect {
                 when (it) {
                     is UiState.Success -> {
                         modifierList = viewModel.modifierMap.keys.toTypedArray()
@@ -185,7 +183,7 @@ class AddEditFoodFragment : Fragment() {
     }
     private fun loadCategory() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            catViewModel.categories.collect() {
+            catViewModel.categories.collect {
                 when (it) {
                     is UiState.Success -> {
                         categoryList = it.data.toList()
@@ -390,7 +388,7 @@ class AddEditFoodFragment : Fragment() {
 
     private fun observeFoodUpdate() =  viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.CREATED) {
-            viewModel.addEditFoodResponse.collect() {
+            viewModel.addEditFoodResponse.collect {
                 println(it)
                 when (it) {
                     is UiState.Loading -> {
@@ -419,7 +417,7 @@ class AddEditFoodFragment : Fragment() {
 
     private fun observeError() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addEditFoodState.collect() {
+            viewModel.addEditFoodState.collect {
                 if (it.nameError != null){
                     binding.productName.error = it.nameError
                 } else {
@@ -446,7 +444,7 @@ class AddEditFoodFragment : Fragment() {
 
     private fun observeLoadFood() = viewLifecycleOwner.lifecycleScope.launch{
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.foodLoaded.collect() {
+            viewModel.foodLoaded.collect {
                 when (it) {
                     is UiState.Loading -> {
                         uiEnabled(false)

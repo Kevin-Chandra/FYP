@@ -14,8 +14,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class FoodRepository(
-) {
+class FoodRepository {
      private val foodCollectionRef = Firebase.firestore.collection(FireStoreCollection.FOOD)
 
     fun addFood(food: Food, result: (UiState<String>) -> Unit) {

@@ -38,7 +38,7 @@ fun InvoiceScreen(
 
     fun navigateBack() = navigator.popBackStack(PosScreen.ManageTableScreen.route,false)
 
-    BackHandler() {
+    BackHandler {
         navigateBack()
     }
 
@@ -57,8 +57,8 @@ fun InvoiceScreen(
         }
     }
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 topBar = {
                     TopAppBar(

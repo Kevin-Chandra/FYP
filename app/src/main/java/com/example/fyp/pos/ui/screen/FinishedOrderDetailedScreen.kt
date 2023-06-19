@@ -84,8 +84,8 @@ fun FinishedOrderDetailedScreen(
         }
     }
 
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Scaffold(
                 topBar = {
                     TopAppBar(

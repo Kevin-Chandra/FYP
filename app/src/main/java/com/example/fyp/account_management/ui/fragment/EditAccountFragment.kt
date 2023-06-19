@@ -155,7 +155,7 @@ class EditAccountFragment : Fragment() {
 
     private fun observeLoading() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.loadingState.collect() {
+            viewModel.loadingState.collect {
                 when (it) {
                     is Response.Loading -> {
                         binding.progressBar.visibility = View.VISIBLE
@@ -177,7 +177,7 @@ class EditAccountFragment : Fragment() {
 
     private fun observeUpdate() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.updateResponse.collect() {
+            viewModel.updateResponse.collect {
                 when (it) {
                     is Response.Loading -> {
                         callback.isEnabled = true
@@ -212,7 +212,7 @@ class EditAccountFragment : Fragment() {
 
     private fun observeRegistrationState() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.registerState.collect() {
+            viewModel.registerState.collect {
                 if (it.fnameError != null){
                     binding.firstNameEt.isEnabled = true
                     binding.firstNameEtl.error = it.fnameError

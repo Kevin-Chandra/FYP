@@ -12,26 +12,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import com.example.fyp.ProductSettingsViewModel
 import com.example.fyp.R
-import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.databinding.FragmentFirstBinding
 import com.example.fyp.databinding.FragmentMenuCreatorSettingsBinding
-import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.ui.adapter.FoodCategoryAdapter
-import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.menucreator.ui.viewmodel.FoodCategoryViewModel
 import com.example.fyp.menucreator.util.UiState
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.lang.String.format
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
@@ -81,7 +74,7 @@ class SettingsFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch{
-            viewModel.categories.collect() {
+            viewModel.categories.collect {
                 when (it) {
                     is UiState.Success -> {
                         categoryAdapter.submitList(it.data.toMutableList())
@@ -157,7 +150,7 @@ class SettingsFragment : Fragment() {
 
     private fun observeAdd() = viewLifecycleOwner.lifecycleScope.launch{
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addState.collect() {
+            viewModel.addState.collect {
                 when (it) {
                     is UiState.Loading -> {
                         binding.newCatEtl.isEnabled = false
@@ -186,7 +179,7 @@ class SettingsFragment : Fragment() {
 
     private fun observeDelete() = viewLifecycleOwner.lifecycleScope.launch{
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.deleteState.collect() {
+            viewModel.deleteState.collect {
                 when (it) {
                     is UiState.Loading -> {
                         binding.progressBar.visibility = View.VISIBLE

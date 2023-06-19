@@ -1,8 +1,6 @@
 package com.example.fyp.ordering_system.data.model
 
-import com.google.firebase.firestore.DocumentId
 import java.util.Date
-
 data class Order(
     val orderId : String = "",
     val orderType : OrderType = OrderType.Online,

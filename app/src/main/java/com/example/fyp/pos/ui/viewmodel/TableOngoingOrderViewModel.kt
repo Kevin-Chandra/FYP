@@ -39,7 +39,7 @@ class TableOngoingOrderViewModel @Inject constructor(
 
 
     private fun getOngoingOrder() = viewModelScope.launch{
-        getTableOngoingOrderUseCase(){
+        getTableOngoingOrderUseCase {
             it.onEach { it1 ->
                 when (it1){
                     is Response.Error -> TODO()

@@ -37,8 +37,8 @@ import com.example.fyp.ordering_system.ui.navigation.Screen
 fun MainOnlineOrderingScreen(
     navigator: NavController,
 ) {
-    FypTheme() {
-        Surface() {
+    FypTheme {
+        Surface {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,

@@ -3,7 +3,6 @@ package com.example.fyp.menucreator.data.model
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
-import kotlin.collections.ArrayList
 
 data class Modifier(
     override val productId: String = "",

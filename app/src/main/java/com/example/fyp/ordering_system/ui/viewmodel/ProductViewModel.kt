@@ -15,7 +15,6 @@ import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -65,8 +64,8 @@ class ProductViewModel @Inject constructor(
     private fun getFoodList() {
         _allFoods.value = UiState.Loading
         getFoodListUseCase.invoke {
-            viewModelScope.launch() {
-                it.collect() {
+            viewModelScope.launch {
+                it.collect {
                     when (it) {
                         is UiState.Success -> {
                             foodMap.clear()
@@ -112,8 +111,8 @@ class ProductViewModel @Inject constructor(
     private fun getModifierList() {
         _modifiers.value = UiState.Loading
         getModifierListUseCase.invoke {
-            viewModelScope.launch() {
-                it.collect() {
+            viewModelScope.launch {
+                it.collect {
                     when (it) {
                         is UiState.Success -> {
                             modifierMap.clear()
@@ -134,8 +133,8 @@ class ProductViewModel @Inject constructor(
     private fun getItemList() {
         _modifierItems.value = UiState.Loading
         getModifierItemListUseCase.invoke {
-            viewModelScope.launch() {
-                it.collect() {
+            viewModelScope.launch {
+                it.collect {
                     when (it) {
                         is UiState.Success -> {
                             itemMap.clear()

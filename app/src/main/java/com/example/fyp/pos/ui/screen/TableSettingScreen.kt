@@ -120,7 +120,7 @@ fun TableSettingScreen(
         }
     }
 
-    FypTheme() {
+    FypTheme {
         Surface{
             Scaffold(
                 floatingActionButton = {
@@ -260,11 +260,11 @@ fun TableOverview(
         var available by remember {
             mutableStateOf(currentAvailability)
         }
-        val buttonEnabled by remember() {
+        val buttonEnabled by remember {
             mutableStateOf(table.tableStatus == TableStatus.Available || table.tableStatus == TableStatus.Unavailable)
         }
 
-        Box() {
+        Box {
             Column(
                 modifier = Modifier
                     .padding(16.dp)
@@ -588,7 +588,7 @@ fun TableManagementDialogPreview() {
 )
 @Composable
 fun TableBottomSheetPreview() {
-    Surface() {
+    Surface {
         AddEditTableBottomSheetContent(
             onTableNumberChanged = {},
             onPaxCapacityChanged = {},
