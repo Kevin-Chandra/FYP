@@ -1,5 +1,14 @@
 package com.example.fyp.ordering_system.ui.screen
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
@@ -20,6 +29,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -48,6 +58,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -66,7 +77,7 @@ import com.skydoves.landscapist.animation.circular.CircularRevealPlugin
 import com.skydoves.landscapist.coil.CoilImage
 import com.skydoves.landscapist.components.rememberImageComponent
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun AddToCartScreen (
     navigator: NavController,
@@ -79,6 +90,8 @@ fun AddToCartScreen (
 
     val addToCartViewModel = hiltViewModel<AddToCartViewModel>()
 
+    var edit by remember { mutableStateOf(false) }
+
     val cartState = addToCartViewModel.addToCartState.collectAsStateWithLifecycle()
     val uiState = addToCartViewModel.addToCartUiState.collectAsStateWithLifecycle(AddToCartUiState())
     val food = productViewModel.getFood(foodId)!!
@@ -86,11 +99,12 @@ fun AddToCartScreen (
     LaunchedEffect(key1 = true) {
         orderItemId?.let {
             addToCartViewModel.initializeItemEdit(it)
+            edit = true
         }
         val modifierList = mutableListOf<com.example.fyp.menucreator.data.model.Modifier>()
         food.modifierList.forEach {
             val modifier = productViewModel.getModifier(it)
-            if (modifier?.modifierItemList?.any{ id -> productViewModel.getModifierItem(id)!!.availability } == true){
+            if (modifier?.modifierItemList?.any { id -> productViewModel.getModifierItem(id)!!.availability } == true) {
                 modifierList.add(modifier)
             }
         }
@@ -107,19 +121,37 @@ fun AddToCartScreen (
                 bottomBar = {
                     Button(
                         onClick = {
-                            addToCartViewModel.onEvent(AddToCartEvent.AddToCart)
+                            if (edit && cartState.value.quantity == 0){
+                                addToCartViewModel.onEvent(AddToCartEvent.DeleteFromCart)
+                            } else {
+                                addToCartViewModel.onEvent(AddToCartEvent.AddToCart)
+                            }
                         },
+                        colors = ButtonDefaults.buttonColors(
+                            if (cartState.value.quantity == 0) MaterialTheme.colorScheme.error
+                            else MaterialTheme.colorScheme.primary
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
                     ) {
-                        Text(text = if (orderItemId == null) "Add to cart ${cartState.value.price}" else "Update cart ${cartState.value.price}")
+                        Text(
+                            text = if (orderItemId == null) "Add to cart ${cartState.value.price}" else {
+                                if (cartState.value.quantity == 0)
+                                    "Remove"
+                                else
+                                    "Update cart ${cartState.value.price}"
+                            },
+                            color = if (cartState.value.quantity == 0) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 },
             ) {
-                Box(modifier = Modifier.padding(it).semantics {
-                    testTagsAsResourceId = true
-                }) {
+                Box(modifier = Modifier
+                    .padding(it)
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }) {
                     LaunchedEffect(key1 = uiState.value) {
                         if (uiState.value.errorMessage != null) {
                             errorToast(uiState.value.errorMessage ?: "", context)
@@ -184,7 +216,7 @@ fun AddToCartScreen (
                             Column(
                                 modifier = Modifier.testTag("modifier_selection_list")
                             ) {
-                                food.modifierList.forEach{ id ->
+                                food.modifierList.forEach { id ->
                                     val list = mutableListOf<ModifierItem>()
                                     productViewModel.getModifier(id)
                                         ?.let { it1 ->
@@ -199,9 +231,6 @@ fun AddToCartScreen (
                                                     it1,
                                                 )
                                             }
-//                                            else {
-////                                                addToCartViewModel.onEvent(AddToCartEvent.RequiredModifierUnavailable(id))
-//                                            }
                                         }
                                 }
                             }
@@ -236,8 +265,9 @@ fun AddToCartScreen (
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
+
                             IconButton(onClick = {
-                                if (addToCartViewModel.addToCartState.value.quantity > 1)
+                                if (addToCartViewModel.addToCartState.value.quantity > if (edit) 0 else 1 )
                                     addToCartViewModel.onEvent(
                                         AddToCartEvent.QuantityChanged(
                                             cartState.value.quantity.dec()
@@ -249,15 +279,38 @@ fun AddToCartScreen (
                                     contentDescription = "Minus one"
                                 )
                             }
-                            Text(
-                                text = cartState.value.quantity.toString(),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            IconButton(onClick = {
-                                addToCartViewModel.onEvent(AddToCartEvent.QuantityChanged(cartState.value.quantity.inc()))
-                            },
+
+                            AnimatedContent(
+                                targetState = cartState.value.quantity,
+                                transitionSpec = {
+                                    if (targetState > initialState) {
+                                        (slideInVertically(initialOffsetY = { it }) + fadeIn()).togetherWith(
+                                            slideOutVertically(
+                                                targetOffsetY = { -it }) + fadeOut()
+                                        )
+                                    } else {
+                                        (slideInVertically(initialOffsetY = { -it }) + fadeIn()).togetherWith(
+                                            slideOutVertically(
+                                                targetOffsetY = { it }) + fadeOut()
+                                        )
+                                    }.using(SizeTransform(clip = false))
+                                }
+                            ) { targetCount ->
+                                Text(
+                                    text = "$targetCount",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    addToCartViewModel.onEvent(
+                                        AddToCartEvent.QuantityChanged(
+                                            cartState.value.quantity.inc()
+                                        )
+                                    )
+                                },
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Add,

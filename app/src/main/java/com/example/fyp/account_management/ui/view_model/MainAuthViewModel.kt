@@ -60,9 +60,8 @@ class MainAuthViewModel @Inject constructor(
         }
     }
 
-    private fun getAccountSession() = viewModelScope.launch(Dispatchers.Main){
+    private fun getAccountSession() = viewModelScope.launch(Dispatchers.IO){
         _account = getSessionUseCase()
-        loading.value = false
     }
 
     private fun getAccountFlow() = viewModelScope.launch{

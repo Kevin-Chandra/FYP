@@ -1,5 +1,8 @@
 package com.example.fyp.ordering_system.ui.screen
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,16 +11,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,17 +38,23 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -101,7 +117,7 @@ fun ReviewOrderScreen(
             }
 
             Scaffold(
-                snackbarHost = { SnackbarHost( hostState = snackBarHostState) },
+                snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
                 bottomBar = {
                     Button(
                         enabled = cart.isNotEmpty(),
@@ -121,12 +137,12 @@ fun ReviewOrderScreen(
                             Text(text = "Review Order")
                         },
                         navigationIcon = {
-                             IconButton(onClick = { navigator.navigateUp()}) {
-                                 Icon(
-                                     imageVector = Icons.Rounded.ArrowBack,
-                                     contentDescription = null
-                                 )
-                             }
+                            IconButton(onClick = { navigator.navigateUp() }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.ArrowBack,
+                                    contentDescription = null
+                                )
+                            }
                         },
                         scrollBehavior = scrollBehavior
                     )
@@ -134,79 +150,174 @@ fun ReviewOrderScreen(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             ) {
                 Box(modifier = Modifier.padding(it)) {
-                    Column(
+                    LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 16.dp)
                             .align(Alignment.Center)
-                            .verticalScroll(rememberScrollState())
+//                            .verticalScroll(rememberScrollState())
 
                     ) {
-                        if (cart.isEmpty()){
-                            Text(
-                                text = "No item in cart",
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .padding(32.dp)
-                                    .fillMaxWidth(),
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        } else {
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Text(text = "Name", fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1.5f))
-                                Text(text = "Qty", fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                                Text(text = "Price", fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                                Text(text = "Total", fontWeight = FontWeight.SemiBold,modifier = Modifier.weight(1f))
-                                Spacer(modifier = Modifier.weight(0.5f))
+                        if (cart.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "No item in cart",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .padding(32.dp)
+                                        .fillMaxWidth(),
+                                    style = MaterialTheme.typography.titleSmall
+                                )
                             }
-                            Divider(modifier = Modifier.padding(vertical = 8.dp))
-                            Column(
-                                Modifier.fillMaxWidth()
-                            ){
-                                cart.forEach{ item ->
-                                    OrderItemCard(
-                                        Modifier
-                                            .clickable {
-                                                navigator.navigate(
-                                                    Screen.AddToCartScreen.withArgs(
-                                                        item.foodId,
-                                                        item.orderItemId,
-                                                        item.quantity.toString()
-                                                    )
-                                                )
-                                            },
-                                        item = item,
-                                        productViewModel,
-                                        cartViewModel
+                        } else {
+                            item {
+                                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+                                    Text(
+                                        text = "Name",
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.weight(1.5f)
+                                    )
+                                    Text(
+                                        text = "Qty",
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = "Price",
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = "Total",
+                                        fontWeight = FontWeight.SemiBold,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.weight(1f)
                                     )
                                 }
+                                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                            }
+                            items(
+                                items = cart,
+                                key = { item ->
+                                    item.orderItemId
+                                }
+                            ) { item ->
+                                val currentItem by rememberUpdatedState(item)
+                                val dismissState = rememberDismissState(
+                                    confirmValueChange = { value ->
+                                        if (value == DismissValue.DismissedToStart){
+                                            cartViewModel.onOrderingEvent(
+                                                OrderingEvent.FoodDeletedChanged(
+                                                    currentItem.orderItemId
+                                                )
+                                            )
+                                            true
+                                        } else {
+                                            false
+                                        }
+                                    }
+                                )
+
+                                SwipeToDismiss(
+                                    state = dismissState,
+                                    modifier = Modifier
+                                        .padding(vertical = 8.dp)
+                                        .clip(RoundedCornerShape(15)),
+                                    directions = setOf(
+                                        DismissDirection.EndToStart
+                                    ),
+                                    background = {
+                                        val color by animateColorAsState(
+                                            when (dismissState.targetValue) {
+                                                DismissValue.Default -> MaterialTheme.colorScheme.background
+                                                else -> Color.Red
+                                            }
+                                        )
+                                        val alignment = Alignment.CenterEnd
+                                        val icon = Icons.Default.Delete
+
+                                        val scale by animateFloatAsState(
+                                            if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+                                        )
+
+                                        Box(
+                                            Modifier
+                                                .fillMaxSize()
+                                                .background(color)
+                                                .padding(horizontal = 20.dp),
+                                            contentAlignment = alignment
+                                        ) {
+                                            Icon(
+                                                icon,
+                                                contentDescription = "Delete Icon",
+                                                modifier = Modifier.scale(scale)
+                                            )
+                                        }
+                                    },
+                                    dismissContent = {
+                                        OrderItemCard(
+                                            getFood = { id ->
+                                                productViewModel.getFood(id)
+                                            },
+                                            modifier = Modifier
+                                                .clickable {
+                                                    navigator.navigate(
+                                                        Screen.AddToCartScreen.withArgs(
+                                                            item.foodId,
+                                                            item.orderItemId,
+                                                            item.quantity.toString()
+                                                        )
+                                                    )
+                                                },
+                                            item = item,
+                                        )
+                                    })
                             }
                         }
-                        Divider(modifier = Modifier.padding(vertical = 16.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "Subtotal")
-                            Text(text = cartViewModel.getSubTotalPrice().toString())
-                        }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "Tax (${cartViewModel.getTaxPercentage()}%)")
-                            Text(text = String.format("%.2f",cartViewModel.getTaxValue()))
-                        }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "Service Charge (${cartViewModel.getServiceChargePercentage()}%)")
-                            Text(text = String.format("%.2f",cartViewModel.getServiceChargeValue()))
-                        }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(
-                                text = "Total",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Text(
-                                text = String.format("%.2f", cartViewModel.getGrandTotal() ),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                        item {
+                            Divider(modifier = Modifier.padding(vertical = 16.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = "Subtotal")
+                                Text(text = cartViewModel.getSubTotalPrice().toString())
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = "Tax (${cartViewModel.getTaxPercentage()}%)")
+                                Text(text = String.format("%.2f", cartViewModel.getTaxValue()))
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = "Service Charge (${cartViewModel.getServiceChargePercentage()}%)")
+                                Text(
+                                    text = String.format(
+                                        "%.2f",
+                                        cartViewModel.getServiceChargeValue()
+                                    )
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Total",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = String.format("%.2f", cartViewModel.getGrandTotal()),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                         }
                     }
-                    if (uiState.value is Response.Loading){
+                    if (uiState.value is Response.Loading) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center)
                         )
@@ -216,38 +327,26 @@ fun ReviewOrderScreen(
         }
     }
 }
-
 @Composable
-fun OrderItemCard(modifier: Modifier, item: OrderItem, productViewModel: ProductViewModel, cartViewModel: CartViewModel) {
-    val food = productViewModel.getFood(item.foodId)?: return
-    OrderItemCart(
-        food = food,
-        item = item,
-        onDeleteClicked = {
-            cartViewModel.onOrderingEvent(OrderingEvent.FoodDeletedChanged(it))
-        },
-        modifier = modifier)
-}
-
-@Composable
-fun OrderItemCart(food: Food,item: OrderItem, onDeleteClicked: (String) -> Unit, modifier: Modifier){
+fun OrderItemCard(getFood: (String) -> Food? ,item: OrderItem, modifier: Modifier){
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+        modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation()
     ) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                .heightIn(min = 50.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = food.name,
+                text = getFood(item.foodId)?.name ?: "",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold,
                 modifier = modifier.weight(1f)
             )
             Text(text = item.quantity.toString(),
@@ -262,12 +361,6 @@ fun OrderItemCart(food: Food,item: OrderItem, onDeleteClicked: (String) -> Unit,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = modifier.weight(1f))
-            IconButton(
-                onClick = { onDeleteClicked(item.orderItemId) },
-                modifier = modifier.weight(0.5f)
-            ) {
-                Icon(imageVector = Icons.TwoTone.Delete, contentDescription = "Delete")
-            }
         }
     }
 }
@@ -275,7 +368,6 @@ fun OrderItemCart(food: Food,item: OrderItem, onDeleteClicked: (String) -> Unit,
 @Preview(showBackground = true)
 @Composable
 fun OrderItemCartPreview() {
-    OrderItemCart(food = Food(name = "jdbajh", price = 83.2, description = "Desc"),
-        item = OrderItem(quantity = 1, price = 10.0),
-        onDeleteClicked = {} , modifier = Modifier)
+    OrderItemCard(getFood = {Food(name = "jdbajh", price = 83.2, description = "Desc")},
+        item = OrderItem(quantity = 1, price = 10.0), modifier = Modifier)
 }

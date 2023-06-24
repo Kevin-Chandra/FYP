@@ -141,6 +141,8 @@ class MainFragment : Fragment() {
                     binding.onlineOrderingBtn.visibility = View.VISIBLE
                     binding.onlineOrderingBtn.isEnabled = true
                     binding.onlineOrderingBtn.text = "Order Now"
+                    binding.oosTitleTv.text = "Discover Food With Us"
+                    binding.oosSubtitleTv.text = "Experience the most delicious food with us"
                 }
                 Admin,Manager -> {
                     binding.posLayout.visibility = View.VISIBLE
@@ -164,6 +166,8 @@ class MainFragment : Fragment() {
                     }
                 }
             }
+
+            authViewModel.loading.value = false
         }
 
     }

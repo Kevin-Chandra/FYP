@@ -9,6 +9,7 @@ import com.example.fyp.menucreator.domain.modifier.GetModifierListUseCase
 import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemByReturnUseCase
 import com.example.fyp.menucreator.util.UiState
 import com.example.fyp.ordering_system.data.model.OrderItem
+import com.example.fyp.ordering_system.domain.local_database.DeleteItemFromCartUseCase
 import com.example.fyp.ordering_system.domain.local_database.GetOrderItemByIdUseCase
 import com.example.fyp.ordering_system.domain.local_database.UpsertToCartUseCase
 import com.example.fyp.ordering_system.domain.validation.OrderValidationResult
@@ -34,6 +35,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddToCartViewModel @Inject constructor(
     private val upsertToCartUseCase: UpsertToCartUseCase,
+    private val deleteItemFromCartUseCase: DeleteItemFromCartUseCase,
     private val getOrderItemByIdUseCase: GetOrderItemByIdUseCase,
     private val getModifierItemByReturnUseCase: GetModifierItemByReturnUseCase,
     private val getModifierListUseCase: GetModifierListUseCase,
@@ -121,9 +123,6 @@ class AddToCartViewModel @Inject constructor(
 
     fun onEvent(event: AddToCartEvent){
         when(event){
-            AddToCartEvent.AddToCart -> {
-                addToCart()
-            }
             is AddToCartEvent.FoodChanged -> {
                 if (!this::food.isInitialized) {
                     food = event.food
@@ -144,6 +143,19 @@ class AddToCartViewModel @Inject constructor(
             is AddToCartEvent.NoteChanged -> {
                 _addToCartState.update { it.copy( note = event.note) }
             }
+            AddToCartEvent.DeleteFromCart -> {
+                deleteOrderItem()
+            }
+            AddToCartEvent.AddToCart -> {
+                addToCart()
+            }
+        }
+    }
+
+    private fun deleteOrderItem() = viewModelScope.launch {
+        if (edit){
+            deleteItemFromCartUseCase(item.orderItemId)
+            _addToCartUiState.emit(AddToCartUiState(successAdding = true, loading = false))
         }
     }
 

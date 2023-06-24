@@ -1,6 +1,9 @@
 package com.example.fyp.ordering_system.ui.screen
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -160,7 +165,15 @@ fun ViewProductListScreen(
                                         .testTag("product_list")
                                 ) {
                                     items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
-                                        ProductCard(item) { it1 ->
+                                        val animatedProgress = remember { Animatable(initialValue = 0.5f) }
+                                        LaunchedEffect(Unit) {
+                                            animatedProgress.animateTo(
+                                                targetValue = 1f,
+                                                animationSpec = tween(300, easing = LinearEasing)
+                                            )
+                                        }
+                                        val modifier = Modifier.graphicsLayer(scaleY = animatedProgress.value, scaleX = animatedProgress.value)
+                                        ProductCard(item,modifier) { it1 ->
                                             navigator.navigate(
                                                 Screen.AddToCartScreen.withArgs(
                                                     it1,
@@ -245,10 +258,11 @@ fun CategoryList(
 @Composable
 fun ProductCard(
     food: Food,
+    modifier: Modifier = Modifier,
     onClick: (String) -> Unit
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable(

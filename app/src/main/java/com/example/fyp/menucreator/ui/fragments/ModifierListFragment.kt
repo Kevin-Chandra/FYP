@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.menucreator.ui.adapter.ModifierListItemAdapter
@@ -67,11 +68,21 @@ class ModifierListFragment : Fragment() {
             }
         }
 
-//        binding.recyclerView.adapter = context?.let { ModifierListItemAdapter(it,menu.getModifierList()) }
         binding.fabAddModifier.setOnClickListener{
             val action = FirstFragmentDirections.actionFirstFragmentToAddEditModifierFragment("add",null)
             findNavController().navigate(action)
         }
+
+        binding.recyclerView.addOnScrollListener( object : RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 0){
+                    binding.fabAddModifier.shrink()
+                } else {
+                    binding.fabAddModifier.extend()
+                }
+            }
+        })
     }
 
     override fun onDestroyView() {

@@ -1,24 +1,27 @@
 package com.example.fyp.menucreator.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Constants
-import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.databinding.FragmentProductListBinding
 import com.example.fyp.menucreator.data.model.ProductType
+import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.menucreator.ui.viewmodel.FoodListingViewModel
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class ProductListFragment : Fragment() {
@@ -69,6 +72,17 @@ class ProductListFragment : Fragment() {
             val action = FirstFragmentDirections.actionFirstFragmentToAddEditFoodFragment(Constants.Command.ADD,null)
             findNavController().navigate(action)
         }
+
+        binding.recyclerView.addOnScrollListener( object : RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 0){
+                    binding.fabAddFood.shrink()
+                } else {
+                    binding.fabAddFood.extend()
+                }
+            }
+        })
     }
 
     override fun onDestroyView() {
