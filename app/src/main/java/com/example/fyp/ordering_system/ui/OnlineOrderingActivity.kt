@@ -32,15 +32,9 @@ class OnlineOrderingActivity : ComponentActivity() {
 
     lateinit var navController: NavHostController
 
-    lateinit var accountType: AccountType
-
     lateinit var account : Account
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val extras = intent.extras
-        if (extras != null) {
-            accountType = extras.getSerializable("accountType") as AccountType
-        }
         setContent {
             navController = rememberNavController()
             val productViewModel = hiltViewModel<ProductViewModel>()
@@ -56,7 +50,7 @@ class OnlineOrderingActivity : ComponentActivity() {
             }
 
             if (!loading){
-                if (accountType == AccountType.Customer){
+                if (account.accountType == AccountType.Customer){
                     val cartViewModel = hiltViewModel<CartViewModel>()
                     val ongoingOrderViewModel = hiltViewModel<OngoingOrderViewModel>()
                     SetupOnlineOrderingNavGraph(
@@ -73,7 +67,6 @@ class OnlineOrderingActivity : ComponentActivity() {
                     OnlineOrderingNavGraph(navController = navController,incomingOrderViewModel,productViewModel,accountViewModel,authViewModel)
                 }
             } else {
-                //Make splash screen
                 Box(modifier = Modifier.fillMaxSize()){
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)

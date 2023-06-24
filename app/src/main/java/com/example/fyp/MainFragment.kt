@@ -62,7 +62,6 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         getSession()
         initProductSettings()
 
@@ -83,9 +82,7 @@ class MainFragment : Fragment() {
         }
 
         binding.onlineOrderingBtn.setOnClickListener {
-            val i = Intent(requireContext(), OnlineOrderingActivity::class.java)
-            i.putExtra("accountType", account.accountType)
-            startActivity(i)
+            startActivity(Intent(requireContext(), OnlineOrderingActivity::class.java))
         }
 
         binding.posBtn.setOnClickListener {
@@ -93,8 +90,7 @@ class MainFragment : Fragment() {
         }
 
         binding.menuCreatorButton.setOnClickListener {
-            val i = Intent(requireContext(), MenuCreatorActivity::class.java)
-            startActivity(i)
+            startActivity(Intent(requireContext(), MenuCreatorActivity::class.java))
         }
 
         binding.feedbackFab.setOnClickListener {

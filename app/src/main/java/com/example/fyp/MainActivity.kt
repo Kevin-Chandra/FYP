@@ -21,14 +21,12 @@ class MainActivity : AppCompatActivity() {
 
     private val authViewModel by viewModels<MainAuthViewModel>()
 
-    var skipOnboardScreen = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen()
-
-        if (intent.extras != null) {
-            skipOnboardScreen = intent.extras!!.getBoolean("skip")
+        installSplashScreen().apply {
+            setKeepOnScreenCondition{
+                authViewModel.loading.value
+            }
         }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -46,6 +44,5 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-    fun shouldSkip() : Boolean = skipOnboardScreen
 
 }

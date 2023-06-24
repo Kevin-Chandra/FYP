@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,6 +39,8 @@ class MainAuthViewModel @Inject constructor(
     private var _account : Account? = null
     val accountState = mutableStateOf<Account?>(null)
 
+    var loading = mutableStateOf(true)
+
     init {
         getAccountFlow()
         getAccountSession()
@@ -57,21 +60,27 @@ class MainAuthViewModel @Inject constructor(
         }
     }
 
-    private fun getAccountSession() = viewModelScope.launch(Dispatchers.IO){
+    private fun getAccountSession() = viewModelScope.launch(Dispatchers.Main){
         _account = getSessionUseCase()
+        loading.value = false
     }
 
     private fun getAccountFlow() = viewModelScope.launch{
         getSessionFlowUseCase().onEach { account: Account? ->
             _account = account
             accountState.value = account
+            withContext(Dispatchers.Main) {
+                loading.value = false
+            }
         }.launchIn(viewModelScope)
     }
 
     fun getSession(online: Boolean = false,result: (Account?) -> Unit) = viewModelScope.launch(Dispatchers.Main){
+        loading.value = true
         if (_account == null || online){
             result.invoke(getSessionUseCase())
         } else {
+            loading.value = false
             result.invoke(_account)
         }
     }
