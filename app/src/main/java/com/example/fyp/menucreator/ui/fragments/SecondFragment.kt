@@ -412,7 +412,7 @@ class SecondFragment : Fragment() {
             viewModel.availabilityState.value.modifierItemAvailabilityMap?.forEach {
                 val item = viewModel.getModifierItem(it.key) ?: return@forEach
                 val switch = SwitchMaterial(requireContext())
-                switch.text = "[${item.name}] ${item.name}"
+                switch.text = "[${item.productId}] ${item.name}"
                 switch.isChecked = it.value
                 switch.setOnCheckedChangeListener { _, bool ->
                     viewModel.onEvent(

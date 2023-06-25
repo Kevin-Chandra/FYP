@@ -10,69 +10,71 @@ import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object AppModule  {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideFoodRepository(): FoodRepository{
         return FoodRepository()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideModifierRepository(): ModifierRepository{
         return ModifierRepository()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideModifierItemRepository(): ModifierItemRepository{
         return ModifierItemRepository()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideMenuSettingsRepository(): MenuSettingsRepository{
         return MenuSettingsRepository()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideAddCategoryUseCase(repo : MenuSettingsRepository): AddFoodCategoryUseCase {
         return AddFoodCategoryUseCase(repo)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideUpdateCategoryUseCase(repo : MenuSettingsRepository): UpdateFoodCategoryUseCase {
         return UpdateFoodCategoryUseCase(repo)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideDeleteCategoryUseCase(repo : MenuSettingsRepository): DeleteFoodCategoryUseCase {
         return DeleteFoodCategoryUseCase(repo)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideCategoryUseCase(repo : MenuSettingsRepository): GetFoodCategoryUseCase {
         return GetFoodCategoryUseCase(repo)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideImageRepo(): ProductImageRepository{
         return ProductImageRepository()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideUploadImageUseCase(repo : ProductImageRepository): UploadImageUseCase {
         return UploadImageUseCase(repo)
     }

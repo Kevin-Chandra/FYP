@@ -7,39 +7,41 @@ import com.example.fyp.menucreator.domain.productImage.DeleteImageUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object FoodModule {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesAddFoodUseCase(foodRepository: FoodRepository, imageUseCase: UploadImageUseCase, deleteFoodUseCase: DeleteFoodUseCase): AddFoodUseCase {
         return AddFoodUseCase(foodRepository,imageUseCase,deleteFoodUseCase)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesUpdateFoodUseCase(foodRepository: FoodRepository,imageUseCase: UploadImageUseCase): UpdateFoodUseCase {
         return UpdateFoodUseCase(foodRepository,imageUseCase)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesDeleteFoodUseCase(foodRepository: FoodRepository,getFoodUseCase: GetFoodUseCase,deleteImageUseCase: DeleteImageUseCase): DeleteFoodUseCase {
         return DeleteFoodUseCase(getFoodUseCase,foodRepository,deleteImageUseCase)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesGetFoodListUseCase(foodRepository: FoodRepository): GetFoodListUseCase {
         return GetFoodListUseCase(foodRepository)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesGetFoodUseCase(foodRepository: FoodRepository): GetFoodUseCase {
         return GetFoodUseCase(foodRepository)
     }

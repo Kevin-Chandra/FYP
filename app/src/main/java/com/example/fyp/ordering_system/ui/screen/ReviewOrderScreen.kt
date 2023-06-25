@@ -56,6 +56,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -155,6 +157,7 @@ fun ReviewOrderScreen(
                             .fillMaxSize()
                             .padding(horizontal = 16.dp)
                             .align(Alignment.Center)
+                            .testTag("revOrder:list")
 //                            .verticalScroll(rememberScrollState())
 
                     ) {

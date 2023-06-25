@@ -8,39 +8,41 @@ import com.example.fyp.menucreator.domain.validation.ValidateProductPriceUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object MenuCreatorModule {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesValidateNameUseCase(): ValidateProductNameUseCase {
         return ValidateProductNameUseCase()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesValidateCategoryUseCase(): ValidateProductCategoryUseCase {
         return ValidateProductCategoryUseCase()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesValidateProductPriceUseCase(): ValidateProductPriceUseCase {
         return ValidateProductPriceUseCase()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesValidateDuplicateIdUseCase(): ValidateDuplicateIdUseCase {
         return ValidateDuplicateIdUseCase()
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesValidateModifierSelectionRangeUseCase(): ValidateModifierSelectionRangeUseCase {
         return ValidateModifierSelectionRangeUseCase()
     }

@@ -7,15 +7,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object UseCaseModule {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideLoginUseCase(
         authRepo: AuthRepository
     ) : LoginUseCase {
@@ -23,7 +25,7 @@ object UseCaseModule {
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideLogoutUseCase(
         authRepo: AuthRepository
     ) : LogoutUseCase {
@@ -31,7 +33,7 @@ object UseCaseModule {
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideRegisterUseCase(
         authRepo: AuthRepository
     ) : RegisterUseCase {
@@ -39,7 +41,7 @@ object UseCaseModule {
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideEditAccountUseCase(
         authRepo: AuthRepository
     ) : EditAccountUseCase {
@@ -47,7 +49,7 @@ object UseCaseModule {
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideResetPasswordUseCase(
         authRepo: AuthRepository
     ) : ResetPasswordUseCase {
@@ -55,23 +57,23 @@ object UseCaseModule {
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideValidateEmailUseCase() = ValidateEmailUseCase()
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideValidatePasswordUseCase() = ValidatePasswordUseCase()
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideValidatePhoneUseCase() = ValidatePhoneUseCase()
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideValidateNameUseCase() = ValidateNameUseCase()
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideUpdatePasswordUseCase(
         authRepo: AuthRepository
     ) = ChangePasswordUseCase(authRepo)

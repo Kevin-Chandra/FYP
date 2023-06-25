@@ -214,7 +214,7 @@ fun AddToCartScreen (
                         }
                         if (food.modifiable) {
                             Column(
-                                modifier = Modifier.testTag("modifier_selection_list")
+                                modifier = Modifier.testTag("addCart:modifier_selection_list")
                             ) {
                                 food.modifierList.forEach { id ->
                                     val list = mutableListOf<ModifierItem>()

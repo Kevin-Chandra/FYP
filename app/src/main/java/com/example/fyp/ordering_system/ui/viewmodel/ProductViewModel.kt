@@ -33,13 +33,11 @@ class ProductViewModel @Inject constructor(
     val foodCategories = _foodCategories.asStateFlow()
 
     private val _allFoods = MutableStateFlow<UiState<List<Food>>>(UiState.Loading)
-    val allFoods = _allFoods.asStateFlow()
 
     private val _filteredFoods = MutableStateFlow<UiState<List<Food>>>(UiState.Loading)
     val filteredFoods = _filteredFoods.asStateFlow()
 
     private val _modifiers = MutableStateFlow<UiState<List<Modifier>>>(UiState.Loading)
-    val modifiers = _modifiers.asStateFlow()
 
     private val _modifierItems = MutableStateFlow<UiState<List<ModifierItem>>>(UiState.Loading)
     val modifierItems = _modifierItems.asStateFlow()
@@ -153,7 +151,6 @@ class ProductViewModel @Inject constructor(
     }
 
     fun getModifier(id: String) = modifierMap[id]
-
     fun getModifierItem(id: String) = itemMap[id]
     fun getFood(id: String) = foodMap[id]
 }

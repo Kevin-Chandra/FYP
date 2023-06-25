@@ -14,7 +14,8 @@ class BaselineProfileGenerator {
 
     @Test
     fun generateBaselineProfile() = baselineRule.collectBaselineProfile(
-        packageName = "com.example.fyp"
+        packageName = "com.example.fyp",
+        maxIterations = 3
     ){
         pressHome()
         startActivityAndWait()

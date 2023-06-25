@@ -9,33 +9,35 @@ import com.example.fyp.menucreator.domain.modifierItem.GetModifierItemUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object ModifierItemModule {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesGetModifierItemListUseCase(repository: ModifierItemRepository): GetModifierItemListUseCase {
         return GetModifierItemListUseCase(repository)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesGetModifierItemUseCase(repository: ModifierItemRepository): GetModifierItemUseCase {
         return GetModifierItemUseCase(repository)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesDeleteModifierItemUseCase(repository: ModifierItemRepository): DeleteModifierItemUseCase {
         return DeleteModifierItemUseCase(repository)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesAddModifierItemUseCase(repository: ModifierItemRepository): AddModifierItemUseCase {
         return AddModifierItemUseCase(repository)
     }

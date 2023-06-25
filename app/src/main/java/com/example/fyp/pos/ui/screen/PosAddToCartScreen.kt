@@ -1,5 +1,12 @@
 package com.example.fyp.pos.ui.screen
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
@@ -20,6 +27,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -78,9 +86,12 @@ fun PosAddToCartScreen (
     val uiState = addToCartViewModel.addToCartUiState.collectAsStateWithLifecycle(AddToCartUiState())
     val food = productViewModel.getFood(foodId)!!
 
+    var edit by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = true) {
         orderItemId?.let {
             addToCartViewModel.initializeItemEdit(it)
+            edit = true
         }
         val modifierList = mutableListOf<com.example.fyp.menucreator.data.model.Modifier>()
         food.modifierList.forEach {
@@ -102,13 +113,28 @@ fun PosAddToCartScreen (
                 bottomBar = {
                     Button(
                         onClick = {
-                            addToCartViewModel.onEvent(AddToCartEvent.AddToCart)
+                            if (edit && cartState.value.quantity == 0){
+                                addToCartViewModel.onEvent(AddToCartEvent.DeleteFromCart)
+                            } else {
+                                addToCartViewModel.onEvent(AddToCartEvent.AddToCart)
+                            }
                         },
+                        colors = ButtonDefaults.buttonColors(
+                            if (cartState.value.quantity == 0) MaterialTheme.colorScheme.error
+                            else MaterialTheme.colorScheme.primary
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
                     ) {
-                        Text(text = if (orderItemId == null) "Add to cart ${cartState.value.price}" else "Update cart ${cartState.value.price}")
+                        Text(text = if (orderItemId == null) "Add to cart ${cartState.value.price}" else {
+                            if (cartState.value.quantity == 0)
+                                "Remove"
+                            else
+                                "Update cart ${cartState.value.price}"
+                            },
+                            color = if (cartState.value.quantity == 0) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 },
             ) {
@@ -190,9 +216,6 @@ fun PosAddToCartScreen (
                                                     it1,
                                                 )
                                             }
-//                                            else {
-////                                                addToCartViewModel.onEvent(AddToCartEvent.RequiredModifierUnavailable(id))
-//                                            }
                                         }
                                 }
                             }
@@ -228,7 +251,7 @@ fun PosAddToCartScreen (
                             horizontalArrangement = Arrangement.Center
                         ) {
                             IconButton(onClick = {
-                                if (addToCartViewModel.addToCartState.value.quantity > 1)
+                                if (addToCartViewModel.addToCartState.value.quantity > if (edit) 0 else 1)
                                     addToCartViewModel.onEvent(
                                         AddToCartEvent.QuantityChanged(
                                             cartState.value.quantity.dec()
@@ -240,12 +263,29 @@ fun PosAddToCartScreen (
                                     contentDescription = "Minus one"
                                 )
                             }
-                            Text(
-                                text = cartState.value.quantity.toString(),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            AnimatedContent(
+                                targetState = cartState.value.quantity,
+                                transitionSpec = {
+                                    if (targetState > initialState) {
+                                        (slideInVertically(initialOffsetY = { it }) + fadeIn()).togetherWith(
+                                            slideOutVertically(
+                                                targetOffsetY = { -it }) + fadeOut()
+                                        )
+                                    } else {
+                                        (slideInVertically(initialOffsetY = { -it }) + fadeIn()).togetherWith(
+                                            slideOutVertically(
+                                                targetOffsetY = { it }) + fadeOut()
+                                        )
+                                    }.using(SizeTransform(clip = false))
+                                }
+                            ) { targetCount ->
+                                Text(
+                                    text = "$targetCount",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                             IconButton(onClick = {
                                 addToCartViewModel.onEvent(AddToCartEvent.QuantityChanged(cartState.value.quantity.inc()))
                             }) {

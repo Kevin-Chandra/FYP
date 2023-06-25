@@ -2,6 +2,13 @@ package com.example.fyp.pos.ui.screen
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
@@ -46,12 +53,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.fyp.R
 import com.example.fyp.theme.FypTheme
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.FoodCategory
@@ -60,6 +70,10 @@ import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.pos.ui.navigation.PosScreen
 import com.example.fyp.pos.ui.viewmodel.TableOrderCartViewModel
 import com.example.fyp.pos.util.TableOrderEvent
+import com.skydoves.landscapist.ImageOptions
+import com.skydoves.landscapist.coil.CoilImage
+import com.skydoves.landscapist.components.rememberImageComponent
+import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 
 @Composable
 fun PosOrderScreen(
@@ -73,6 +87,8 @@ fun PosOrderScreen(
     val foodList = productViewModel.filteredFoods.collectAsStateWithLifecycle()
     val foodCategoryList = productViewModel.foodCategories.collectAsStateWithLifecycle()
     val cart = orderViewModel.cart
+
+
 
     val currentCategory = remember {
         mutableStateOf<FoodCategory?>(null)
@@ -224,33 +240,33 @@ fun ProductItem(
 //                modifier = Modifier.fillMaxHeight(),
 //
 //            ) {
-//                CoilImage(
-//                    modifier = Modifier
-//                        .size(150.dp)
-//                        .clip(RoundedCornerShape(10.dp)),
-//                    imageModel = {food.imageUri?: R.mipmap.ic_launcher},
-//                    imageOptions = ImageOptions(
-//                        contentScale = ContentScale.Crop,
-//                        alignment = Alignment.Center,
-//                        contentDescription = "Food Image",
-//                        colorFilter = null,
-//                    ),
-//                    previewPlaceholder = R.mipmap.ic_launcher,
-//                    component = rememberImageComponent {
-//                        +ShimmerPlugin(
-//                            baseColor = Color.Gray,
-//                            highlightColor = Color.White
-//                        )
-//                    },
-//                )
+                CoilImage(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(RoundedCornerShape(10.dp)),
+                    imageModel = {food.imageUri?: R.mipmap.ic_launcher},
+                    imageOptions = ImageOptions(
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.Center,
+                        contentDescription = "Food Image",
+                        colorFilter = null,
+                    ),
+                    previewPlaceholder = R.mipmap.ic_launcher,
+                    component = rememberImageComponent {
+                        +ShimmerPlugin(
+                            baseColor = Color.Gray,
+                            highlightColor = Color.White
+                        )
+                    },
+                )
 //                placeholder
-            Image(
-                imageVector = Icons.Default.Panorama, contentDescription = null,
-                modifier = Modifier
-                    .height(150.dp)
-                    .width(150.dp)
-                    .clip(RoundedCornerShape(10.dp))
-            )
+//            Image(
+//                imageVector = Icons.Default.Panorama, contentDescription = null,
+//                modifier = Modifier
+//                    .height(150.dp)
+//                    .width(150.dp)
+//                    .clip(RoundedCornerShape(10.dp))
+//            )
             Text(
                 text = food.name,
                 fontWeight = FontWeight.SemiBold,
@@ -292,11 +308,28 @@ fun ProductItem(
                 ) {
                     Icon(imageVector = Icons.Default.Remove, contentDescription = null)
                 }
-                Text(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    fontWeight = FontWeight.SemiBold,
-                    text = quantity.toString(),
-                )
+                AnimatedContent(
+                    targetState = quantity,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            (slideInVertically(initialOffsetY = { it }) + fadeIn()).togetherWith(
+                                slideOutVertically(
+                                    targetOffsetY = { -it }) + fadeOut()
+                            )
+                        } else {
+                            (slideInVertically(initialOffsetY = { -it }) + fadeIn()).togetherWith(
+                                slideOutVertically(
+                                    targetOffsetY = { it }) + fadeOut()
+                            )
+                        }.using(SizeTransform(clip = false))
+                    }
+                ) { targetCount ->
+                    Text(
+                        text = "$targetCount",
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                    )
+                }
                 OutlinedIconButton(
                     onClick = onQuantityIncrement,
                     modifier = Modifier.size(32.dp)

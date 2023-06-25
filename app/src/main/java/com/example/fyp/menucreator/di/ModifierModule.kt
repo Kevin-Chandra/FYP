@@ -13,33 +13,35 @@ import com.example.fyp.menucreator.domain.productImage.DeleteImageUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object ModifierModule {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesGetModifierListUseCase(repository: ModifierRepository): GetModifierListUseCase {
         return GetModifierListUseCase(repository)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesGetModifierUseCase(repository: ModifierRepository): GetModifierUseCase {
         return GetModifierUseCase(repository)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesDeleteModifierUseCase(repository: ModifierRepository,getModifierUseCase: GetModifierUseCase,deleteModifierItemUseCase: DeleteModifierItemUseCase,deleteImageUseCase: DeleteImageUseCase): DeleteModifierUseCase {
         return DeleteModifierUseCase(repository,getModifierUseCase,deleteModifierItemUseCase,deleteImageUseCase)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun providesAddModifierUseCase(repository: ModifierRepository,deleteModifierUseCase: DeleteModifierUseCase,uploadImageUseCase: UploadImageUseCase,addModifierItemUseCase: AddModifierItemUseCase): AddModifierUseCase {
         return AddModifierUseCase(repository,uploadImageUseCase ,deleteModifierUseCase,addModifierItemUseCase)
     }
