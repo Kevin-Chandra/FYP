@@ -42,6 +42,12 @@ object FoodModule {
 
     @Provides
     @ViewModelScoped
+    fun providesSortFoodUseCase(): SortFoodUseCase {
+        return SortFoodUseCase()
+    }
+
+    @Provides
+    @ViewModelScoped
     fun providesGetFoodUseCase(foodRepository: FoodRepository): GetFoodUseCase {
         return GetFoodUseCase(foodRepository)
     }

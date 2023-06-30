@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.AssistChip
@@ -79,6 +80,11 @@ fun FinishedOrderScreen(
                         title = {
                             Text(text = "Order History")
                         },
+                        navigationIcon = {
+                            IconButton(onClick = { navigator.navigateUp() }) {
+                                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                            }
+                        },
                         scrollBehavior = scrollBehavior
                     )
                 },
@@ -114,7 +120,8 @@ fun FinishedOrderScreen(
                             onExpandedChange = {
                                 expanded = !expanded
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(vertical = 8.dp, horizontal = 16.dp)
                         ) {
                             OutlinedTextField(
@@ -133,7 +140,9 @@ fun FinishedOrderScreen(
                                           contentDescription = "Filter"
                                       )
                                 } ,
-                                modifier = Modifier.fillMaxWidth().menuAnchor(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(),
                             )
                             ExposedDropdownMenu(
                                 expanded = expanded,

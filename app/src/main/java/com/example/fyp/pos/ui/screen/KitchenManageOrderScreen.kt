@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.AssistChip
@@ -27,7 +29,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -35,9 +39,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,13 +65,19 @@ import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
+import com.example.fyp.ordering_system.ui.components.DefaultTopBar
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.errorToast
 import com.example.fyp.ordering_system.util.formatTime
+import com.example.fyp.ordering_system.util.pastTime
+import com.example.fyp.pos.ui.component.ClockText
+import com.example.fyp.pos.ui.component.TimePassed
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.util.KitchenManageOrderItemEvent
+import kotlinx.coroutines.delay
 import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KitchenManageOrderScreen(
     navigator : NavController,
@@ -112,7 +124,19 @@ fun KitchenManageOrderScreen(
     FypTheme {
         Surface {
             Scaffold(
-                snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            ClockText()
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { navigator.navigateUp() }) {
+                                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                            }
+                        }
+                    )
+                }
             ) {
                 Box(modifier = Modifier
                     .padding(it)
@@ -441,12 +465,23 @@ fun OrderItemCard(
                 }
             }
             if (orderItem.orderItemStatus != OrderItemStatus.Finished){
-                Row {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Button(onClick = onNextButtonClick) {
                         Text(text = if (orderItem.orderItemStatus == OrderItemStatus.Preparing) "Finish order" else "Prepare order")
                     }
+                    TimePassed(time = orderItem.timeAdded.time)
                 }
-
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    TimePassed(time = orderItem.timeAdded.time)
+                }
             }
         }
     }
@@ -592,7 +627,7 @@ fun OrderItemDialog(
 @Composable
 fun OrderItemCardPreview() {
     OrderItemCard(
-        orderItem = OrderItem(Date(), orderItemId = "udwihbh", quantity = 12, orderItemStatus = OrderItemStatus.Confirmed),
+        orderItem = OrderItem(Date(), orderItemId = "udwihbh", quantity = 12, orderItemStatus = OrderItemStatus.Finished),
         getFood = { Food(name = "ABC", productId = "F-1") },
         getModifierItem = { ModifierItem(name = "!@#") },
         getModifier = {com.example.fyp.menucreator.data.model.Modifier()},

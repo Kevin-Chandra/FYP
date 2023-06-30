@@ -44,6 +44,7 @@
         <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
 
         <item name="android:statusBarColor">@color/md_theme_dark_surface</item>
+        <item name="android:navigationBarColor">@color/md_theme_dark_surface</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
@@ -75,7 +76,8 @@
         <item name="colorSurfaceInverse">@color/md_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
 
-        <item name="android:statusBarColor">#262932</item>
+        <item name="android:statusBarColor">#302917</item>
+        <item name="android:navigationBarColor">#262932</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

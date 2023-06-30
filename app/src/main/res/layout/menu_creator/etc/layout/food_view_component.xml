@@ -126,6 +126,26 @@
             tools:text="TextView" />
 
         <TextView
+            android:id="@+id/all_time_sales_title_tv"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="All Time Sales"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/price_textview"/>
+
+        <TextView
+            android:id="@+id/all_time_sales_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/all_time_sales_title_tv"
+            tools:text="0" />
+
+        <TextView
             android:id="@+id/modifiers_title_textview"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="wrap_content"
@@ -134,7 +154,7 @@
             android:layout_marginTop="16dp"
             android:text="Modifiers"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/price_textview"
+            app:layout_constraintTop_toBottomOf="@+id/all_time_sales_tv"
             tools:text="Modifiers" />
 
         <LinearLayout

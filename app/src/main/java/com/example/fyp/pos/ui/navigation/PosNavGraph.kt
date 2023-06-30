@@ -65,7 +65,7 @@ fun PosNavGraph(
         composable(
             route = PosScreen.ManageOrderScreen.route
         ){
-            ManageOrderScreen(productViewModel = productViewModel, manageOrderViewModel = manageOrderViewModel)
+            ManageOrderScreen(navController, productViewModel = productViewModel, manageOrderViewModel = manageOrderViewModel)
         }
         composable(
             route = PosScreen.ManageTableScreen.route

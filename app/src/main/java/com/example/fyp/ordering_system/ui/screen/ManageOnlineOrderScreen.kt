@@ -1,5 +1,7 @@
 package com.example.fyp.ordering_system.ui.screen
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
@@ -74,9 +77,10 @@ import com.example.fyp.ordering_system.ui.viewmodel.IncomingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.ManageOrderEvent
 import com.example.fyp.ordering_system.util.formatDate
+import com.example.fyp.pos.ui.component.TimePassed
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageOrderScreen(
     navigator: NavController,
@@ -99,6 +103,7 @@ fun ManageOrderScreen(
     val snackBarHostState by remember {
         mutableStateOf(SnackbarHostState())
     }
+
     val coroutineScope = rememberCoroutineScope()
 
     val account = authViewModel.accountState
@@ -117,6 +122,11 @@ fun ManageOrderScreen(
                         },
                         scrollBehavior = scrollBehavior,
                         modifier = Modifier.statusBarsPadding(),
+                        navigationIcon = {
+                            IconButton(onClick = { navigator.navigateUp() }) {
+                                Icon(imageVector = Icons.Default.ArrowBack , contentDescription = "Back")
+                            }
+                        }
                     )
                 },
                 snackbarHost = { SnackbarHost( hostState = snackBarHostState) },
@@ -126,20 +136,25 @@ fun ManageOrderScreen(
                         .fillMaxSize()
                         .padding(it)
                 ) {
-                    var showDialog by remember {
-                        mutableStateOf<Order?>(null)
+                    val showDialog = remember {
+                        mutableStateOf<Pair<Order?,List<String>?>?>(null)
                     }
-                    DeleteOrderDialog(
-                        order = showDialog,
+                    RejectOrderDialog(
+                        order = showDialog.value?.first,
                         onDismiss = {
-                            showDialog = null
+                            showDialog.value = null
                         },
-                        onDeleteClick = { order ->
+                        onRejectClick = {
                             account.value?.let { it1 ->
-                                ManageOrderEvent.OnDeleteOrder(
-                                    it1, order)
+                                showDialog.value?.first?.orderId?.let { it2 ->
+                                    showDialog.value!!.second?.let { it3 ->
+                                        ManageOrderEvent.OnRejectOrder(
+                                            it1, it2, it3
+                                        )
+                                    }
+                                }
                             }?.let { it2 -> incomingOrderViewModel.onEvent(it2) }
-                            showDialog = null
+                            showDialog.value = null
                         },
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -195,12 +210,8 @@ fun ManageOrderScreen(
                                                     it1, id,list)
                                             }?.let { it2 -> incomingOrderViewModel.onEvent(it2) }
                                         },
-                                        onCLickRejectOrder = { id,list ->
-                                            account.value?.let { it1 ->
-                                                ManageOrderEvent.OnRejectOrder(
-                                                    it1,id,list)
-                                            }?.let { it2 -> incomingOrderViewModel.onEvent(it2) }
-                                            showDialog = orderList[i]
+                                        onCLickRejectOrder = { _, list ->
+                                            showDialog.value = Pair(orderList[i],list)
                                         },
                                         getFood = { id ->
                                             productViewModel.getFood(id)
@@ -244,18 +255,18 @@ fun ManageOrderScreen(
 }
 
 @Composable
-fun DeleteOrderDialog(
+fun RejectOrderDialog(
     order: Order?,
     onDismiss: () -> Unit,
-    onDeleteClick: (Order) -> Unit,
+    onRejectClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (order != null){
         AlertDialog(
             onDismissRequest = onDismiss,
             confirmButton = {
-                TextButton(onClick = { onDeleteClick(order) }) {
-                    Text(text = "Delete Order")
+                TextButton(onClick = onRejectClick) {
+                    Text(text = "Confirm")
                 }
             },
             dismissButton = {
@@ -264,10 +275,10 @@ fun DeleteOrderDialog(
                 }
             },
             title = {
-                Text(text = "Delete rejected order?")
+                Text(text = "Reject order?")
             },
             text = {
-                Text(text = "Do you want to delete order ${order.orderId}, this action cannot be undone!")
+                Text(text = "Are you sure rejecting order ${order.orderId}, this action cannot be undone!")
             },
             modifier = modifier
         )
@@ -290,7 +301,13 @@ fun OrderCard(
     var expanded by remember {
         mutableStateOf(false)
     }
-    Card(modifier = Modifier.padding(8.dp)) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .animateContentSize(
+                animationSpec = spring()
+            )
+    ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -347,6 +364,12 @@ fun OrderCard(
                     getModifierItem,
                     getModifier
                 )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TimePassed(time = order.orderStartTime.time)
             }
             if (showAcceptRejectButtons) {
                 Row(
@@ -549,7 +572,9 @@ fun OrderByView(
         Text(
             text = email,
             textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f).basicMarquee()
+            modifier = Modifier
+                .weight(1f)
+                .basicMarquee()
         )
     }
 }
@@ -557,19 +582,19 @@ fun OrderByView(
 @Preview(showBackground = true)
 @Composable
 fun OrderByViewPreview() {
-    OrderByView(name = "fnskin", email = "sfhfbj@gmail.com")
+    OrderByView(name = "Someone", email = "sfhfbj@gmail.com")
 }
 
 @Preview(showBackground = true)
 @Composable
 fun ViewOrderPreview() {
     ViewOrderDetails(
-        orderList =  listOf(OrderItem(modifierItems = mapOf("ds" to listOf("ifd","sjc"),"jd" to listOf("sjd","sdkj"))),OrderItem(), OrderItem()),
+        orderList =  listOf(OrderItem(modifierItems = mapOf("ds" to listOf("ifd","sjc"),"jd" to listOf("sjd","de"))),OrderItem(), OrderItem()),
          {
              Food(name = "ABC", modifiable = true)
-        },{ it ->
+        },{
             ModifierItem(name = "Meow")
-        },{com.example.fyp.menucreator.data.model.Modifier(name = "jhsdbcsj")})
+        },{com.example.fyp.menucreator.data.model.Modifier(name = "Test Modifier")})
 }
 
 

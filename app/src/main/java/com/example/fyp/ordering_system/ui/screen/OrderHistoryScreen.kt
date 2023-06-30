@@ -17,8 +17,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -171,35 +173,43 @@ fun PastOrderRow(
     order: Order,
     onClick:() -> Unit
 ) {
-    Column(modifier = Modifier
+    Card(modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 16.dp)
+        .padding(horizontal = 16.dp, vertical = 8.dp)
         .clickable { onClick() }
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Text(text = order.orderId,modifier = Modifier.fillMaxWidth(0.75f).basicMarquee())
-            Text(
-                text = order.grandTotal.toString(),
-                style = MaterialTheme.typography.headlineSmall
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = order.orderId,modifier = Modifier
+                    .fillMaxWidth(0.75f)
+                    .basicMarquee())
+                Text(
+                    text = order.grandTotal.toString(),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = formatDate(order.orderFinishTime))
+                AssistChip(
+                    onClick = {},
+                    label = {
+                        Text(text = order.orderStatus.name)
+                    }
+                )
+            }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = formatDate(order.orderFinishTime))
-            AssistChip(
-                onClick = {},
-                label = {
-                    Text(text = order.orderStatus.name)
-                }
-            )
-        }
-        Divider()
+
     }
 }

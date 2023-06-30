@@ -2,6 +2,7 @@ package com.example.fyp.pos.ui.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -41,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -55,16 +58,19 @@ import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.ordering_system.data.model.OrderType
+import com.example.fyp.ordering_system.ui.components.DefaultTopBar
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.formatTime
+import com.example.fyp.pos.ui.component.TimePassed
 import com.example.fyp.pos.ui.viewmodel.ManageOrderViewModel
 import com.example.fyp.pos.util.PosManageOrderEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageOrderScreen(
+    navigator: NavController,
     manageOrderViewModel: ManageOrderViewModel,
     productViewModel: ProductViewModel,
 
@@ -81,83 +87,88 @@ fun ManageOrderScreen(
     val coroutineScope = rememberCoroutineScope()
 
     FypTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Box(modifier = Modifier.fillMaxSize()){
-                if (showDialog){
-                    ErrorDialog(
-                        msg = "All Order Item must be finished before ending this order",
-                        title = "Error!",
-                        cancellable = true,
-                        onConfirmClick = { showDialog = false },
-                        showDialog = {
-                            showDialog = it
-                        }
-                    )
-                }
-                if (ongoingOrders.value.isNotEmpty()){
-                    LazyColumn {
-                        items(ongoingOrders.value){ item ->
-                            var firstName by rememberSaveable { mutableStateOf<String?>(null) }
-                            var lastName by rememberSaveable { mutableStateOf<String?>(null)  }
-
-                            if (item.orderType == OrderType.Online){
-                                if (firstName.isNullOrEmpty()){
-                                    LaunchedEffect(key1 = true){
-                                        val res = coroutineScope.async {
-                                            accountViewModel.getAccount(item.orderBy)
-                                        }.await()
-                                        firstName = res?.first_name
-                                        lastName = res?.last_name
-                                    }
-                                }
+        Surface {
+            Scaffold(
+                topBar = { DefaultTopBar(title = "Orders", navigateBack = { navigator.navigateUp() }) }
+            ) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)){
+                    if (showDialog){
+                        ErrorDialog(
+                            msg = "All Order Item must be finished before ending this order",
+                            title = "Error!",
+                            cancellable = true,
+                            onConfirmClick = { showDialog = false },
+                            showDialog = {
+                                showDialog = it
                             }
-                            OngoingOrderCard(order = item,
-                                getOrderItem = { id ->
-                                    ongoingOrderItems.value[id]
-                                },
-                                getFood = { id ->
-                                    productViewModel.getFood(id)
-                                },
-                                orderBy = if (lastName.isNullOrEmpty()) firstName else "$firstName $lastName",
-                                onFinishOrderClicked = {
-                                    val unfinishedOrder = item.orderList.any{
-                                            id -> ongoingOrderItems.value[id]?.orderItemStatus != OrderItemStatus.Finished
-                                    }
-                                    if (unfinishedOrder){
-                                        showDialog = true
-                                    } else {
-                                        manageOrderViewModel.onEvent(PosManageOrderEvent.OnFinishOrderItem(item))
+                        )
+                    }
+                    if (ongoingOrders.value.isNotEmpty()){
+                        LazyColumn {
+                            items(ongoingOrders.value){ item ->
+                                var firstName by rememberSaveable { mutableStateOf<String?>(null) }
+                                var lastName by rememberSaveable { mutableStateOf<String?>(null)  }
+
+                                if (item.orderType == OrderType.Online){
+                                    if (firstName.isNullOrEmpty()){
+                                        LaunchedEffect(key1 = true){
+                                            val res = coroutineScope.async {
+                                                accountViewModel.getAccount(item.orderBy)
+                                            }.await()
+                                            firstName = res?.first_name
+                                            lastName = res?.last_name
+                                        }
                                     }
                                 }
+                                OngoingOrderCard(order = item,
+                                    getOrderItem = { id ->
+                                        ongoingOrderItems.value[id]
+                                    },
+                                    getFood = { id ->
+                                        productViewModel.getFood(id)
+                                    },
+                                    orderBy = if (lastName.isNullOrEmpty()) firstName else "$firstName $lastName",
+                                    onFinishOrderClicked = {
+                                        val unfinishedOrder = item.orderList.any{
+                                                id -> ongoingOrderItems.value[id]?.orderItemStatus != OrderItemStatus.Finished
+                                        }
+                                        if (unfinishedOrder){
+                                            showDialog = true
+                                        } else {
+                                            manageOrderViewModel.onEvent(PosManageOrderEvent.OnFinishOrderItem(item))
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.no_incoming_order))
+                        val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
+
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            LottieAnimation(
+                                composition = composition,
+                                progress = { animProgress },
+                                modifier = Modifier
+                                    .size(400.dp)
+                            )
+                            Text(
+                                text = "No orders at the moment...",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.headlineMedium,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp)
                             )
                         }
                     }
-                } else {
-                    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.no_incoming_order))
-                    val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
 
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        LottieAnimation(
-                            composition = composition,
-                            progress = { animProgress },
-                            modifier = Modifier
-                                .size(400.dp)
-                        )
-                        Text(
-                            text = "No orders at the moment...",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp)
-                        )
-                    }
                 }
 
             }
@@ -310,14 +321,31 @@ fun OngoingOrderCard(
             }
         }
         if (order.orderStatus != OrderStatus.Sent && order.orderType == OrderType.Online) {
-            Button(
-                onClick = onFinishOrderClicked,
-                modifier = Modifier.padding(start = 16.dp, bottom = 16.dp)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
             ) {
-                Text(text = "Finish Order")
+                Button(
+                    onClick = onFinishOrderClicked,
+                ) {
+                    Text(text = "Finish Order")
+                }
+                TimePassed(time = order.orderStartTime.time)
             }
         } else {
-            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TimePassed(time = order.orderStartTime.time)
+            }
         }
     }
 }

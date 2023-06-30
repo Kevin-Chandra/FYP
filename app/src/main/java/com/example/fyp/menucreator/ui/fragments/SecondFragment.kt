@@ -450,6 +450,7 @@ class SecondFragment : Fragment() {
         foodBinding.descriptionTextview.text = food.description
         foodBinding.categoryValueTv.text = food.category
         foodBinding.priceTextview.text = food.price.toString()
+        foodBinding.allTimeSalesTv.text = food.allTimeSales.toString()
         foodBinding.availabilityChip.text = if (food.availability) "Available" else "Unavailable"
         creatorInfoBinding.lastUpdatedTv.text = "Last Updated ${food.lastUpdated}"
 

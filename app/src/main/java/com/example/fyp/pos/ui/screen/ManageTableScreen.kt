@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -109,6 +110,15 @@ fun ManageTableScreen(
             Scaffold(
                 topBar = {
                     TopAppBar(
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                navigator.navigateUp()
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack, contentDescription = "Back"
+                                )
+                            }
+                        },
                         actions = {
                             IconButton(onClick = {
                                 navigator.navigate(PosScreen.TableSettingScreen.route)
@@ -314,32 +324,6 @@ fun AssignTableDialog(
                         Text(text = "Assign")
                     }
                 }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddTableDialog(
-    onClick: (Table) -> Unit,
-    onDismiss: (Boolean) -> Unit
-) {
-    var tableName by rememberSaveable{
-        mutableStateOf("")
-    }
-    Dialog(
-        onDismissRequest = { onDismiss(false) },
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Column {
-            OutlinedTextField(value = tableName, onValueChange = {
-                tableName = it
-            })
-            Button(onClick = {
-                onClick(Table(tableNumber = tableName.toInt()))
-            }){
-                Text(text = "Save")
             }
         }
     }

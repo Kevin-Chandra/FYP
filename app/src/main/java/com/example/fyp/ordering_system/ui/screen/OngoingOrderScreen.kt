@@ -1,5 +1,13 @@
 package com.example.fyp.ordering_system.ui.screen
 
+import android.R.attr.label
+import android.R.attr.text
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,12 +16,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
@@ -21,6 +28,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,9 +46,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
@@ -48,7 +61,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.fyp.theme.FypTheme
 import com.example.fyp.R
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food
@@ -56,9 +68,14 @@ import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderStatus.*
+import com.example.fyp.ordering_system.ui.components.DefaultTopBar
 import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
+import com.example.fyp.ordering_system.util.successToast
+import com.example.fyp.theme.FypTheme
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OngoingOrderScreen(
     navigator: NavController,
@@ -71,6 +88,9 @@ fun OngoingOrderScreen(
         viewModel.getOrderItemList(id)
     }
 
+    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
+
     val statusState = viewModel.orderingStatusState.collectAsStateWithLifecycle()
     val currentOrder = viewModel.currentOrder.collectAsStateWithLifecycle()
     val currentOrderItem = viewModel.currentOrderItem.collectAsStateWithLifecycle()
@@ -82,7 +102,15 @@ fun OngoingOrderScreen(
     val animProgress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever )
 
     FypTheme {
-        Scaffold {
+        Scaffold(
+            topBar = {
+                DefaultTopBar(
+                    title = "",
+                    navigateBack = {
+                        navigator.navigateUp()
+                    })
+            }
+        ) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -155,7 +183,34 @@ fun OngoingOrderScreen(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            LottieAnimation(composition = composition, progress = { animProgress}, modifier = Modifier.size(400.dp) )
+                            Text(
+                                text = "Order ID",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            ElevatedCard(modifier = Modifier.fillMaxWidth(0.75f).padding(8.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = (currentOrder.value as Response.Success).data.orderId,
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1,
+                                        modifier = Modifier.fillMaxWidth(0.85f)
+                                    )
+                                    IconButton(onClick = {
+                                        clipboardManager.setText(AnnotatedString((currentOrder.value as Response.Success).data.orderId))
+                                        successToast("Order ID copied to clipboard!",context)
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.ContentCopy,
+                                            contentDescription = "Copy Id"
+                                        )
+                                    }
+                                }
+                            }
+                            LottieAnimation(composition = composition, progress = { animProgress}, modifier = Modifier.height(300.dp) )
                             Text(
                                 text = message,
                                 textAlign = TextAlign.Center,
@@ -169,14 +224,17 @@ fun OngoingOrderScreen(
                             var expandOrderItem by rememberSaveable {
                                 mutableStateOf(false)
                             }
-                            
-//                            val height by animateDpAsState(targetValue = if (expandOrderItem) 140.dp else 50.dp )
-
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
-
+                                    .padding(bottom = 16.dp)
+                                    .animateContentSize(
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioLowBouncy,
+                                            stiffness = Spring.StiffnessMedium
+                                        )
+                                    )
                             ) {
                                 Column(modifier = Modifier
                                     .fillMaxWidth()
@@ -187,7 +245,7 @@ fun OngoingOrderScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = "View Order",
+                                            text = "Order",
                                             style = MaterialTheme.typography.headlineSmall,
                                             fontWeight = FontWeight.SemiBold,
                                             modifier = Modifier.padding(horizontal = 8.dp)
@@ -202,7 +260,7 @@ fun OngoingOrderScreen(
                                         }
                                     }
                                     if (expandOrderItem) {
-                                        LazyColumn( modifier = Modifier.heightIn(max = 150.dp) ) {
+                                        LazyColumn{
                                             item {
                                                 Divider()
                                             }
@@ -236,7 +294,6 @@ fun OngoingOrderScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewOrderItem(
     orderItem: OrderItem,

@@ -27,7 +27,6 @@ class PosActivity : ComponentActivity() {
 
         lateinit var navController: NavHostController
 
-
         setContent {
             val productViewModel = hiltViewModel<ProductViewModel>()
             val incomingOrderItemViewModel = hiltViewModel<IncomingOrderItemViewModel>()
@@ -37,24 +36,15 @@ class PosActivity : ComponentActivity() {
             val authViewModel = hiltViewModel<MainAuthViewModel>()
 
             navController = rememberNavController()
-
-            FypTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    PosNavGraph(
-                        navController = navController,
-                        productViewModel = productViewModel,
-                        incomingOrderItemViewModel = incomingOrderItemViewModel,
-                        manageOrderViewModel = manageOrderViewModel,
-                        manageTableViewModel = manageTableViewModel,
-                        tableOngoingOrderViewModel = tableOngoingOrderViewModel,
-                        authViewModel = authViewModel
-                    )
-                }
-            }
+            PosNavGraph(
+                navController = navController,
+                productViewModel = productViewModel,
+                incomingOrderItemViewModel = incomingOrderItemViewModel,
+                manageOrderViewModel = manageOrderViewModel,
+                manageTableViewModel = manageTableViewModel,
+                tableOngoingOrderViewModel = tableOngoingOrderViewModel,
+                authViewModel = authViewModel
+            )
         }
     }
 }

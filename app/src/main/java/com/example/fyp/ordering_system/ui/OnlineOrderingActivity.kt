@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +27,7 @@ import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.IncomingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.OngoingOrderViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
+import com.example.fyp.theme.FypTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,7 +35,7 @@ class OnlineOrderingActivity : ComponentActivity() {
 
     lateinit var navController: NavHostController
 
-    lateinit var account : Account
+    lateinit var account: Account
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -49,8 +52,8 @@ class OnlineOrderingActivity : ComponentActivity() {
                 }
             }
 
-            if (!loading){
-                if (account.accountType == AccountType.Customer){
+            if (!loading) {
+                if (account.accountType == AccountType.Customer) {
                     val cartViewModel = hiltViewModel<CartViewModel>()
                     val ongoingOrderViewModel = hiltViewModel<OngoingOrderViewModel>()
                     SetupOnlineOrderingNavGraph(
@@ -62,18 +65,24 @@ class OnlineOrderingActivity : ComponentActivity() {
                     )
                 } else {
                     val incomingOrderViewModel: IncomingOrderViewModel = hiltViewModel()
-                    val accountViewModel : AccountViewModel = hiltViewModel()
+                    val accountViewModel: AccountViewModel = hiltViewModel()
 
-                    OnlineOrderingNavGraph(navController = navController,incomingOrderViewModel,productViewModel,accountViewModel,authViewModel)
+                    OnlineOrderingNavGraph(
+                        navController = navController,
+                        incomingOrderViewModel,
+                        productViewModel,
+                        accountViewModel,
+                        authViewModel
+                    )
                 }
             } else {
-                Box(modifier = Modifier.fillMaxSize()){
+                Box(modifier = Modifier.fillMaxSize()) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
             }
-
         }
     }
+
 }

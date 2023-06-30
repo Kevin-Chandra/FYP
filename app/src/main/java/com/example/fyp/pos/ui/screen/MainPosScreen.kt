@@ -1,5 +1,6 @@
 package com.example.fyp.pos.ui.screen
 
+import android.app.Activity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,8 +20,10 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,9 +48,11 @@ import com.example.fyp.account_management.data.model.StaffPosition.Kitchen
 import com.example.fyp.account_management.data.model.StaffPosition.Pending
 import com.example.fyp.account_management.data.model.StaffPosition.Regular
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
+import com.example.fyp.ordering_system.ui.components.DefaultTopBar
 import com.example.fyp.pos.ui.navigation.PosScreen
 import com.example.fyp.theme.FypTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainPosScreen(
     navigator : NavController,
@@ -56,6 +62,8 @@ fun MainPosScreen(
     val account  = remember {
         mutableStateOf<Account?>(null)
     }
+
+    val context = LocalContext.current
 
     val primaryCardColor = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
     val secondaryCardColor = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer)
@@ -69,98 +77,105 @@ fun MainPosScreen(
 
     FypTheme {
         Surface {
-            Box(modifier = Modifier.fillMaxSize()){
-                if (account.value == null){
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .align(Alignment.Center),
-                        verticalArrangement = Arrangement.SpaceAround,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        when(account.value!!.accountType){
-                            Customer -> {
-                                //Go back!
-                            }
-                            Admin,Manager -> {
-                                PosButton(
-                                    title = "Manage Table",
-                                    onClick = { navigator.navigate(PosScreen.ManageTableScreen.route) },
-                                    icon = Icons.Outlined.PointOfSale,
-                                    colors = primaryCardColor
-                                )
+            Scaffold(topBar = {
+                DefaultTopBar(title = "Point of Sales", navigateBack = { (context as? Activity)?.finish() })
+            }) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)){
+                    if (account.value == null){
+                        CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .align(Alignment.Center),
+                            verticalArrangement = Arrangement.SpaceAround,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            when(account.value!!.accountType){
+                                Customer -> {
+                                    //Go back!
+                                }
+                                Admin,Manager -> {
+                                    PosButton(
+                                        title = "Manage Table",
+                                        onClick = { navigator.navigate(PosScreen.ManageTableScreen.route) },
+                                        icon = Icons.Outlined.PointOfSale,
+                                        colors = primaryCardColor
+                                    )
 
-                                PosButton(
-                                    title = "Kitchen Manage Order",
-                                    onClick = { navigator.navigate(PosScreen.KitchenManageOrderItemScreen.route) },
-                                    icon = Icons.Outlined.Dining,
-                                    colors = secondaryCardColor
-                                )
+                                    PosButton(
+                                        title = "Kitchen Manage Order",
+                                        onClick = { navigator.navigate(PosScreen.KitchenManageOrderItemScreen.route) },
+                                        icon = Icons.Outlined.Dining,
+                                        colors = secondaryCardColor
+                                    )
 
-                                PosButton(
-                                    title = "View Order",
-                                    onClick = { navigator.navigate(PosScreen.ManageOrderScreen.route) },
-                                    icon = Icons.Outlined.ReceiptLong,
-                                    colors = secondaryCardColor
-                                )
+                                    PosButton(
+                                        title = "View Order",
+                                        onClick = { navigator.navigate(PosScreen.ManageOrderScreen.route) },
+                                        icon = Icons.Outlined.ReceiptLong,
+                                        colors = secondaryCardColor
+                                    )
 
-                                PosButton(
-                                    title = "Order History",
-                                    onClick = { navigator.navigate(PosScreen.OrderHistoryRootGraph.route) },
-                                    icon = Icons.Outlined.History,
-                                    colors = tertiaryCardColor
-                                )
-                            }
-                            Staff -> {
-                                when (account.value!!.staffPosition){
-                                    Disabled,Pending,null -> {}
-                                    Regular -> {
-                                        PosButton(
-                                            title = "Manage Table",
-                                            onClick = { navigator.navigate(PosScreen.ManageTableScreen.route) },
-                                            icon = Icons.Outlined.PointOfSale,
-                                            colors = primaryCardColor
-                                        )
-                                        PosButton(
-                                            title = "View Order",
-                                            onClick = { navigator.navigate(PosScreen.ManageOrderScreen.route) },
-                                            icon = Icons.Outlined.ReceiptLong,
-                                            colors = secondaryCardColor
-                                        )
-                                        PosButton(
-                                            title = "Order History",
-                                            onClick = { navigator.navigate(PosScreen.OrderHistoryRootGraph.route) },
-                                            icon = Icons.Outlined.History,
-                                            colors = tertiaryCardColor
-                                        )
-                                    }
-                                    Kitchen -> {
-                                        PosButton(
-                                            title = "Kitchen Manage Order",
-                                            onClick = { navigator.navigate(PosScreen.KitchenManageOrderItemScreen.route) },
-                                            icon = Icons.Outlined.Dining,
-                                            colors = primaryCardColor
-                                        )
-                                        PosButton(
-                                            title = "View Order",
-                                            onClick = { navigator.navigate(PosScreen.ManageOrderScreen.route) },
-                                            icon = Icons.Outlined.ReceiptLong,
-                                            colors = secondaryCardColor
-                                        )
-                                        PosButton(
-                                            title = "Order History",
-                                            onClick = { navigator.navigate(PosScreen.OrderHistoryRootGraph.route) },
-                                            icon = Icons.Outlined.History,
-                                            colors = tertiaryCardColor
-                                        )
+                                    PosButton(
+                                        title = "Order History",
+                                        onClick = { navigator.navigate(PosScreen.OrderHistoryRootGraph.route) },
+                                        icon = Icons.Outlined.History,
+                                        colors = tertiaryCardColor
+                                    )
+                                }
+                                Staff -> {
+                                    when (account.value!!.staffPosition){
+                                        Disabled,Pending,null -> {}
+                                        Regular -> {
+                                            PosButton(
+                                                title = "Manage Table",
+                                                onClick = { navigator.navigate(PosScreen.ManageTableScreen.route) },
+                                                icon = Icons.Outlined.PointOfSale,
+                                                colors = primaryCardColor
+                                            )
+                                            PosButton(
+                                                title = "View Order",
+                                                onClick = { navigator.navigate(PosScreen.ManageOrderScreen.route) },
+                                                icon = Icons.Outlined.ReceiptLong,
+                                                colors = secondaryCardColor
+                                            )
+                                            PosButton(
+                                                title = "Order History",
+                                                onClick = { navigator.navigate(PosScreen.OrderHistoryRootGraph.route) },
+                                                icon = Icons.Outlined.History,
+                                                colors = tertiaryCardColor
+                                            )
+                                        }
+                                        Kitchen -> {
+                                            PosButton(
+                                                title = "Kitchen Manage Order",
+                                                onClick = { navigator.navigate(PosScreen.KitchenManageOrderItemScreen.route) },
+                                                icon = Icons.Outlined.Dining,
+                                                colors = primaryCardColor
+                                            )
+                                            PosButton(
+                                                title = "View Order",
+                                                onClick = { navigator.navigate(PosScreen.ManageOrderScreen.route) },
+                                                icon = Icons.Outlined.ReceiptLong,
+                                                colors = secondaryCardColor
+                                            )
+                                            PosButton(
+                                                title = "Order History",
+                                                onClick = { navigator.navigate(PosScreen.OrderHistoryRootGraph.route) },
+                                                icon = Icons.Outlined.History,
+                                                colors = tertiaryCardColor
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+
             }
         }
     }

@@ -82,25 +82,26 @@ private val DarkColors = darkColorScheme(
 fun FypTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val systemUiController = rememberSystemUiController()
     if(darkTheme){
         systemUiController.setSystemBarsColor(
-            color = Color.Black
+            color = Color.Transparent,
+            darkIcons = false
         )
         systemUiController.setNavigationBarColor(
-            color = Color.Black
+            color = MaterialTheme.colorScheme.onBackground
         )
     }else{
         systemUiController.setSystemBarsColor(
-            color = Color.White
+            color = Color.Transparent,
+            darkIcons = true
         )
         systemUiController.setNavigationBarColor(
-            color = Color.White
+            color = MaterialTheme.colorScheme.background
         )
     }
-
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
