@@ -60,6 +60,9 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
                 android:text="Register Staff"
+                android:textColor="@color/primary"
+                android:textSize="42sp"
+                android:textStyle="bold"
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -244,17 +247,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/birthday_edit_text"
-                style="@style/Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="16dp"
+                app:icon="@drawable/ic_cake"
                 android:text="Birthday"
-                android:drawableStart="@drawable/ic_cake"
-                android:drawableTint="@color/borderlessButtonBackgroundColor"
-                android:textColor="@color/borderlessButtonBackgroundColor"
-                android:backgroundTint="@color/borderlessButtonColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/address_edit_text_layout" />
@@ -276,13 +276,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_centerInParent="true"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="0dp"
                     android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="0dp"
                     android:text="Register"
-                    android:textAllCaps="false"
-                    android:textColor="@color/borderlessButtonColor"
-                    app:backgroundTint="@color/borderlessButtonBackgroundColor" />
+                    android:textAllCaps="false" />
 
                 <ProgressBar
                     android:id="@+id/register_progress"
@@ -292,7 +290,6 @@
                     android:layout_centerInParent="true"
                     android:layout_marginTop="16dp"
                     android:elevation="10dp"
-                    android:indeterminateTint="@color/teal_200"
                     android:visibility="gone"
                     tools:visibility="visible" />
             </RelativeLayout>
@@ -301,12 +298,11 @@
                 android:id="@+id/back_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
                 android:text="Back"
-                android:textColor="@color/borderlessButtonColor"
-                app:backgroundTint="@color/borderlessButtonBackgroundColor"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/button_layout" />

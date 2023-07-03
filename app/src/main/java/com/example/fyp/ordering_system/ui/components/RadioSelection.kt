@@ -22,7 +22,6 @@ fun RadioSelection(
     selectedItem: ModifierItem?,
     onClick: (ModifierItem) -> Unit
 ) {
-    println("rs $selectedItem")
     Column {
         items.forEach {item ->
             if (item.availability){

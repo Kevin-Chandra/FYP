@@ -33,7 +33,7 @@
             android:soundEffectsEnabled="false"
             android:text="Modifiable"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/category_value_tv"
+            app:layout_constraintTop_toBottomOf="@+id/divider15"
             tools:text="Modifiable" />
 
         <com.google.android.material.chip.Chip
@@ -52,9 +52,11 @@
             style="@style/TextAppearance.Material3.HeadlineLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="24dp"
+            android:textColor="@color/primary"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -70,7 +72,7 @@
             android:soundEffectsEnabled="false"
             android:text="Category"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/description_textview"
+            app:layout_constraintTop_toBottomOf="@+id/divider14"
             tools:text="Category" />
 
         <TextView
@@ -113,7 +115,7 @@
             android:layout_marginTop="8dp"
             android:text="Price"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/is_modifiable_value_tv"
+            app:layout_constraintTop_toBottomOf="@+id/divider16"
             tools:text="Price" />
 
         <TextView
@@ -134,7 +136,7 @@
             android:layout_marginTop="8dp"
             android:text="All Time Sales"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/price_textview"/>
+            app:layout_constraintTop_toBottomOf="@+id/divider17" />
 
         <TextView
             android:id="@+id/all_time_sales_tv"
@@ -147,25 +149,26 @@
 
         <TextView
             android:id="@+id/modifiers_title_textview"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TextAppearance.Material3.HeadlineMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="Modifiers"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/all_time_sales_tv"
+            app:layout_constraintTop_toBottomOf="@+id/divider18"
             tools:text="Modifiers" />
 
         <LinearLayout
             android:id="@+id/modifiers_container_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/modifiers_title_textview" >
+            app:layout_constraintTop_toBottomOf="@id/modifiers_title_textview">
 
         </LinearLayout>
 
@@ -189,6 +192,66 @@
             app:layout_constraintTop_toBottomOf="@+id/product_name_text_view"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize8Percent"
             tools:srcCompat="@tools:sample/avatars" />
+
+        <View
+            android:id="@+id/divider14"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/description_textview" />
+
+        <View
+            android:id="@+id/divider15"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/category_value_tv" />
+
+        <View
+            android:id="@+id/divider16"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/is_modifiable_value_tv" />
+
+        <View
+            android:id="@+id/divider17"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/price_textview" />
+
+        <View
+            android:id="@+id/divider18"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/all_time_sales_tv" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -108,7 +108,8 @@ class MainAccountFragment : Fragment() {
         binding.deleteBtn.setOnClickListener {
             val input = LayoutInflater.from(requireContext()).inflate(R.layout.password_input_dialog,getView() as ViewGroup,false)
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Enter password to confirm")
+                .setTitle("Delete this account?")
+                .setMessage("Warning: this action is irreversible and all data associated with this account will be deleted! Please provide password to confirm")
                 .setView(input)
                 .setPositiveButton("Submit") { _, _ ->
                     authViewModel.deleteAccount(input.findViewById<TextInputEditText>(R.id.password_et).text.toString())
@@ -120,7 +121,6 @@ class MainAccountFragment : Fragment() {
         }
 
         binding.registerStaffBtn.setOnClickListener {
-            println(user?.accountType)
             if (user!!.accountType != AccountType.Admin && user!!.accountType != AccountType.Manager){
                 errorDialog("You have no permission!")
                 return@setOnClickListener
@@ -156,6 +156,11 @@ class MainAccountFragment : Fragment() {
             activity?.finish()
         }
 
+    }
+
+    override fun onStop() {
+        super.onStop()
+        authViewModel.resetDeleteAccountState()
     }
 
     private fun infoDialog(msg: String){

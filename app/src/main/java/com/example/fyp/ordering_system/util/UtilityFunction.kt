@@ -62,7 +62,7 @@ fun pastTime(time :Long,currentTime: Long) : String{
 }
 
 fun formatTime(time : Long) : String{
-    val format = SimpleDateFormat("HH:mm:ss a", Locale.getDefault())
+    val format = SimpleDateFormat("hh:mm:ss a", Locale.getDefault())
     return format.format(Date(time))
 }
 

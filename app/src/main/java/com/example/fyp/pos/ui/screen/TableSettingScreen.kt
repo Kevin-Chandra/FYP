@@ -170,7 +170,7 @@ fun TableSettingScreen(
                     }
 
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(200.dp),
+                        columns = GridCells.Adaptive(150.dp),
                         modifier = Modifier.align(Alignment.TopCenter)){
                         items(tables.value){ table ->
                             PosTable(

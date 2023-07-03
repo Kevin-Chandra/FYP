@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.example.fyp.ordering_system.util.formatTime
 import com.example.fyp.ordering_system.util.pastTime
 import kotlinx.coroutines.delay
-import java.time.format.TextStyle
 
 @Composable
 fun ClockText() {

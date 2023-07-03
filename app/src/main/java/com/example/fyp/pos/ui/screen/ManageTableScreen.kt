@@ -28,8 +28,10 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Label
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -209,7 +211,7 @@ fun ManageTableScreen(
                         }
                     )
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(200.dp),
+                        columns = GridCells.Adaptive(150.dp),
                         modifier = Modifier.align(Alignment.TopCenter)){
                         items(tables.value){ table ->
                             PosTable(
@@ -274,6 +276,9 @@ fun AssignTableDialog(
                             value = pax,
                             onValueChange = { },
                             label = { Text("Pax") },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Default.Group, contentDescription = null)
+                            },
                             trailingIcon = {
 //                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = true)
                                 ExposedDropdownMenuDefaults.TrailingIcon(
@@ -305,6 +310,9 @@ fun AssignTableDialog(
                         value = label,
                         onValueChange = {
                             label = it
+                        },
+                        leadingIcon = {
+                            Icon(imageVector = Icons.Default.Label, contentDescription = null)
                         },
                         modifier = Modifier
                             .padding(vertical = 8.dp),
@@ -379,12 +387,27 @@ fun TableDialog(
                     )
 
                     if (table.tableStatus != Available && table.tableStatus != Unavailable){
-                        Text(
-                            text = "Pax : ${table.pax}/${table.paxCapacity}",
-                            modifier = Modifier.align(Alignment.Start),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Pax : ${table.pax}/${table.paxCapacity}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.fillMaxWidth(0.5f)
+                            )
+                            if (!table.label.isNullOrEmpty()){
+                                Text(
+                                    text = "Label: ${table.label}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    modifier = Modifier.basicMarquee()
+                                )
+                            }
+                        }
                         Divider(Modifier.padding(vertical = 8.dp))
                     } else {
                         Spacer(modifier = Modifier.height(20.dp))
@@ -506,7 +529,7 @@ fun TableDialog(
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PosTable(
     table: Table,
@@ -538,7 +561,7 @@ fun PosTable(
                 },
                 label = {
                     Text(
-                        text = table.pax.toString(),
+                        text = if (settingMode) table.paxCapacity.toString() else table.pax.toString(),
                         modifier = Modifier.padding(horizontal = 4.dp)
                     )
                 })
@@ -554,11 +577,14 @@ fun PosTable(
                 Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(40.dp))
             }
             if (!table.label.isNullOrEmpty() && !settingMode)
-                ElevatedAssistChip(
+                AssistChip(
                     onClick = { },
                     label = {
-                        Text(text = table.label,)
+                        Text(text = table.label, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Outlined.Label, contentDescription = null)
+                    }
 //                    modifier = Modifier.padding(bottom = 40.dp)
                 )
             if (settingMode && table.name.isNotEmpty()){
@@ -579,6 +605,7 @@ fun PosTable(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp).basicMarquee()
                 )
             } else {
                 Text(
@@ -598,7 +625,7 @@ fun PosTable(
 )
 @Composable
 fun TablePreview() {
-    PosTable(table = Table(tableStatus = Unavailable, pax = 2, tableNumber = 21, label = "AHBJJJKSB", name = "G-2"), settingMode = true ) {
+    PosTable(table = Table(tableStatus = Unavailable, pax = 2, tableNumber = 21, label = "AHBJJJKSB", name = "G-2"), settingMode = false ) {
 
     }
 }
@@ -637,7 +664,7 @@ fun TableDialogPreview() {
 @Composable
 fun TableDialogAvailablePreview() {
     TableDialog(
-        table = Table(tableNumber = 2, tableStatus = Ongoing, currentOrder = "jdshbcksnkdsnndabkj"),
+        table = Table(tableNumber = 2, tableStatus = Ongoing, currentOrder = "jdshbcksnkdsnndabkj", label = "abcdudikajnh"),
         onAddOrderClick = {},
         onClose = {},
         getOngoingOrder = {

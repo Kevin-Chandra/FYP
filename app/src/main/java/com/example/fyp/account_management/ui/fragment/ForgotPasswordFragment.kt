@@ -48,6 +48,9 @@ class ForgotPasswordFragment : Fragment() {
         binding.submitBtn.setOnClickListener {
             viewModel.resetPassword(binding.emailEditText.text.toString())
         }
+        binding.backBtn.setOnClickListener {
+            navigateLoginPage()
+        }
 
     }
 

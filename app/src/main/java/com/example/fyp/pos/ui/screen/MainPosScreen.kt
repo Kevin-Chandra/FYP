@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Dining
 import androidx.compose.material.icons.outlined.History
@@ -89,7 +91,8 @@ fun MainPosScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .align(Alignment.Center),
+                                .align(Alignment.Center)
+                                .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.SpaceAround,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {

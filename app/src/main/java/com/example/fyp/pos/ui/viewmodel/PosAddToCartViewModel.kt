@@ -161,14 +161,16 @@ class PosAddToCartViewModel @Inject constructor(
     }
 
     private fun updatePrice() {
-        var price = food.price
-        _addToCartState.value.modifierList.forEach{ it ->
-            it.value?.forEach { it1 ->
-                price += it1.price
+        if (this::food.isInitialized){
+            var price = food.price
+            _addToCartState.value.modifierList.forEach{
+                it.value?.forEach { it1 ->
+                    price += it1.price
+                }
             }
+            price *= _addToCartState.value.quantity
+            _addToCartState.update { _addToCartState.value.copy( price = price) }
         }
-        price *= _addToCartState.value.quantity
-        _addToCartState.update { _addToCartState.value.copy( price = price) }
     }
 
     private fun getRandomUUID() = UUID.randomUUID().toString()

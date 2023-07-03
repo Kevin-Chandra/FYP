@@ -6,38 +6,53 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".account_management.ui.fragment.LoginFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:padding="16dp"
+        >
 
         <TextView
             android:id="@+id/title_textView"
-            style="@style/TextAppearance.Material3.DisplaySmall"
+            style="@style/TextAppearance.Material3.HeadlineLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:text="Sign In"
+            android:text="Welcome back"
+            android:textColor="@color/primary"
+            android:textSize="42sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/subtitle_textView"
+            style="@style/TextAppearance.Material3.TitleMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Please enter your details"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_textView" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/email_edit_text_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="32dp"
             android:layout_marginEnd="16dp"
             android:hint="Email"
             app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title_textView">
+            app:layout_constraintTop_toBottomOf="@+id/subtitle_textView">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email_edit_text"
@@ -49,7 +64,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_edit_text_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -71,15 +86,15 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/forgot_password_btn"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Trouble signing in? Reset Password"
-            android:textColor="@color/primary"
+            android:layout_marginTop="8dp"
+            android:text="Forgot password?"
             android:textAlignment="viewStart"
             android:textAllCaps="false"
-            android:textStyle="italic"
+            android:textColor="@color/primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/password_edit_text_layout" />
 
@@ -88,7 +103,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -97,12 +112,11 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/login_btn"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="LOGIN"
-                android:textAllCaps="false"
-                android:textColor="@color/borderlessButtonColor"
-                app:backgroundTint="@color/borderlessButtonBackgroundColor" />
+                android:textAllCaps="false"/>
 
             <ProgressBar
                 android:id="@+id/login_progress"
@@ -133,16 +147,16 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/register_btn"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:textColor="@color/regButtonColor"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:paddingStart="6dp"
-            android:text="Register Now"
+            android:text="Sign up"
             android:textAlignment="viewStart"
             android:textAllCaps="false"
+            android:textColor="@color/regButtonColor"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -151,21 +165,20 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/staff_register_btn"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="6dp"
-            android:text="Register for staff"
-            android:textAlignment="center"
             android:ellipsize="end"
+            android:paddingStart="6dp"
+            android:text="Register staff here"
+            android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="@color/primary"
             android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/register_btn" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </FrameLayout>

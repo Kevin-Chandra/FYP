@@ -65,16 +65,13 @@ import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
-import com.example.fyp.ordering_system.ui.components.DefaultTopBar
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.errorToast
 import com.example.fyp.ordering_system.util.formatTime
-import com.example.fyp.ordering_system.util.pastTime
 import com.example.fyp.pos.ui.component.ClockText
 import com.example.fyp.pos.ui.component.TimePassed
 import com.example.fyp.pos.ui.viewmodel.IncomingOrderItemViewModel
 import com.example.fyp.pos.util.KitchenManageOrderItemEvent
-import kotlinx.coroutines.delay
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)

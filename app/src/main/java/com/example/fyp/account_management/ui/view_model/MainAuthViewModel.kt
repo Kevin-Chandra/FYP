@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -89,9 +90,15 @@ class MainAuthViewModel @Inject constructor(
 
     fun deleteAccount(password: String) = viewModelScope.launch{
         _deleteAccountState.value = Response.Loading
-        deleteAccountUseCase.invoke(password){
-            _deleteAccountState.value = it
+        if (password.isNotEmpty()){
+            deleteAccountUseCase.invoke(password){
+                _deleteAccountState.value = it
+            }
+        } else {
+            _deleteAccountState.update { Response.Error(Exception("Password is not provided!")) }
         }
     }
+
+    fun resetDeleteAccountState() = _deleteAccountState.update { Response.Success("") }
 
 }
