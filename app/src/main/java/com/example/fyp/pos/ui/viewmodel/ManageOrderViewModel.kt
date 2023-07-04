@@ -1,5 +1,6 @@
 package com.example.fyp.pos.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.util.Response
@@ -15,6 +16,7 @@ import com.example.fyp.pos.domain.UpdateOrderHistoryUseCase
 import com.example.fyp.pos.util.ManageOrderUiState
 import com.example.fyp.pos.util.PosManageOrderEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -85,42 +87,6 @@ class ManageOrderViewModel @Inject constructor(
             }
         }
     }
-//
-//    private fun prepareOrderItem(itemId: String) = viewModelScope.launch{
-//        updateOrderItemStatusUseCase(itemId,OrderItemStatus.Preparing){}
-//    }
-//
-//    private fun finishOrderItem(itemId: String) = viewModelScope.launch{
-//        orderItemFinishUseCase(itemId){}
-//    }
-
-//    private fun deleteOrder(order: Order) = viewModelScope.launch{
-//        deleteOrderFromRemoteByOrderUseCase(order){
-//            when(it){
-//                is Response.Error -> {
-//                    _manageOrderUiState.update { it1 -> it1.copy(
-//                        errorMessage = it.exception.message,
-//                        success = false,
-//                        loading = false) }
-//                }
-//                Response.Loading -> {
-//                    _manageOrderUiState.update { _manageOrderUiState.value.copy(loading = true) }
-//                }
-//                is Response.Success -> {
-//                    if (it.data == "Order deleted successfully!"){
-//                        _manageOrderUiState.update {
-//                            _manageOrderUiState.value.copy(
-//                                errorMessage = null,
-//                                success = true,
-//                                loading = false
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     private fun getOngoingOrder() = viewModelScope.launch {
         _manageOrderItemUiState.update { ManageOrderUiState(loading = true) }
         getOrderFromRemoteByStatusUseCase(
@@ -134,6 +100,7 @@ class ManageOrderViewModel @Inject constructor(
             it.onEach { res ->
                 when (res){
                     is Response.Error ->{
+                        Log.d(TAG, "getOngoingOrder: Error! ${res.exception.message}")
                         _manageOrderItemUiState.update { _manageOrderItemUiState.value.copy(
                             errorMessage = res.exception.message,
                             success = false,

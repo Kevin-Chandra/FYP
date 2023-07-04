@@ -80,9 +80,7 @@ fun ManageOrderScreen(
     val ongoingOrders = manageOrderViewModel.ongoingOrder.collectAsStateWithLifecycle()
     val ongoingOrderItems = manageOrderViewModel.ongoingOrderItem.collectAsStateWithLifecycle()
 
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
+    var showDialog by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -194,18 +192,13 @@ fun ErrorDialog(
         title = {
             Text(text = title)
         },
-//        dismissButton = {
-//            TextButton(onClick = { showDialog(false) }) {
-//                Text(text = "Cancel")
-//            }
-//        },
         text = {
             Text(text = msg)
         }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OngoingOrderCard(
     order: Order,

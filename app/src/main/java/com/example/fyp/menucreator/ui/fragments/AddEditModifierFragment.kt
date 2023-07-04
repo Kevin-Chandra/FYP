@@ -194,7 +194,7 @@ class AddEditModifierFragment : Fragment() {
         }
     }
     private fun addNewModifier() {
-        binding.modifierTitleTextView.text = "Add New Modifier"
+        binding.modifierTitleTextView.text = "Add Modifier"
         uiEnabled(true)
         loadData()
     }

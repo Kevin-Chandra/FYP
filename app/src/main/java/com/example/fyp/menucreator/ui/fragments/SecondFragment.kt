@@ -3,12 +3,17 @@ package com.example.fyp.menucreator.ui.fragments
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.core.net.toUri
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -29,6 +34,7 @@ import com.example.fyp.databinding.*
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ProductType
+import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.menucreator.ui.viewmodel.FoodListingViewModel
 import com.example.fyp.menucreator.ui.viewmodel.FoodModifierDetailViewModel
 import com.example.fyp.menucreator.ui.viewmodel.ModifierListingViewModel
@@ -94,6 +100,9 @@ class SecondFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
+        (activity as MenuCreatorActivity).apply{
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
         arguments?.let {
             productId = SecondFragmentArgs.fromBundle(it).productId
             type = SecondFragmentArgs.fromBundle(it).type
@@ -447,7 +456,7 @@ class SecondFragment : Fragment() {
         if (foodBinding.root.parent == null)
             binding.baseLayout.addView(foodBinding.root)
         foodBinding.productNameTextView.text = food.name
-        foodBinding.descriptionTextview.text = food.description
+        foodBinding.descriptionTextview.text = food.description.ifEmpty { " - " }
         foodBinding.categoryValueTv.text = food.category
         foodBinding.priceTextview.text = food.price.toString()
         foodBinding.allTimeSalesTv.text = food.allTimeSales.toString()

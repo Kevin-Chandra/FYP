@@ -49,17 +49,6 @@
                     android:src="@mipmap/ic_launcher"
                     app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize8Percent" />
 
-                <ImageView
-                    android:id="@+id/delete_img_btn"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="0dp"
-                    android:src="@drawable/ic_cancel"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:visibility="gone"/>
-
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/set_image_btn"
                     style="@style/Widget.Material3.Button.IconButton.Filled"

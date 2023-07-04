@@ -49,6 +49,7 @@ import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
+import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.ordering_system.data.model.OrderType
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.formatDate
@@ -145,6 +146,7 @@ fun OrderInvoiceDetailedView(
         modifier = modifier.padding(16.dp),
     ) {
         item{
+            if (order.orderStatus == OrderStatus.Rejected) CancelledText()
             OrderDetailedViewHeader(order,accountName)
             Spacer(modifier = Modifier.height(16.dp))
             OrderItemListHeader()
@@ -160,6 +162,11 @@ fun OrderInvoiceDetailedView(
         item {
             Divider(modifier = Modifier.padding(vertical = 8.dp))
             PosOrderSummary(order = order)
+        }
+        if (order.orderStatus == OrderStatus.Rejected){
+            item {
+                CancelledText()
+            }
         }
     }
 }
@@ -206,22 +213,38 @@ fun OrderDetailedViewHeader(
             )
         }
         Text(
-            text = "Order start time: ${formatDate(order.orderStartTime)}",
-//                        fontWeight = FontWeight.SemiBold,
+            text = "Order created: ${formatDate(order.orderStartTime)}",
             fontWeight = FontWeight.Light,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.align(Alignment.Start)
         )
-        Text(
-            text = "Order finish time: ${formatDate(order.orderFinishTime)}",
-            fontWeight = FontWeight.Light,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.align(Alignment.Start)
-        )
+        if (order.orderStatus != OrderStatus.Rejected){
+            Text(
+                text = "Order finish: ${formatDate(order.orderFinishTime)}",
+                fontWeight = FontWeight.Light,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.Start)
+            )
+        }
 
     }
 }
 
+@Composable
+fun CancelledText() {
+    Text(
+        text = "CANCELLED ORDER",
+        fontWeight = FontWeight.SemiBold,
+        style = MaterialTheme.typography.headlineLarge,
+        color = MaterialTheme.colorScheme.error,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OrderItemListHeader() {
     Column {
@@ -256,9 +279,10 @@ fun OrderItemListHeader() {
             Text(
                 text = "Amount",
                 fontWeight = fontWeight,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .basicMarquee(),
                 style = textStyle,
-                overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
         }
@@ -416,7 +440,7 @@ fun PosOrderSummary(
     }
 }
 
-@Preview(device = "id:pixel_4_xl")
+@Preview(device = "id:pixel_4_xl", showBackground = true)
 @Composable
 fun PastOrderCardPreview1() {
     OrderInvoiceDetailedView(
@@ -425,6 +449,7 @@ fun PastOrderCardPreview1() {
             orderId = "ukbdz saduhbsiu anvuifsh uvhduivd fuvhi",
             orderType = OrderType.Online,
             tableNumber = "23",
+            orderStatus = OrderStatus.Rejected
         ),
 //        getOrderItem ={ OrderItem(orderItemId = "shdbcubsi qhfcds hcsbvdjsb dvuhsi", quantity = 10,modifierItems = mapOf("sj" to listOf("djsd"), "ssj" to listOf("djscd"))) },
         getFood = { Food(name = "ABCD Agsvy") },

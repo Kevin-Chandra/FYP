@@ -139,9 +139,6 @@ class AddEditFoodFragment : Fragment() {
             resetButton.setOnClickListener {
                 resetField()
             }
-            deleteImgBtn.setOnClickListener {
-                binding.imageView.setImageResource(R.drawable.ic_image)
-            }
             addModifierButton.setOnClickListener{
                 handleAddModifier()
             }

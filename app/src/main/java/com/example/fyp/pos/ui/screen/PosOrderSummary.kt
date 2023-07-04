@@ -165,7 +165,7 @@ fun PosOrderSummary(
                         ) {
                             Text(text = "Total item",style = MaterialTheme.typography.titleLarge)
                             Text(
-                                text = cart.value.sumOf { it.quantity }.toString(),
+                                text = cart.value.size.toString(),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -308,8 +308,7 @@ fun OrderItemRow(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
-//            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .height(125.dp)
             .clickable { onClick() },
     ) {
         Row(
@@ -318,14 +317,14 @@ fun OrderItemRow(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
-                Modifier.fillMaxWidth(0.88f),
+                Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CoilImage(
                     modifier = Modifier
                         .size(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(10.dp)),
                     imageModel = { food.imageUri ?: R.mipmap.ic_launcher },
                     imageOptions = ImageOptions(
                         contentScale = ContentScale.Crop,

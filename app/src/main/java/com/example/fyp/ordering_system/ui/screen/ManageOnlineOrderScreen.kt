@@ -353,7 +353,9 @@ fun OrderCard(
                 Text(
                     text = order.grandTotal.toString(),
                     textAlign = TextAlign.End,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
             if (expanded) {
@@ -365,12 +367,15 @@ fun OrderCard(
                     getModifier
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TimePassed(time = order.orderStartTime.time)
-            }
+            TimePassed(
+                time = order.orderStartTime.time,
+                modifier = Modifier.align(Alignment.End).padding(bottom = 4.dp)
+            )
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.End
+//            ) {
+//            }
             if (showAcceptRejectButtons) {
                 Row(
                     modifier = Modifier

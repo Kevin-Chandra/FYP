@@ -293,8 +293,8 @@ fun OrderItemRowCheckout(
             CoilImage(
                 modifier = Modifier
                     .size(100.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(10.dp)),
                 imageModel = { food?.imageUri ?: R.mipmap.ic_launcher },
                 imageOptions = ImageOptions(
                     contentScale = ContentScale.Crop,

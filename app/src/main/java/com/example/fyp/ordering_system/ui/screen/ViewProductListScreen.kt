@@ -4,6 +4,8 @@ import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -255,6 +257,7 @@ fun CategoryList(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductCard(
     food: Food,
@@ -299,7 +302,7 @@ fun ProductCard(
                 },
             )
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(vertical = 16.dp).padding(start = 8.dp),
                 horizontalAlignment = Alignment.Start
             ) {
                 Row(
@@ -318,9 +321,11 @@ fun ProductCard(
                             label = {
                                 Text(
                                     text = "Unavailable",
-                                    style = MaterialTheme.typography.bodyLarge
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 1,
+                                    modifier = Modifier.basicMarquee()
                                 )
-                            }
+                            },
                         )
                     } else {
                         Text(

@@ -19,9 +19,9 @@ import com.example.fyp.account_management.util.Constants
 import com.example.fyp.databinding.FragmentProductListBinding
 import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.domain.food.SortedBy
+import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.menucreator.ui.viewmodel.FoodListingViewModel
-import com.example.fyp.menucreator.util.AddEditFoodEvent
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
