@@ -168,10 +168,13 @@ fun KitchenManageOrderScreen(
                             )
                         }
                         if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Confirmed }){
+                            val confirmedList = remember(key1 = ongoingItems.value) {
+                                ongoingItems.value
+                                    .filter { it1 -> it1.orderItemStatus == OrderItemStatus.Confirmed }
+                                    .sortedBy { it1 -> it1.timeAdded }
+                            }
                             LazyRow {
-                                items(ongoingItems.value
-                                    .filter { it.orderItemStatus == OrderItemStatus.Confirmed }
-                                    .sortedBy { it.timeAdded }){ item ->
+                                items(confirmedList, key = {item -> item.orderItemId} ){ item ->
                                     var showDialog by remember { mutableStateOf(false) }
                                     OrderItemCard(
                                         orderItem = item,
@@ -238,18 +241,21 @@ fun KitchenManageOrderScreen(
                             )
                             Text(
                                 text = ongoingItems.value
-                                    .filter { it.orderItemStatus == OrderItemStatus.Preparing}
+                                    .filter { item -> item.orderItemStatus == OrderItemStatus.Preparing}
                                     .size
                                     .toString() + " Item",
                                 style = MaterialTheme.typography.titleLarge,
                             )
                         }
 
-                        if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Preparing }){
+                        if (ongoingItems.value.any { item -> item.orderItemStatus == OrderItemStatus.Preparing }){
+                            val ongoingList = remember(key1 = ongoingItems.value) {
+                                ongoingItems.value
+                                    .filter { it1 -> it1.orderItemStatus == OrderItemStatus.Preparing }
+                                    .sortedBy { it1 -> it1.timeAdded }
+                            }
                             LazyRow {
-                                items(ongoingItems.value
-                                    .filter { it.orderItemStatus == OrderItemStatus.Preparing }
-                                    .sortedBy { it.timeAdded }){ item ->
+                                items(ongoingList, key = {item -> item.orderItemId}){ item ->
                                     var showDialog by remember { mutableStateOf(false) }
                                     OrderItemCard(
                                         orderItem = item,
@@ -316,18 +322,20 @@ fun KitchenManageOrderScreen(
                             )
                             Text(
                                 text = ongoingItems.value
-                                    .filter { it.orderItemStatus == OrderItemStatus.Finished}
+                                    .filter { it1 -> it1.orderItemStatus == OrderItemStatus.Finished}
                                     .size
                                     .toString() + " Item",
                                 style = MaterialTheme.typography.titleLarge,
                             )
                         }
-                        if (ongoingItems.value.any { it.orderItemStatus == OrderItemStatus.Finished }){
+                        if (ongoingItems.value.any { it1 -> it1.orderItemStatus == OrderItemStatus.Finished }){
+                            val finishedList = remember(key1 = ongoingItems.value) {
+                                ongoingItems.value
+                                    .filter { it1 -> it1.orderItemStatus == OrderItemStatus.Finished }
+                                    .sortedByDescending { it1 -> it1.timeFinished }
+                            }
                             LazyRow{
-                                items(ongoingItems.value
-                                    .filter { it.orderItemStatus == OrderItemStatus.Finished }
-                                    .sortedByDescending { it.timeFinished }){ item ->
-
+                                items(finishedList, key = {it1 -> it1.orderItemId}){ item ->
                                     OrderItemCard(
                                         orderItem = item,
                                         getFood = { id ->

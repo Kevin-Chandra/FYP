@@ -160,13 +160,17 @@ fun ViewProductListScreen(
                                     )
                                 }
                             } else {
+                                val productList = remember(key1 = filteredFoodList.value) {
+                                    (filteredFoodList.value as UiState.Success<List<Food>>).data
+                                }
                                 LazyColumn(
                                     modifier = Modifier
                                         .align(Alignment.TopCenter)
                                         .padding()
                                         .testTag("product_list")
                                 ) {
-                                    items((filteredFoodList.value as UiState.Success<List<Food>>).data) { item ->
+
+                                    items(productList, key = {it.productId} ) { item ->
                                         val animatedProgress = remember { Animatable(initialValue = 0.5f) }
                                         LaunchedEffect(Unit) {
                                             animatedProgress.animateTo(
@@ -197,9 +201,10 @@ fun ViewProductListScreen(
                                 .offset {
                                     IntOffset(
                                         x = 0,
-                                        y = -offset.value.roundToInt()
+                                        y = -offset.roundToInt()
                                     )
-                                }.testTag("view_cart_btn"),
+                                }
+                                .testTag("view_cart_btn"),
                         ) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -302,7 +307,9 @@ fun ProductCard(
                 },
             )
             Column(
-                modifier = Modifier.padding(vertical = 16.dp).padding(start = 8.dp),
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .padding(start = 8.dp),
                 horizontalAlignment = Alignment.Start
             ) {
                 Row(

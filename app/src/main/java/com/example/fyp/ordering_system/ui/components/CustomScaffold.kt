@@ -24,7 +24,7 @@ import kotlin.math.roundToInt
 fun CustomScaffold(
     navigator: NavController,
     topBar : @Composable () -> Unit,
-    content : @Composable (PaddingValues, MutableState<Float>) -> Unit,
+    content : @Composable (PaddingValues, Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val bottomBarHeight = 80.dp
@@ -46,7 +46,7 @@ fun CustomScaffold(
 
     Scaffold(
         topBar = topBar,
-        content = { content(it,bottomBarOffsetHeightPx) },
+        content = { content(it,bottomBarOffsetHeightPx.value) },
         bottomBar = {
             CustomerOrderBottomNavigation(
                 navController = navigator,

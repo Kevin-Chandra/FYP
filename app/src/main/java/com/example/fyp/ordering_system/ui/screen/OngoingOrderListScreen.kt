@@ -154,7 +154,8 @@ fun OngoingOrderListScreen(
                                     modifier = Modifier.align(Alignment.TopCenter)
                                 ) {
                                     items(
-                                        orderList.value
+                                        orderList.value,
+                                        key = {it.orderId}
                                     ) { item ->
                                         OngoingOrderCard(order = item) {
                                             navigator.navigate(

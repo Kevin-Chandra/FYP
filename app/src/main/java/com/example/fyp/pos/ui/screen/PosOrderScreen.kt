@@ -149,6 +149,12 @@ fun PosOrderScreenContent(
     modifier: Modifier = Modifier
 ) {
     Column(modifier.fillMaxSize()){
+        val categoryListData = remember(key1 = categoryList) {
+            categoryList
+        }
+        val foodListData = remember(key1 = foodList) {
+            foodList
+        }
         LazyRow(modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp)
@@ -157,7 +163,7 @@ fun PosOrderScreenContent(
             ,
             horizontalArrangement = Arrangement.Center,
         ){
-            items(categoryList) { cat ->
+            items(categoryListData, key = {it.id} ) { cat ->
                 TextButton(onClick = {
                      if (currentCategory == cat){
                          onFilterFoodClick(null)
@@ -189,7 +195,7 @@ fun PosOrderScreenContent(
                     color = MaterialTheme.colorScheme.primary
                 )
                 LazyVerticalGrid(columns = GridCells.Adaptive(175.dp)){
-                    items(foodList) { food ->
+                    items(foodListData, key = {it.productId} ) { food ->
                         var quantity by rememberSaveable {
                             mutableIntStateOf(0)
                         }

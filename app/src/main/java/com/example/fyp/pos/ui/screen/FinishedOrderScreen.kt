@@ -165,7 +165,6 @@ fun FinishedOrderScreen(
                                 }
                             }
                         }
-                        println(orderList.value)
                         if (orderList.value is Response.Success) {
                             if ((orderList.value as Response.Success<List<Order>>).data.isEmpty()) {
                                 val composition by rememberLottieComposition(
@@ -199,9 +198,11 @@ fun FinishedOrderScreen(
                                     )
                                 }
                             } else {
-                                println(orderList.value)
+                                val orderListData = remember(key1 = orderList.value) {
+                                    (orderList.value as? Response.Success<List<Order>>)?.data?.sortedByDescending { it1 -> it1.orderFinishTime } ?: emptyList()
+                                }
                                 LazyColumn(modifier = Modifier) {
-                                    items((orderList.value as? Response.Success<List<Order>>)?.data?.sortedByDescending { it1 -> it1.orderFinishTime } ?: emptyList()) { item ->
+                                    items(orderListData, key = {order -> order.orderId} ) { item ->
                                         FinishedOrderCard(
                                             onCardClick = {
                                                 navigator.navigate(

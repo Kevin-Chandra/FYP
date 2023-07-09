@@ -139,17 +139,6 @@ fun ManageTableScreen(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             ) {
                 Box(modifier = Modifier.padding(it)){
-//                    if (showDialog){
-////                        AddTableDialog( onClick = { it1 ->
-////                            showDialog = false
-////                            viewModel.onEvent(ManageTableEvent.OnAddTable(it1))
-////                        },
-////                        onDismiss = { bool ->
-////                            showDialog = bool
-////                        })
-//                        //TODO assign seating
-//                    }
-
                     if (showResetDialog){
                         CustomAlertDialog(
                             onDismiss = { showResetDialog = false },
@@ -213,7 +202,7 @@ fun ManageTableScreen(
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(150.dp),
                         modifier = Modifier.align(Alignment.TopCenter)){
-                        items(tables.value){ table ->
+                        items(tables.value, key = {it1 -> it1.id}){ table ->
                             PosTable(
                                 table = table,
                                 onClick = {

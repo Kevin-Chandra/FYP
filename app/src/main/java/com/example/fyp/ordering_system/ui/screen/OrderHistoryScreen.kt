@@ -148,8 +148,11 @@ fun OrderHistoryScreen(
                                 )
                             }
                         } else {
+                            val orderHistoryList = remember (key1 = pastOrders.value) {
+                                pastOrders.value.sortedByDescending { it1 -> it1.orderFinishTime }
+                            }
                             LazyColumn {
-                                items(pastOrders.value.sortedByDescending { it1 -> it1.orderFinishTime }) { item ->
+                                items(orderHistoryList, key = {it.orderId}) { item ->
                                     PastOrderRow(order = item) {
                                         navigator.navigate(
                                             Screen.OrderHistoryDetailedScreen.withArgs(

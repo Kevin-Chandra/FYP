@@ -185,91 +185,94 @@ fun PosOrderSummary(
                 Box(modifier = Modifier
                     .fillMaxSize()
                     .padding(it)){
-                    if (cart.value.isNotEmpty()){
-                            LazyColumn {
-                                items(
-                                    items = cart.value,
-                                    key = { item ->
-                                        item.orderItemId
-                                    }
-                                ) { orderItem ->
-                                    val currentItem by rememberUpdatedState(orderItem)
-                                    val dismissState = rememberDismissState(
-                                        confirmValueChange = { value ->
-                                            if (value == DismissValue.DismissedToStart) {
-                                                tableOrderViewModel.onEvent(
-                                                    TableOrderEvent.OnDeleteOrderItem(
-                                                        currentItem.orderItemId
-                                                    )
-                                                )
-                                                true
-                                            } else {
-                                                false
-                                            }
-                                        }
-                                    )
-
-                                    SwipeToDismiss(
-                                        state = dismissState,
-                                        modifier = Modifier
-                                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                                            .clip(RoundedCornerShape(15)),
-                                        directions = setOf(
-                                            DismissDirection.EndToStart
-                                        ),
-                                        background = {
-                                            val color by animateColorAsState(
-                                                when (dismissState.targetValue) {
-                                                    DismissValue.Default -> MaterialTheme.colorScheme.background
-                                                    else -> Color.Red
-                                                }
-                                            )
-                                            val alignment = Alignment.CenterEnd
-                                            val icon = Icons.Default.Delete
-
-                                            val scale by animateFloatAsState(
-                                                if (dismissState.targetValue == DismissValue.Default) 0.75f else 1.15f
-                                            )
-
-                                            Box(
-                                                Modifier
-                                                    .fillMaxSize()
-                                                    .background(color)
-                                                    .padding(horizontal = 20.dp),
-                                                contentAlignment = alignment
-                                            ) {
-                                                Icon(
-                                                    icon,
-                                                    contentDescription = "Delete Icon",
-                                                    modifier = Modifier.scale(scale)
-                                                )
-                                            }
-                                        },
-                                        dismissContent = {
-
-                                            OrderItemRow(
-                                                orderItem = orderItem,
-                                                getFood = { id ->
-                                                    productViewModel.getFood(id)
-                                                },
-                                                getModifier = { id ->
-                                                    productViewModel.getModifier(id)
-                                                },
-                                                getModifierItem = { id ->
-                                                    productViewModel.getModifierItem(id)
-                                                },
-                                                onClick = {
-                                                    navigator.navigate(
-                                                        PosScreen.PosAddToCartScreen.withRequiredArgs(
-                                                            orderItem.foodId,
-                                                            orderItem.quantity.toString(),
-                                                        ) + "?orderItemId=${orderItem.orderItemId}"
-                                                    )
-                                                }
-                                            )
-                                        })
+                    if (cart.value.isNotEmpty()) {
+                        val cartList = remember(key1 = cart.value) {
+                            cart.value
+                        }
+                        LazyColumn {
+                            items(
+                                items = cartList,
+                                key = { item ->
+                                    item.orderItemId
                                 }
+                            ) { orderItem ->
+                                val currentItem by rememberUpdatedState(orderItem)
+                                val dismissState = rememberDismissState(
+                                    confirmValueChange = { value ->
+                                        if (value == DismissValue.DismissedToStart) {
+                                            tableOrderViewModel.onEvent(
+                                                TableOrderEvent.OnDeleteOrderItem(
+                                                    currentItem.orderItemId
+                                                )
+                                            )
+                                            true
+                                        } else {
+                                            false
+                                        }
+                                    }
+                                )
+
+                                SwipeToDismiss(
+                                    state = dismissState,
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                        .clip(RoundedCornerShape(15)),
+                                    directions = setOf(
+                                        DismissDirection.EndToStart
+                                    ),
+                                    background = {
+                                        val color by animateColorAsState(
+                                            when (dismissState.targetValue) {
+                                                DismissValue.Default -> MaterialTheme.colorScheme.background
+                                                else -> Color.Red
+                                            }
+                                        )
+                                        val alignment = Alignment.CenterEnd
+                                        val icon = Icons.Default.Delete
+
+                                        val scale by animateFloatAsState(
+                                            if (dismissState.targetValue == DismissValue.Default) 0.75f else 1.15f
+                                        )
+
+                                        Box(
+                                            Modifier
+                                                .fillMaxSize()
+                                                .background(color)
+                                                .padding(horizontal = 20.dp),
+                                            contentAlignment = alignment
+                                        ) {
+                                            Icon(
+                                                icon,
+                                                contentDescription = "Delete Icon",
+                                                modifier = Modifier.scale(scale)
+                                            )
+                                        }
+                                    },
+                                    dismissContent = {
+
+                                        OrderItemRow(
+                                            orderItem = orderItem,
+                                            getFood = { id ->
+                                                productViewModel.getFood(id)
+                                            },
+                                            getModifier = { id ->
+                                                productViewModel.getModifier(id)
+                                            },
+                                            getModifierItem = { id ->
+                                                productViewModel.getModifierItem(id)
+                                            },
+                                            onClick = {
+                                                navigator.navigate(
+                                                    PosScreen.PosAddToCartScreen.withRequiredArgs(
+                                                        orderItem.foodId,
+                                                        orderItem.quantity.toString(),
+                                                    ) + "?orderItemId=${orderItem.orderItemId}"
+                                                )
+                                            }
+                                        )
+                                    })
                             }
+                        }
                     } else {
                         Text(text = "Empty order item...", modifier = Modifier.align(Alignment.Center))
                     }
@@ -312,7 +315,9 @@ fun OrderItemRow(
             .clickable { onClick() },
     ) {
         Row(
-            modifier = Modifier.fillMaxSize().padding(8.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -353,7 +358,9 @@ fun OrderItemRow(
                     style = MaterialTheme.typography.headlineMedium,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(8.dp).basicMarquee()
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .basicMarquee()
                 )
                 Column(
                     modifier = Modifier.padding(8.dp),

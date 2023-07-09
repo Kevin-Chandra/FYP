@@ -104,8 +104,11 @@ fun ManageOrderScreen(
                         )
                     }
                     if (ongoingOrders.value.isNotEmpty()){
+                        val ongoingList = remember(key1 = ongoingOrders.value) {
+                            ongoingOrders.value
+                        }
                         LazyColumn {
-                            items(ongoingOrders.value){ item ->
+                            items(ongoingList, key = {it1 -> it1.orderId} ){ item ->
                                 var firstName by rememberSaveable { mutableStateOf<String?>(null) }
                                 var lastName by rememberSaveable { mutableStateOf<String?>(null)  }
 
