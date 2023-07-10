@@ -5,7 +5,6 @@ import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.example.fyp.ordering_system.data.model.OrderStatus
-import com.example.fyp.ordering_system.data.model.OrderType
 import com.example.fyp.ordering_system.data.model.OrderType.*
 import com.example.fyp.ordering_system.data.repository.remote.OrderItemRepository
 import com.example.fyp.ordering_system.data.repository.remote.OrderRepository

@@ -22,8 +22,7 @@ import javax.inject.Inject
 import kotlin.Exception
 
 class OrderRepository @Inject constructor(
-    database: FirebaseFirestore,
-    private val orderItemDatabase: OrderItemRepository
+    database: FirebaseFirestore
 ) {
 
     private val orderCollectionRef = database.collection(FireStoreCollection.ORDER)

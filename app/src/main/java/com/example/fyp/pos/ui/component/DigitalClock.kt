@@ -43,9 +43,9 @@ fun ClockText() {
 @Composable
 fun TimePassed(
     time: Long,
+    modifier: Modifier = Modifier,
     fontWeight: FontWeight = FontWeight.Normal,
-    fontStyle: FontStyle = FontStyle.Normal,
-    modifier: Modifier = Modifier
+    fontStyle: FontStyle = FontStyle.Normal
 ){
     val currentTimeMillis = remember {
         mutableLongStateOf(System.currentTimeMillis())

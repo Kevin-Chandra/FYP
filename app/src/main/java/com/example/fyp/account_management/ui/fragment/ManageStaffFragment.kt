@@ -1,6 +1,7 @@
 package com.example.fyp.account_management.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,6 @@ import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.random.Random
-
 
 @AndroidEntryPoint
 class ManageStaffFragment : Fragment() {
@@ -74,13 +74,12 @@ class ManageStaffFragment : Fragment() {
                                 showEmptyPendingText(true)
                             else
                                 showEmptyPendingText(false)
-//                        binding.progressBar.visibility = View.GONE
                         }
                         is Response.Error -> {
-//                        println(it.e)
+                            Log.d("ManageStaffFragment", "onViewCreated: ${it.exception.message}")
                         }
                         is Response.Loading -> {
-//                        binding.progressBar.visibility = View.VISIBLE
+
                         }
                     }
                 }
@@ -98,13 +97,12 @@ class ManageStaffFragment : Fragment() {
                             } else {
                                 showEmptyStaffText(false)
                             }
-//                        binding.progressBar.visibility = View.GONE
                         }
                         is Response.Error -> {
-//                        println(it.e)
+                            Log.d("ManageStaffFragment", "onViewCreated: ${it.exception.message}")
                         }
                         is Response.Loading -> {
-//                        binding.progressBar.visibility = View.VISIBLE
+
                         }
                     }
                 }
@@ -116,7 +114,6 @@ class ManageStaffFragment : Fragment() {
             checkedIds.forEach{
                 text = group.findViewById<Chip>(it).text.toString()
             }
-            println(text)
             staffListAdapter.filter.filter(text)
         }
 

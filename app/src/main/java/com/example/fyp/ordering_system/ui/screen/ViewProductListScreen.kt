@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,14 +21,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,20 +35,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -66,16 +59,15 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.fyp.theme.FypTheme
 import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.util.UiState
 import com.example.fyp.ordering_system.ui.components.CustomScaffold
-import com.example.fyp.ordering_system.ui.components.CustomerOrderBottomNavigation
 import com.example.fyp.ordering_system.ui.navigation.Screen
 import com.example.fyp.ordering_system.ui.viewmodel.CartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
+import com.example.fyp.theme.FypTheme
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
 import com.skydoves.landscapist.components.rememberImageComponent
@@ -107,7 +99,7 @@ fun ViewProductListScreen(
                                 CategoryList(
                                     categoryList = (foodCategory.value as UiState.Success<List<FoodCategory>>).data,
                                     selected = selectedCategory.value?.id,
-                                    onSelected = {
+                                    ignoredOnSelected = {
                                         productViewModel.filterFoodByCategory(it)
                                     })
                             }
@@ -172,13 +164,17 @@ fun ViewProductListScreen(
 
                                     items(productList, key = {it.productId} ) { item ->
                                         val animatedProgress = remember { Animatable(initialValue = 0.5f) }
-                                        LaunchedEffect(Unit) {
+
+                                        LaunchedEffect(true) {
                                             animatedProgress.animateTo(
                                                 targetValue = 1f,
                                                 animationSpec = tween(300, easing = LinearEasing)
                                             )
                                         }
-                                        val modifier = Modifier.graphicsLayer(scaleY = animatedProgress.value, scaleX = animatedProgress.value)
+                                        val modifier = Modifier.graphicsLayer(
+                                            scaleY = animatedProgress.value,
+                                            scaleX = animatedProgress.value,
+                                        )
                                         ProductCard(item,modifier) { it1 ->
                                             navigator.navigate(
                                                 Screen.AddToCartScreen.withArgs(
@@ -234,7 +230,7 @@ fun ViewProductListScreen(
 fun CategoryList(
     categoryList: List<FoodCategory>,
     selected: String?,
-    onSelected: (FoodCategory?) -> Unit,
+    ignoredOnSelected: (FoodCategory?) -> Unit,
 ) {
     LazyRow(
         modifier = Modifier
@@ -249,9 +245,9 @@ fun CategoryList(
                 selected = (it.id == selected),
                 onClick = {
                     if (selected == it.id){
-                        onSelected(null)
+                        ignoredOnSelected(null)
                     } else {
-                        onSelected(it)
+                        ignoredOnSelected(it)
                     }},
                 label = {
                     Text(text = it.name)
@@ -267,7 +263,7 @@ fun CategoryList(
 fun ProductCard(
     food: Food,
     modifier: Modifier = Modifier,
-    onClick: (String) -> Unit
+    ignoredOnClick: (String) -> Unit
 ) {
     Card(
         modifier = modifier
@@ -276,7 +272,7 @@ fun ProductCard(
             .clickable(
                 enabled = food.availability
             ) {
-                onClick(food.productId)
+                ignoredOnClick(food.productId)
             },
         elevation = CardDefaults.elevatedCardElevation(),
     ) {
@@ -361,5 +357,5 @@ fun ProductCard(
 )
 @Composable
 fun ProductCardPreview() {
-    ProductCard(food = Food(name = "jdbajh", price = 83.2, description = "Desc", availability = false), onClick = {})
+    ProductCard(food = Food(name = "Sample Food", price = 83.2, description = "Desc", availability = false), ignoredOnClick = {})
 }

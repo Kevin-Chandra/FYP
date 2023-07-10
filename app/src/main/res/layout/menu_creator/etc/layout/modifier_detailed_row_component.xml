@@ -20,7 +20,8 @@
             android:id="@+id/modifier_iv"
             android:src="@mipmap/ic_launcher"
             android:layout_width="150dp"
-            android:layout_height="150dp" />
+            android:layout_height="150dp"
+            android:importantForAccessibility="no" />
     </androidx.cardview.widget.CardView>
 
     <View

@@ -20,7 +20,8 @@
             android:layout_height="160dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@mipmap/ic_launcher"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/product_name_text_view"

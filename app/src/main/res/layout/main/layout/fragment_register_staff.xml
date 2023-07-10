@@ -12,7 +12,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView"
@@ -27,12 +27,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView">
 
                 <ImageView
-
                     android:id="@+id/profile_img_image_view"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_profile_placeholder_24"/>
+                    android:src="@drawable/ic_profile_placeholder_24"
+                    android:importantForAccessibility="no" />
 
             </androidx.cardview.widget.CardView>
 

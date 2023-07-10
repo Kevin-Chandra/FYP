@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="MyAppTheme.TextInputLayout" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/red</item>
-    </style>
 
     <style name="ShapeAppearanceOverlay.App.CornerSize8Percent" parent="">
         <item name="cornerSize">8%</item>
     </style>
 
-    <style name="ShapeAppearanceOverlay.App.CornerSize100Percent" parent="">
-        <item name="cornerSize">100%</item>
-    </style>
-
-    <style name="FabMaterial3" parent="ShapeAppearance.Material3.SmallComponent">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Material3.FloatingActionButton</item>
-    </style>
 </resources>

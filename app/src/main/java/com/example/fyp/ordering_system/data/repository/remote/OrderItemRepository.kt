@@ -6,7 +6,6 @@ import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -32,24 +31,6 @@ class OrderItemRepository @Inject constructor(
                     result.invoke(Response.Error(it))
                 }
                 .await()
-        } catch (e: Exception){
-            result.invoke(Response.Error(e))
-        }
-    }
-
-    suspend fun updateItem(orderItem: OrderItem,result: (Response<String>) -> Unit){
-        try {
-            val query = itemCollectionReference.whereEqualTo(FireStoreDocumentField.ORDER_ITEM_ID,orderItem.orderItemId)
-                .get()
-                .await()
-            if (query.documents.isEmpty())
-                throw Exception("Product Id not found!")
-            for (doc in query.documents)
-                itemCollectionReference.document(doc.id).set(
-                    orderItem,
-                    SetOptions.merge()
-                )
-            result.invoke(Response.Success("Order Item Updated!"))
         } catch (e: Exception){
             result.invoke(Response.Error(e))
         }
@@ -117,26 +98,6 @@ class OrderItemRepository @Inject constructor(
                 result.invoke(Response.Success(doc.toObject<OrderItem>()!!))
         } catch (e: Exception){
             result.invoke(Response.Error(e))
-        }
-    }
-
-    suspend fun getOrderItemListByStatus(orderItemStatus: OrderItemStatus) = callbackFlow<Response<List<OrderItem>>> {
-        val snapshotListener = itemCollectionReference.whereEqualTo(FireStoreDocumentField.ORDER_ITEM_STATUS,orderItemStatus)
-            .addSnapshotListener{ querySnapshot, e ->
-                if (e != null ){
-                    Response.Error(e)
-                    return@addSnapshotListener
-                }
-                querySnapshot?.let{
-                    val itemsResponse = run {
-                        val items = querySnapshot.toObjects(OrderItem::class.java)
-                        Response.Success(items)
-                    }
-                    trySend(itemsResponse)
-                }
-        }
-        awaitClose {
-            snapshotListener.remove()
         }
     }
 
