@@ -57,7 +57,6 @@ class CartViewModel @Inject constructor(
     }
 
     fun onOrderingEvent(event: OrderingEvent){
-        println(event)
         when(event){
             is OrderingEvent.FoodDeletedChanged -> {
                 deleteFood(event.id)

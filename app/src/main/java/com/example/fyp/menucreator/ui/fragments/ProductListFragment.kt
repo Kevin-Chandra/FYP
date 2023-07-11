@@ -19,7 +19,6 @@ import com.example.fyp.account_management.util.Constants
 import com.example.fyp.databinding.FragmentProductListBinding
 import com.example.fyp.menucreator.data.model.ProductType
 import com.example.fyp.menucreator.domain.food.SortedBy
-import com.example.fyp.menucreator.ui.activity.MenuCreatorActivity
 import com.example.fyp.menucreator.ui.adapter.ProductListItemAdapter
 import com.example.fyp.menucreator.ui.viewmodel.FoodListingViewModel
 import com.example.fyp.menucreator.util.UiState
@@ -76,7 +75,7 @@ class ProductListFragment : Fragment() {
                         foodAdapter.submitList(it.data.toMutableList())
                         binding.progressBar.visibility = View.GONE
                     }
-                    is UiState.Failure -> println(it.e)
+                    is UiState.Failure -> {}
                     is UiState.Loading -> binding.progressBar.visibility = View.VISIBLE
                 }
             }

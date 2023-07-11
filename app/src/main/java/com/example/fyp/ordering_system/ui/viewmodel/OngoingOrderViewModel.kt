@@ -7,8 +7,10 @@ import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderStatus
 import com.example.fyp.ordering_system.domain.local_database.DeleteAllOrderItemUseCase
+import com.example.fyp.ordering_system.domain.local_database.GetCartUseCase
+import com.example.fyp.ordering_system.domain.local_database.UpdateOrderItemIdInCartUseCase
+import com.example.fyp.ordering_system.domain.local_database.UpsertToCartUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOngoingOrderByAccountUseCase
-import com.example.fyp.ordering_system.domain.remote_database.GetOrderFromRemoteByOrderIdUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOrderItemFromRemoteByOrderIdUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetOrderStatusFromRemoteUseCase
 import com.example.fyp.ordering_system.domain.remote_database.GetPastOrderByAccountUseCase
@@ -16,6 +18,7 @@ import com.example.fyp.ordering_system.ui.screen.OngoingOrderScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -25,6 +28,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OngoingOrderViewModel @Inject constructor(
     private val getOrderStatusFromRemoteUseCase: GetOrderStatusFromRemoteUseCase,
+    private val getCartUseCase: GetCartUseCase,
+    private val updateOrderItemIdInCartUseCase: UpdateOrderItemIdInCartUseCase,
     private val deleteAllOrderItemUseCase: DeleteAllOrderItemUseCase,
     private val getOngoingOrderByAccountUseCase: GetOngoingOrderByAccountUseCase,
     private val getPastOrderByAccountUseCase: GetPastOrderByAccountUseCase,
@@ -68,6 +73,7 @@ class OngoingOrderViewModel @Inject constructor(
                         _orderingStatusState.update {
                             when (res.data.orderStatus) {
                                 OrderStatus.Rejected -> {
+                                    updateOrderItemId()
                                     OngoingOrderScreenState(success = true, successMessage = "Status updated!", status = "Rejected")
                                 }
                                 OrderStatus.Sent -> {
@@ -148,6 +154,16 @@ class OngoingOrderViewModel @Inject constructor(
 
     private fun deleteAllOrderItem() = viewModelScope.launch {
         deleteAllOrderItemUseCase()
+    }
+
+    private fun updateOrderItemId() = viewModelScope.launch {
+        var collected = false
+        getCartUseCase().onEach {
+            if (!collected){
+                updateOrderItemIdInCartUseCase(it)
+                collected = true
+            }
+        }.launchIn(viewModelScope)
     }
 
 }

@@ -1,14 +1,12 @@
 package com.example.fyp.ordering_system.ui.screen
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
@@ -58,11 +56,9 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.fyp.theme.FypTheme
 import com.example.fyp.R
 import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.ui.components.CheckboxSelection
@@ -72,12 +68,13 @@ import com.example.fyp.ordering_system.ui.viewmodel.AddToCartViewModel
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.AddToCartEvent
 import com.example.fyp.ordering_system.util.errorToast
+import com.example.fyp.theme.FypTheme
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.animation.circular.CircularRevealPlugin
 import com.skydoves.landscapist.coil.CoilImage
 import com.skydoves.landscapist.components.rememberImageComponent
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddToCartScreen (
     navigator: NavController,
@@ -284,7 +281,7 @@ fun AddToCartScreen (
                                 targetState = cartState.value.quantity,
                                 transitionSpec = {
                                     if (targetState > initialState) {
-                                        (slideInVertically(initialOffsetY = { it }) + fadeIn()).togetherWith(
+                                        (slideInVertically(initialOffsetY = { it1 -> it1 }) + fadeIn()).togetherWith(
                                             slideOutVertically(
                                                 targetOffsetY = { -it }) + fadeOut()
                                         )

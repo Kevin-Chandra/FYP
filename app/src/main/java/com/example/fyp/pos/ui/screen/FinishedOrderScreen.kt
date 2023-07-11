@@ -111,7 +111,7 @@ fun FinishedOrderScreen(
                             "Last month" to 24*7*4,
                             "All time" to 0
                         )
-                        val options = optionMap.map { it.key }
+                        val options = optionMap.map { it1 -> it1.key }
                         var expanded by remember { mutableStateOf(false) }
                         var selected by rememberSaveable { mutableStateOf(options[0]) }
 

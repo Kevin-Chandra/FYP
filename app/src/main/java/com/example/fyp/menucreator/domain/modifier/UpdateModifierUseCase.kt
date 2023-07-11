@@ -68,18 +68,15 @@ class UpdateModifierUseCase @Inject constructor(
                         toAddList.add(i)
                     }
                 }
-                val deleteItemsJob = launch {
+                launch {
                     for (i in oldList){
-                        println("deleting $i...")
                         launch { deleteModifierItemUseCase(i){} }
                     }
                 }
                 val addItemJob = launch {
-                    println("add item job started")
                     for (item in toAddList) {
                         launch(Dispatchers.IO) {
                             ensureActive()
-                            println("add $item")
                             addModifierItemUseCase(item) {
                                 when (it) {
                                     is UiState.Failure -> {
@@ -87,7 +84,6 @@ class UpdateModifierUseCase @Inject constructor(
                                     }
                                     UiState.Loading -> {}
                                     is UiState.Success -> {
-                                        println(it)
                                     }
                                 }
                             }
@@ -98,7 +94,6 @@ class UpdateModifierUseCase @Inject constructor(
                     for (i in toUpdateList){
                         launch(Dispatchers.IO){
                             ensureActive()
-                            println("update $i")
                             updateModifierItemUseCase(i){
                                 when (it) {
                                     is UiState.Failure -> {
@@ -106,7 +101,6 @@ class UpdateModifierUseCase @Inject constructor(
                                     }
                                     UiState.Loading -> {}
                                     is UiState.Success -> {
-                                        println(it)
                                     }
                                 }
                             }
@@ -115,7 +109,6 @@ class UpdateModifierUseCase @Inject constructor(
                 }
                 val modifierJob = launch {
                     ensureActive()
-                    println("update mod job started")
                     modifierRepository.updateModifier(modifier) {
                         when (it) {
                             is UiState.Failure -> {
@@ -125,7 +118,7 @@ class UpdateModifierUseCase @Inject constructor(
                         }
                     }
                 }
-                val updateImageFieldJob = launch {
+                launch {
                     ensureActive()
                     if (image != null  && image.toString() != modifier.imageUri) {
                         modifierJob.join()
@@ -142,11 +135,9 @@ class UpdateModifierUseCase @Inject constructor(
                 }
                 addItemJob.children.forEach {
                     it.join()
-                    println("add child job Joined")
                 }
                 updateItemJob.children.forEach {
                     it.join()
-                    println("update child job Joined")
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) {
@@ -157,7 +148,6 @@ class UpdateModifierUseCase @Inject constructor(
             }
         }
         parentJob.invokeOnCompletion {
-            println("parent ioc")
             if (it != null) {
                 result.invoke(UiState.Failure(it as Exception))
             } else {

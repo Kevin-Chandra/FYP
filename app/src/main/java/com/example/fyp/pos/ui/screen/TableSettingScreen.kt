@@ -107,8 +107,6 @@ fun TableSettingScreen(
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val coroutineScope = rememberCoroutineScope()
-
     LaunchedEffect(key1 = addEditTableState.value){
         addEditTableState.value.error?.let{
             snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Long)

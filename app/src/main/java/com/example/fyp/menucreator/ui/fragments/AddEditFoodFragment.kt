@@ -36,8 +36,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*
 
-private const val TAG = "AddEditFoodFragment"
-
 @AndroidEntryPoint
 class AddEditFoodFragment : Fragment() {
 
@@ -169,7 +167,6 @@ class AddEditFoodFragment : Fragment() {
                         allowReset = true
                     }
                     is UiState.Failure -> {
-                        println(it.e)
                     }
                     is UiState.Loading ->{
                         allowReset = false
@@ -186,7 +183,7 @@ class AddEditFoodFragment : Fragment() {
                         categoryList = it.data.toList()
                         setDropdown()
                     }
-                    is UiState.Failure -> println(it.e)
+                    is UiState.Failure -> {}
                     is UiState.Loading -> {}
                 }
             }
@@ -386,7 +383,6 @@ class AddEditFoodFragment : Fragment() {
     private fun observeFoodUpdate() =  viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.CREATED) {
             viewModel.addEditFoodResponse.collect {
-                println(it)
                 when (it) {
                     is UiState.Loading -> {
                         uiEnabled(false)

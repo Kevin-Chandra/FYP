@@ -208,7 +208,6 @@ class PosAddToCartViewModel @Inject constructor(
                 _addToCartState.value.errorList[it.key.productId] = null
             }
         }
-        println(validationResultList)
         _addToCartState.update { it }
 
         if (validationResultList.any { !it.successful }){

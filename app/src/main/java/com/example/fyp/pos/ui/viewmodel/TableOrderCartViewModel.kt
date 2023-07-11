@@ -76,12 +76,6 @@ class TableOrderCartViewModel @Inject constructor(
         }
     }
 
-    private fun updateQuantity(orderItem: OrderItem,qty:Int) = viewModelScope.launch{
-        if (qty > 0){
-            upsertToCartUseCase(orderItem.copy(quantity = qty))
-        }
-    }
-
     private fun upsertToCart(food: Food, qty:Int) = viewModelScope.launch{
         upsertToCartUseCase(getOrderItem(food,qty))
     }
@@ -101,7 +95,6 @@ class TableOrderCartViewModel @Inject constructor(
         }
         job.await()
         addOrderItemToTableUseCase(itemList = cart.value,table){ res ->
-            println(res)
             _posOrderUiState.update { res }
             if (res is Response.Success){
                 viewModelScope.launch {

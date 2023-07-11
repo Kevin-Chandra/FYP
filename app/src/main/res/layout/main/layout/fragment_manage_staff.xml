@@ -42,8 +42,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             app:cardCornerRadius="10dp"
-            app:cardElevation="10dp"
-            app:strokeWidth="0dp"
+            style="@style/Widget.Material3.CardView.Filled"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/token_etl">
@@ -105,8 +104,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp"
             app:cardCornerRadius="10dp"
-            app:cardElevation="10dp"
-            app:strokeWidth="0dp"
+            style="@style/Widget.Material3.CardView.Filled"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -166,13 +164,6 @@
                             android:text="Disabled" />
 
                         <com.google.android.material.chip.Chip
-                            android:id="@+id/chip2"
-                            style="@style/Widget.MaterialComponents.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Cashier" />
-
-                        <com.google.android.material.chip.Chip
                             android:id="@+id/chip3"
                             style="@style/Widget.MaterialComponents.Chip.Filter"
                             android:layout_width="wrap_content"
@@ -200,6 +191,7 @@
                 <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     app:layout_constrainedHeight="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHeight_max="420dp"

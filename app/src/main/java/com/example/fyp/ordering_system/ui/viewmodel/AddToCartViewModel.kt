@@ -160,14 +160,16 @@ class AddToCartViewModel @Inject constructor(
     }
 
     private fun updatePrice() {
-        var price = food.price
-        _addToCartState.value.modifierList.forEach{ it ->
+        if (this::food.isInitialized) {
+            var price = food.price
+            _addToCartState.value.modifierList.forEach {
                 it.value?.forEach { it1 ->
                     price += it1.price
                 }
+            }
+            price *= _addToCartState.value.quantity
+            _addToCartState.update { _addToCartState.value.copy(price = price) }
         }
-        price *= _addToCartState.value.quantity
-        _addToCartState.update { _addToCartState.value.copy( price = price) }
     }
 
     private fun getRandomUUID() = UUID.randomUUID().toString()
@@ -205,7 +207,6 @@ class AddToCartViewModel @Inject constructor(
                 _addToCartState.value.errorList[it.key.productId] = null
             }
         }
-        println(validationResultList)
         _addToCartState.update { it }
 
         if (validationResultList.any { !it.successful }){

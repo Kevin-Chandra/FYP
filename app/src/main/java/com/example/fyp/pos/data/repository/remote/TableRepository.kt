@@ -5,7 +5,6 @@ import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
 import com.example.fyp.pos.data.model.Table
 import com.example.fyp.pos.data.model.TableStatus
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
@@ -17,9 +16,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.Exception
 
-class TableRepository @Inject constructor(
-    private val database: FirebaseFirestore,
-) {
+class TableRepository @Inject constructor() {
 
     private val tableCollectionRef = Firebase.firestore.collection(FireStoreCollection.TABLE)
 

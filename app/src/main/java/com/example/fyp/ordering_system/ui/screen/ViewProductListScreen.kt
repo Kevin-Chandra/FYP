@@ -99,7 +99,7 @@ fun ViewProductListScreen(
                                 CategoryList(
                                     categoryList = (foodCategory.value as UiState.Success<List<FoodCategory>>).data,
                                     selected = selectedCategory.value?.id,
-                                    ignoredOnSelected = {
+                                    onSelected = {
                                         productViewModel.filterFoodByCategory(it)
                                     })
                             }
@@ -176,10 +176,10 @@ fun ViewProductListScreen(
                                             scaleX = animatedProgress.value,
                                         )
                                         ProductCard(item,modifier) { it1 ->
+                                            println("test: ${Screen.AddToCartScreen.withArgs(it1,"1")}")
                                             navigator.navigate(
                                                 Screen.AddToCartScreen.withArgs(
                                                     it1,
-                                                    "null",
                                                     "1"
                                                 )
                                             )
@@ -230,7 +230,7 @@ fun ViewProductListScreen(
 fun CategoryList(
     categoryList: List<FoodCategory>,
     selected: String?,
-    ignoredOnSelected: (FoodCategory?) -> Unit,
+    onSelected: (FoodCategory?) -> Unit,
 ) {
     LazyRow(
         modifier = Modifier
@@ -245,9 +245,9 @@ fun CategoryList(
                 selected = (it.id == selected),
                 onClick = {
                     if (selected == it.id){
-                        ignoredOnSelected(null)
+                        onSelected(null)
                     } else {
-                        ignoredOnSelected(it)
+                        onSelected(it)
                     }},
                 label = {
                     Text(text = it.name)

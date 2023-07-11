@@ -130,7 +130,6 @@ class FoodModifierDetailViewModel @Inject constructor(
     }
 
     fun onEvent(event: SetAvailabilityEvent) {
-        println(event)
         when(event) {
             is SetAvailabilityEvent.FoodAvailabilityChanged -> {
                 _availabilityState.value = availabilityState.value.copy(foodAvailability = event.isFoodAvailable)

@@ -198,9 +198,9 @@ fun CheckoutScreen(
                             LazyColumn {
                                 items(order.value!!.orderList) { item ->
                                     val orderItem = tableOngoingOrderViewModel.getOrderItem(item)
-                                    orderItem?.let {
+                                    orderItem?.let { it1 ->
                                         OrderItemRowCheckout(
-                                            orderItem = it,
+                                            orderItem = it1,
                                             getFood = { id ->
                                                 productViewModel.getFood(id)
                                             },

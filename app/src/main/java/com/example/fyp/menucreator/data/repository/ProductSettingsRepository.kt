@@ -8,7 +8,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class ProductSettingsRepository @Inject constructor(
-    private val database: FirebaseFirestore,
+    database: FirebaseFirestore,
 ) {
     private val productSettingsCollectionReference = database.collection(FireStoreCollection.ADMIN_SETTINGS)
 

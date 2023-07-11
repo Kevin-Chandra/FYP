@@ -62,7 +62,7 @@ class ModifierListFragment : Fragment() {
                 when (it) {
                     is UiState.Success -> {modifierAdapter.submitList(it.data.toMutableList())
                                             binding.progressBar.visibility = View.GONE}
-                    is UiState.Failure -> println(it.e)
+                    is UiState.Failure -> {}
                     is UiState.Loading -> binding.progressBar.visibility = View.VISIBLE
                 }
             }

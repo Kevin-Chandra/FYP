@@ -88,19 +88,6 @@ class ModifierRepository {
         }
     }
 
-    suspend fun deleteModifier(id: String) : UiState<Boolean> {
-        val query = modifierCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)
-            .get()
-            .await()
-        return try {
-            for (doc in query.documents)
-                modifierCollectionRef.document(doc.id).delete().await()
-            UiState.Success(true)
-        } catch (e : Exception){
-            UiState.Failure(e)
-        }
-    }
-
     suspend fun deleteModifier(id: String, result: (UiState<String>) -> Unit) {
         try{
             val query = modifierCollectionRef.whereEqualTo(FireStoreDocumentField.PRODUCT_ID,id)

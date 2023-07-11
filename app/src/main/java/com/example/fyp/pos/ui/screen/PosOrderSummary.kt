@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -35,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult.*
@@ -61,7 +61,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.fyp.theme.FypTheme
 import com.example.fyp.R
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food
@@ -69,10 +68,10 @@ import com.example.fyp.menucreator.data.model.ModifierItem
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.LinearProgressAnimated
-import com.example.fyp.ordering_system.util.OrderingEvent
 import com.example.fyp.pos.ui.navigation.PosScreen
 import com.example.fyp.pos.ui.viewmodel.TableOrderCartViewModel
 import com.example.fyp.pos.util.TableOrderEvent
+import com.example.fyp.theme.FypTheme
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
 import com.skydoves.landscapist.components.rememberImageComponent

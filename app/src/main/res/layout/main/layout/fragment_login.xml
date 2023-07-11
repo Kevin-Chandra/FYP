@@ -125,7 +125,7 @@
                 android:layout_centerInParent="true"
                 android:layout_marginTop="16dp"
                 android:elevation="10dp"
-                android:indeterminateTint="@color/borderlessButtonColor"
+                android:indeterminateTint="@color/primary"
                 android:visibility="gone"
                 tools:visibility="invisible" />
         </RelativeLayout>

@@ -28,19 +28,6 @@ object Converters {
         return gson.toJson(map)
     }
 
-    @TypeConverter
-    fun fromStringList(value: List<String>): String {
-        return Gson().toJson(value)
-    }
-
-    @TypeConverter
-    fun toStringList(value: String): List<String> {
-        return try {
-            Gson().fromJson<List<String>>(value) //using extension function
-        } catch (e: Exception) {
-            listOf()
-        }
-    }
 }
 
 inline fun <reified T> Gson.fromJson(json: String) =

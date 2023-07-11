@@ -177,7 +177,6 @@ fun PosNavGraph(
                     navController = navController,
                     productViewModel = productViewModel,
                     orderViewModel = viewModel,
-                    tableId = tableId,
                     onBackPressed = {
                         navController.popBackStack()
                     }

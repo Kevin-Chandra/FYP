@@ -164,6 +164,11 @@ class IncomingOrderViewModel @Inject constructor(
 
     private fun updateStatus(account:Account, orderId: String, list: List<String>, orderStatus: OrderStatus, orderItemStatus: OrderItemStatus) = viewModelScope.launch{
         _manageOrderUiState.update { _manageOrderUiState.value.copy (loading = true) }
+        launch {
+            list.forEach { str ->
+                updateOrderItemStatusUseCase(str,orderItemStatus){}
+            }
+        }
         updateOrderStatusUseCase(account,orderId,orderStatus){ res ->
             if (res is Response.Success){
                 _manageOrderUiState.update {
@@ -172,9 +177,6 @@ class IncomingOrderViewModel @Inject constructor(
             } else if (res is Response.Error) {
                 _manageOrderUiState.update { state -> state.copy(errorMessage = res.exception.message, loading = false) }
             }
-        }
-        list.forEach { str ->
-            updateOrderItemStatusUseCase(str,orderItemStatus){}
         }
     }
 }

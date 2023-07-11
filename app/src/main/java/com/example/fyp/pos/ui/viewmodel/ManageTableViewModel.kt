@@ -1,6 +1,5 @@
 package com.example.fyp.pos.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.util.Response
@@ -27,7 +26,6 @@ import kotlinx.coroutines.launch
 import java.util.IllegalFormatConversionException
 import javax.inject.Inject
 
-const val TAG = "ManageTableViewModel"
 @HiltViewModel
 class ManageTableViewModel @Inject constructor(
     private val getTablesUseCase: GetTablesUseCase,
@@ -110,7 +108,6 @@ class ManageTableViewModel @Inject constructor(
                 updateTableUseCase.invoke(getTable(currentEditTable!!)){
                     when (it){
                         is Response.Error -> {
-                            Log.d(TAG, "update Table: ${it.exception.message}")
                             _addEditTableState.update { state -> state.copy(error = it.exception.message, loading = false) }
                         }
                         Response.Loading -> {
@@ -125,7 +122,6 @@ class ManageTableViewModel @Inject constructor(
                 addTableUseCase.invoke(getTable()){
                     when (it){
                         is Response.Error -> {
-                            Log.d(TAG, "saveTable: ${it.exception.message}")
                             _addEditTableState.update { state -> state.copy(error = it.exception.message, loading = false) }
                         }
                         Response.Loading -> {

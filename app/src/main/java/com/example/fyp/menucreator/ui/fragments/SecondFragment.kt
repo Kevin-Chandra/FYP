@@ -3,17 +3,12 @@ package com.example.fyp.menucreator.ui.fragments
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.core.net.toUri
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -25,12 +20,21 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
-import com.example.fyp.account_management.data.model.AccountType.*
+import com.example.fyp.account_management.data.model.AccountType.Admin
+import com.example.fyp.account_management.data.model.AccountType.Customer
+import com.example.fyp.account_management.data.model.AccountType.Manager
+import com.example.fyp.account_management.data.model.AccountType.Staff
 import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.databinding.*
+import com.example.fyp.databinding.CreatorInfoLayoutBinding
+import com.example.fyp.databinding.FoodViewComponentBinding
+import com.example.fyp.databinding.FragmentSecondBinding
+import com.example.fyp.databinding.ModifierDetailedRowComponentBinding
+import com.example.fyp.databinding.ModifierViewComponentBinding
+import com.example.fyp.databinding.RowModifierItemBinding
+import com.example.fyp.databinding.SetAvailabilityLayoutBinding
 import com.example.fyp.menucreator.data.model.Food
 import com.example.fyp.menucreator.data.model.Modifier
 import com.example.fyp.menucreator.data.model.ProductType
@@ -46,7 +50,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.switchmaterial.SwitchMaterial
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint

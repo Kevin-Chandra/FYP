@@ -29,7 +29,7 @@ class ProductListItemAdapter(
         }
     }
 
-    inner class FoodViewHolder(private var binding : RowProductItemBinding,private val view: View) : RecyclerView.ViewHolder(view) {
+    inner class FoodViewHolder(private var binding : RowProductItemBinding, view: View) : RecyclerView.ViewHolder(view) {
         fun bind(food: Food){
             binding.productIdTextView.text = food.productId
             binding.productNameTextView.text = food.name

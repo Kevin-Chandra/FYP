@@ -355,7 +355,7 @@ class AddEditModifierFragment : Fragment() {
 
     private fun observeLoadModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            viewModel.loadResponse.collect { it ->
+            viewModel.loadResponse.collect {
                 when (it) {
                     is UiState.Loading -> {
                         uiEnabled(false)
@@ -385,7 +385,7 @@ class AddEditModifierFragment : Fragment() {
 
     private fun observeAddEditModifier() = viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.addEditModifierResponse.collect { it ->
+            viewModel.addEditModifierResponse.collect {
                 when (it) {
                     is UiState.Loading -> {
                         uiEnabled(false)

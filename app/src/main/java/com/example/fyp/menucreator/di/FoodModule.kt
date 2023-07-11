@@ -1,16 +1,14 @@
 package com.example.fyp.menucreator.di
 
 import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import com.example.fyp.menucreator.domain.food.*
 import com.example.fyp.menucreator.domain.productImage.DeleteImageUseCase
+import com.example.fyp.menucreator.domain.productImage.UploadImageUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(ViewModelComponent::class)

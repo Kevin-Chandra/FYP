@@ -1,17 +1,19 @@
 package com.example.fyp.account_management.ui.adapter
 
-import android.graphics.Color
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.core.net.toUri
+import androidx.core.view.setPadding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.fyp.R
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.databinding.RowStaffBinding
@@ -35,25 +37,26 @@ class StaffListAdapter(
         }
     }
 
-    inner class StaffViewHolder(private var binding : RowStaffBinding,private val view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(account: Account){
+    inner class StaffViewHolder(private var binding : RowStaffBinding, view: View) : RecyclerView.ViewHolder(view) {
+        @SuppressLint("ResourceAsColor")
+        fun bind(account: Account,holder: StaffViewHolder){
             binding.apply {
                 nameTv.text = account.first_name + " " + account.last_name
                 emailTv.text = account.email
                 when (account.staffPosition){
                     StaffPosition.Disabled -> {
                         statusChip.text = "Disabled"
-                        statusChip.setTextColor(Color.RED)
-                        positionTv.visibility = View.INVISIBLE
+                        statusChip.setTextColor(holder.itemView.context.getColor(R.color.error))
+                        positionTv.visibility = View.GONE
                     }
                     StaffPosition.Pending -> {
                         statusChip.text = "Pending"
-                        statusChip.setTextColor(Color.YELLOW)
-                        positionTv.visibility = View.INVISIBLE
+                        statusChip.setTextColor(holder.itemView.context.getColor(R.color.yellow))
+                        positionTv.visibility = View.GONE
                     }
                     else -> {
                         statusChip.text = "Active"
-                        statusChip.setTextColor(Color.GREEN)
+                        statusChip.setTextColor(holder.itemView.context.getColor(R.color.green))
                         positionTv.visibility = View.VISIBLE
                         positionTv.text = "Position: ${account.staffPosition}"
                     }
@@ -64,6 +67,7 @@ class StaffListAdapter(
                 .override(binding.imageView.width, binding.imageView.height)
                 .centerCrop()
             if (account.profileUri != null){
+                binding.imageView.setPadding(0)
                 Glide.with(binding.imageView)
                     .load(account.profileUri.toUri())
                     .apply(myOptions)
@@ -80,7 +84,7 @@ class StaffListAdapter(
     }
 
     override fun onBindViewHolder(holder: StaffViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position),holder)
     }
 
     override fun submitList(list: List<Account>?) {
@@ -112,16 +116,6 @@ class StaffListAdapter(
             }
 
         }
-    }
-
-    fun onFilter(list: List<Account>, constraint: String): List<Account>{
-        val filteredList = mutableListOf<Account>()
-        list.filter {
-            it.staffPosition?.name == constraint
-        }.onEach {
-            filteredList.add(it)
-        }
-        return filteredList
     }
 
 }

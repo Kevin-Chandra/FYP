@@ -6,13 +6,11 @@ import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.domain.use_case.ChangePasswordUseCase
 import com.example.fyp.account_management.domain.use_case.GetSessionUseCase
 import com.example.fyp.account_management.domain.use_case.ValidatePasswordUseCase
-import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +24,6 @@ class UpdatePasswordViewModel @Inject constructor(
     val changePassState = _changePassState.asStateFlow()
 
     private var _user: Account? = null
-    val user get() = _user!!
 
     fun getSession() = viewModelScope.launch{
         _user = getSessionUseCase()

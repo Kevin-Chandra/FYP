@@ -26,7 +26,7 @@ class ModifierListItemAdapter(
             }
         }
     }
-    inner class ItemViewHolder(private var binding : RowProductItemBinding,private val view: View) : RecyclerView.ViewHolder(view) {
+    inner class ItemViewHolder(private var binding : RowProductItemBinding, view: View) : RecyclerView.ViewHolder(view) {
         fun bind(modifier: Modifier){
             binding.productDescriptionEditText.visibility = View.GONE
             binding.chip.visibility = View.GONE

@@ -24,7 +24,7 @@ class FoodCategoryAdapter (private val onItemClicked: (FoodCategory) -> Unit) :
         }
     }
 
-    inner class ItemViewHolder(private var binding : RowFoodCategoryBinding, private val view: View) : RecyclerView.ViewHolder(view) {
+    inner class ItemViewHolder(private var binding : RowFoodCategoryBinding, view: View) : RecyclerView.ViewHolder(view) {
         fun bind(category: FoodCategory){
             binding.categoryNameTv.text = category.name
             binding.deleteBtn.setOnClickListener{ onItemClicked.invoke(category)}

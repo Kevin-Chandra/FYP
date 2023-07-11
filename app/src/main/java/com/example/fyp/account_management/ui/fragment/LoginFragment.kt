@@ -2,27 +2,22 @@ package com.example.fyp.account_management.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.fyp.MainActivity
-import com.example.fyp.R
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
-import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.databinding.FragmentFirstBinding
 import com.example.fyp.databinding.FragmentLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {

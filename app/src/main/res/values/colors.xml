@@ -16,15 +16,19 @@
 <!--</resources>-->
 
 <resources>
-    <color name="green">#0F8614</color>
+
     <color name="black">#FF000000</color>
         <color name="white">#FFFFFFFF</color>
         <color name="red">#FF0000</color>
     <color name="regButtonColor">#FF000000</color>
         <color name="borderlessButtonColor">#FFFFFF</color>
         <color name="borderlessButtonBackgroundColor">#FF000000</color>
+    <color name="yellow">#9E8A01</color>
+    <color name="green">#006704</color>
+    <color name="onGreen">#FFFFFF</color>
 
     <color name="primary">@color/md_theme_light_primary</color>
+    <color name="primaryContainer">@color/md_theme_light_primaryContainer</color>
     <color name="secondary">@color/md_theme_light_secondary</color>
     <color name="onPrimaryContainerInverse">@color/md_theme_dark_onPrimaryContainer</color>
     <color name="primaryContainerInverse">@color/md_theme_dark_primaryContainer</color>

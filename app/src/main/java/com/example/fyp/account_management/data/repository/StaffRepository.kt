@@ -4,7 +4,6 @@ import com.example.fyp.account_management.data.model.*
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.util.FireStoreCollection
 import com.example.fyp.menucreator.util.FireStoreDocumentField
-import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.storage.FirebaseStorage
@@ -15,8 +14,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class StaffRepository @Inject constructor(
-    private val auth: FirebaseAuth,
-    private val database: FirebaseFirestore,
+    database: FirebaseFirestore,
     private val imageDatabase: FirebaseStorage,
 ) {
 

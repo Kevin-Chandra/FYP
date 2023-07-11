@@ -88,7 +88,7 @@ class ManageStaffFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                staffViewModel.staffAccounts.collect { it ->
+                staffViewModel.staffAccounts.collect {
                     when (it) {
                         is Response.Success -> {
                             staffListAdapter.submitList(it.data.toMutableList().sortedBy { it1 -> it1.staffPosition })

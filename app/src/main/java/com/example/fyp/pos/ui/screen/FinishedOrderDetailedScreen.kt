@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AssistChip
@@ -23,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -36,13 +36,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.fyp.theme.FypTheme
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.menucreator.data.model.Food
@@ -54,7 +52,9 @@ import com.example.fyp.ordering_system.data.model.OrderType
 import com.example.fyp.ordering_system.ui.viewmodel.ProductViewModel
 import com.example.fyp.ordering_system.util.formatDate
 import com.example.fyp.pos.ui.viewmodel.PastOrderViewModel
-import kotlinx.coroutines.async
+import com.example.fyp.theme.FypTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,9 +78,9 @@ fun FinishedOrderDetailedScreen(
 
     LaunchedEffect(key1 = order){
         if (order.value?.orderType == OrderType.Online && orderBy.isNullOrEmpty()){
-            val res = async {
+            val res = withContext(Dispatchers.Default) {
                 accountViewModel.getAccount(order.value!!.orderBy)
-            }.await()
+            }
             orderBy = "${res?.first_name} ${res?.last_name}"
         }
     }
@@ -460,7 +460,7 @@ fun PastOrderCardPreview1() {
         getModifier = {
             com.example.fyp.menucreator.data.model.Modifier(name = "dsjk")
         },
-        orderItemList = listOf(OrderItem(),OrderItem(),OrderItem(modifierItems = mapOf("sj" to listOf("djsd"), "ssj" to listOf("djscd"))),)
+        orderItemList = listOf(OrderItem(),OrderItem(),OrderItem(modifierItems = mapOf("sj" to listOf("djsd"), "ssj" to listOf("djscd"))))
     )
 }
 
@@ -473,7 +473,7 @@ fun OrderHeaderPreview() {
     )
 }
 
-@Preview()
+@Preview
 @Composable
 fun OrderItemRowPreview() {
     val pair = Pair("sdjn" , listOf("askj","kdf","dsk"))

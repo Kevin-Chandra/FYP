@@ -59,7 +59,6 @@ class AddModifierUseCase @Inject constructor(
                 }
                 val count = AtomicInteger(0)
                 val itemJob = launch {
-                    println("item job started")
                     for (item in itemList) {
                         launch(Dispatchers.IO) {
                             ensureActive()
@@ -71,8 +70,6 @@ class AddModifierUseCase @Inject constructor(
                                     UiState.Loading -> {}
                                     is UiState.Success -> {
                                         count.incrementAndGet()
-                                        println(it)
-                                        println("count = " + count.get())
                                     }
                                 }
                             }
@@ -81,7 +78,6 @@ class AddModifierUseCase @Inject constructor(
                 }
                 val modifierJob = launch {
                     ensureActive()
-                    println("add mod job started")
                     modifierRepository.addModifier(modifier) {
                         when (it) {
                             is UiState.Failure -> {
@@ -108,7 +104,6 @@ class AddModifierUseCase @Inject constructor(
                 }
                 itemJob.children.forEach {
                     it.join()
-                    println("child job Joined")
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) {
@@ -119,7 +114,6 @@ class AddModifierUseCase @Inject constructor(
             }
         }
         parentJob.invokeOnCompletion {
-            println("parent ioc")
             if (it != null) {
                 result.invoke(UiState.Failure(it as Exception))
             } else {

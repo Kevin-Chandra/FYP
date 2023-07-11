@@ -1,6 +1,5 @@
 package com.example.fyp.pos.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fyp.account_management.util.Response
@@ -16,7 +15,6 @@ import com.example.fyp.pos.domain.UpdateOrderHistoryUseCase
 import com.example.fyp.pos.util.ManageOrderUiState
 import com.example.fyp.pos.util.PosManageOrderEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -58,7 +56,6 @@ class ManageOrderViewModel @Inject constructor(
             it.onEach { res ->
                 if (res is Response.Success){
                     _ongoingOrderItem.update { res.data.associateBy { it1 -> it1.orderItemId } }
-                    println(_ongoingOrderItem.value)
                 }
             }.launchIn(viewModelScope)
         }
@@ -100,7 +97,6 @@ class ManageOrderViewModel @Inject constructor(
             it.onEach { res ->
                 when (res){
                     is Response.Error ->{
-                        Log.d(TAG, "getOngoingOrder: Error! ${res.exception.message}")
                         _manageOrderItemUiState.update { _manageOrderItemUiState.value.copy(
                             errorMessage = res.exception.message,
                             success = false,

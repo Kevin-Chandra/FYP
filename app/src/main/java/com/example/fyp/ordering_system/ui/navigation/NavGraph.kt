@@ -5,8 +5,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavArgument
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -46,25 +44,25 @@ fun SetupOnlineOrderingNavGraph(
             ViewProductListScreen(navController,productViewModel,cartViewModel)
         }
         composable(
-            route = Screen.AddToCartScreen.route + "/{id}/{orderItemId}/{quantity}",
+            route = Screen.AddToCartScreen.route + "/{foodId}/{quantity}?orderItemId={orderItemId}",
             arguments = listOf(
-                navArgument("id"){
+                navArgument("foodId"){
                     type = NavType.StringType
                     nullable = false
                 },
                 navArgument("orderItemId"){
                     type = NavType.StringType
-                    defaultValue = "null"
+                    nullable = true
                 },
                 navArgument("quantity"){
                     type = NavType.IntType
                     defaultValue = 1
-                },
+                }
             )
         ) { entry ->
-            val foodId = entry.arguments?.getString("id") ?: ""
+            val foodId = entry.arguments?.getString("foodId") ?: ""
             val quantity = entry.arguments?.getInt("quantity",1) ?: 1
-            val orderItemId = if (entry.arguments?.getString("orderItemId") == "null") null else entry.arguments?.getString("orderItemId")
+            val orderItemId = entry.arguments?.getString("orderItemId")
             AddToCartScreen(
                 navigator = navController,
                 productViewModel = productViewModel,

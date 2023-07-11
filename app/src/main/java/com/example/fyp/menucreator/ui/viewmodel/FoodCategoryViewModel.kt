@@ -7,7 +7,6 @@ import com.example.fyp.menucreator.data.model.FoodCategory
 import com.example.fyp.menucreator.domain.foodCategory.AddFoodCategoryUseCase
 import com.example.fyp.menucreator.domain.foodCategory.DeleteFoodCategoryUseCase
 import com.example.fyp.menucreator.domain.foodCategory.GetFoodCategoryUseCase
-import com.example.fyp.menucreator.domain.foodCategory.UpdateFoodCategoryUseCase
 import com.example.fyp.menucreator.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,6 @@ import javax.inject.Inject
 class FoodCategoryViewModel @Inject constructor(
     private val getFoodCategoryUseCase: GetFoodCategoryUseCase,
     private val deleteFoodCategoryUseCase: DeleteFoodCategoryUseCase,
-    private val updateFoodCategoryUseCase: UpdateFoodCategoryUseCase,
     private val addFoodCategoryUseCase: AddFoodCategoryUseCase
 ) : ViewModel(){
 
@@ -33,9 +31,6 @@ class FoodCategoryViewModel @Inject constructor(
 
     private val _addState = MutableStateFlow<UiState<Boolean>>(UiState.Success(false))
     val addState = _addState.asStateFlow()
-
-//    private val _updateState = MutableStateFlow<UiState<Boolean>>(UiState.Success(false))
-//    val updateState = _updateState.asStateFlow()
 
     init {
         getCategoryList()

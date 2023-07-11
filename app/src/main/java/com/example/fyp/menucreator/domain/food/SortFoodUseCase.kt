@@ -1,18 +1,13 @@
 package com.example.fyp.menucreator.domain.food
 
 import com.example.fyp.menucreator.data.model.Food
-import com.example.fyp.menucreator.data.repository.FoodRepository
-import com.example.fyp.menucreator.domain.food.SortedBy.*
-import com.example.fyp.menucreator.util.FireStoreDocumentField
-import com.example.fyp.menucreator.util.UiState
+import com.example.fyp.menucreator.domain.food.SortedBy.CATEGORY
+import com.example.fyp.menucreator.domain.food.SortedBy.DATE_CREATED
+import com.example.fyp.menucreator.domain.food.SortedBy.NAME
+import com.example.fyp.menucreator.domain.food.SortedBy.POPULARITY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.reflect.Field
-import java.lang.reflect.TypeVariable
-import javax.inject.Inject
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
 
 class SortFoodUseCase {
     operator fun invoke(data: List<Food>, sortBy: SortedBy , result:(List<Food>) -> Unit){

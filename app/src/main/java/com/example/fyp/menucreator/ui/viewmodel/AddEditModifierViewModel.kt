@@ -69,7 +69,6 @@ class AddEditModifierViewModel @Inject constructor(
             _loadResponse.value = UiState.Success("Modifier Loaded")
     }
     fun onEvent(event: AddEditModifierEvent) {
-        println(event)
         when(event) {
             is AddEditModifierEvent.ImageChanged -> {
                 _addEditModifierState.value = _addEditModifierState.value.copy(image = event.image)

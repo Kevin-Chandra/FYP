@@ -1,18 +1,12 @@
 package com.example.fyp.account_management.ui.fragment
 
-import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -21,18 +15,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.example.fyp.MainActivity
 import com.example.fyp.R
 import com.example.fyp.account_management.AuthActivity
 import com.example.fyp.account_management.data.model.Account
 import com.example.fyp.account_management.data.model.AccountType
 import com.example.fyp.account_management.data.model.StaffPosition
 import com.example.fyp.account_management.ui.view_model.MainAuthViewModel
-import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
 import com.example.fyp.databinding.FragmentMainAccountBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.dialog.MaterialDialogs
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

@@ -20,11 +20,11 @@ data class Account(
         var staffPosition: StaffPosition? = null
 )
 
-enum class AccountType (val accessLevel: Int){
-        Customer(100),
-        Admin(1),
-        Manager(2),
-        Staff(3)
+enum class AccountType {
+        Customer,
+        Admin,
+        Manager,
+        Staff
 }
 enum class StaffPosition{
         Disabled,

@@ -9,8 +9,6 @@ import com.example.fyp.ordering_system.domain.remote_database.GetOrderItemFromRe
 import com.example.fyp.pos.data.model.Table
 import com.example.fyp.pos.domain.CompactOrderItem
 import com.example.fyp.pos.domain.GetPastOrderUseCase
-import com.example.fyp.pos.domain.table.CheckoutTableUseCase
-import com.example.fyp.pos.domain.table.GetCheckoutTableOrderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

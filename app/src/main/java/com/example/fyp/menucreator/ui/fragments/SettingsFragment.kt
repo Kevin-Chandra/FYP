@@ -79,9 +79,8 @@ class SettingsFragment : Fragment() {
                     is UiState.Success -> {
                         categoryAdapter.submitList(it.data.toMutableList())
                     }
-                    is UiState.Failure -> println(it.e)
-                    is UiState.Loading ->{
-                    }
+                    is UiState.Failure -> {}
+                    is UiState.Loading ->{}
                 }
             }
         }

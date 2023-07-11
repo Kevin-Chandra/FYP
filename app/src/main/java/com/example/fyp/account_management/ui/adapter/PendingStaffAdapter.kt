@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.core.view.setPadding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -31,7 +32,7 @@ class PendingStaffAdapter(
         }
     }
 
-    inner class StaffViewHolder(private var binding : RowPendingStaffBinding,private val view: View) : RecyclerView.ViewHolder(view) {
+    inner class StaffViewHolder(private var binding : RowPendingStaffBinding, view: View) : RecyclerView.ViewHolder(view) {
         fun bind(account: Account){
             binding.apply {
                 nameTv.text = account.first_name + " " + account.last_name
@@ -44,6 +45,7 @@ class PendingStaffAdapter(
                 .override(binding.imageView.width, binding.imageView.height)
                 .centerCrop()
             if (account.profileUri != null){
+                binding.imageView.setPadding(0)
                 Glide.with(binding.imageView)
                     .load(account.profileUri.toUri())
                     .apply(myOptions)

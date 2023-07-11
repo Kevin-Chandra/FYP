@@ -7,7 +7,6 @@ import com.example.fyp.account_management.util.Response
 import com.example.fyp.ordering_system.data.model.Order
 import com.example.fyp.ordering_system.data.model.OrderItem
 import com.example.fyp.ordering_system.data.model.OrderItemStatus
-import com.example.fyp.ordering_system.ui.screen.OngoingOrderScreenState
 import com.example.fyp.pos.domain.GetOrderItemByStatusUseCase
 import com.example.fyp.pos.domain.GetTableOngoingOrderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

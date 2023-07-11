@@ -18,4 +18,13 @@ sealed class Screen(val route: String){
             }
         }
     }
+
+    fun withOptionalArg(vararg args: Pair<String,String>): String{
+        return buildString {
+            append(route)
+            args.forEach { pair->
+                append("?${pair.first}=${pair.second}")
+            }
+        }
+    }
 }

@@ -21,8 +21,8 @@ import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val database: FirebaseFirestore,
-    private val imageDatabase: FirebaseStorage,
+    database: FirebaseFirestore,
+    imageDatabase: FirebaseStorage,
 ) {
 
     private val userCollectionRef = database.collection(FireStoreCollection.USER)
@@ -212,7 +212,7 @@ class AuthRepository @Inject constructor(
                     .setDisplayName(newAccount.first_name + newAccount.last_name)
                     .build()
                 user.updateProfile(profileUpdate)
-                    .addOnCompleteListener { it ->
+                    .addOnCompleteListener {
                         if (it.isSuccessful) {
                             val job = launch {
                                 updateUserJob.join()

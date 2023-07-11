@@ -1,28 +1,22 @@
 package com.example.fyp.account_management.ui.fragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.example.fyp.R
-import com.example.fyp.account_management.ui.view_model.AuthViewModel
 import com.example.fyp.account_management.ui.view_model.UpdatePasswordViewModel
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.Response
-import com.example.fyp.databinding.FragmentEditAccountBinding
-import com.example.fyp.databinding.FragmentMainAccountBinding
 import com.example.fyp.databinding.FragmentUpdatePasswordBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.checkerframework.checker.units.qual.Length
 
 @AndroidEntryPoint
 class UpdatePasswordFragment : Fragment() {

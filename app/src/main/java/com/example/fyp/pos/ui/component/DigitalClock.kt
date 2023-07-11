@@ -29,7 +29,7 @@ fun ClockText() {
         }
     }
 
-    Box() {
+    Box {
         Text(
             text = formatTime(currentTimeMillis.value),
             modifier = Modifier.padding(8.dp, 8.dp),

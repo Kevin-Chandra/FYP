@@ -2,15 +2,12 @@ package com.example.fyp.pos.ui.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,7 +46,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.fyp.theme.FypTheme
 import com.example.fyp.R
 import com.example.fyp.account_management.ui.view_model.AccountViewModel
 import com.example.fyp.menucreator.data.model.Food
@@ -64,8 +60,8 @@ import com.example.fyp.ordering_system.util.formatTime
 import com.example.fyp.pos.ui.component.TimePassed
 import com.example.fyp.pos.ui.viewmodel.ManageOrderViewModel
 import com.example.fyp.pos.util.PosManageOrderEvent
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
+import com.example.fyp.theme.FypTheme
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,9 +111,9 @@ fun ManageOrderScreen(
                                 if (item.orderType == OrderType.Online){
                                     if (firstName.isNullOrEmpty()){
                                         LaunchedEffect(key1 = true){
-                                            val res = coroutineScope.async {
-                                                accountViewModel.getAccount(item.orderBy)
-                                            }.await()
+                                            val res = withContext(coroutineScope.coroutineContext) {
+                                                    accountViewModel.getAccount(item.orderBy)
+                                                }
                                             firstName = res?.first_name
                                             lastName = res?.last_name
                                         }

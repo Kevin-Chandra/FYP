@@ -3,8 +3,12 @@
     <color name="regButtonColor">#FFFFFFFF</color>
     <color name="borderlessButtonBackgroundColor">#FFFFFF</color>
     <color name="borderlessButtonColor">#000000</color>
+    <color name="yellow">#FFEB3B</color>
+    <color name="green">#00FF0A</color>
+    <color name="onGreen">#000000</color>
 
     <color name="primary">@color/md_theme_dark_primary</color>
+    <color name="primaryContainer">@color/md_theme_dark_primaryContainer</color>
     <color name="secondary">@color/md_theme_dark_secondary</color>
     <color name="onPrimaryContainerInverse">@color/md_theme_light_onPrimaryContainer</color>
     <color name="primaryContainerInverse">@color/md_theme_light_primaryContainer</color>

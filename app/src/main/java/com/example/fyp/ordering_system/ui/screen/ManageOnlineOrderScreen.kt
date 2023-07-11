@@ -346,7 +346,7 @@ fun OrderCard(
                     text = order.orderId,
                     textAlign = TextAlign.Start,
                     modifier = Modifier
-                        .weight(4f)
+                        .weight(2f)
                         .basicMarquee(),
                     maxLines = 1
                 )

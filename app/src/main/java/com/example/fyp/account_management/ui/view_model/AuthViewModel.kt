@@ -1,25 +1,27 @@
 package com.example.fyp.account_management.ui.view_model
 
 import androidx.core.net.toUri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fyp.account_management.data.model.*
-import com.example.fyp.account_management.domain.use_case.*
+import com.example.fyp.account_management.data.model.Account
+import com.example.fyp.account_management.data.model.AccountType
+import com.example.fyp.account_management.domain.use_case.EditAccountUseCase
+import com.example.fyp.account_management.domain.use_case.GetSessionUseCase
+import com.example.fyp.account_management.domain.use_case.RegisterUseCase
+import com.example.fyp.account_management.domain.use_case.ValidateEmailUseCase
+import com.example.fyp.account_management.domain.use_case.ValidateNameUseCase
+import com.example.fyp.account_management.domain.use_case.ValidatePasswordUseCase
+import com.example.fyp.account_management.domain.use_case.ValidatePhoneUseCase
+import com.example.fyp.account_management.domain.use_case.ValidationResult
 import com.example.fyp.account_management.util.Constants
 import com.example.fyp.account_management.util.RegistrationEvent
 import com.example.fyp.account_management.util.RegistrationState
 import com.example.fyp.account_management.util.Response
-import com.google.firebase.auth.FirebaseUser
-import com.google.protobuf.BoolValueOrBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.lang.Exception
-import java.security.interfaces.RSAMultiPrimePrivateCrtKey
-import java.util.*
+import java.util.Date
 import javax.inject.Inject
 
 
